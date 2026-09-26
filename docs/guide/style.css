@@ -678,3 +678,20 @@ td:not(.control-cell) > .control-shot {
   max-width: 100%;
   margin-bottom: 8px;
 }
+
+.languages {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+.sidebar .languages a {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid currentColor;
+  border-radius: 0.35rem;
+  text-decoration: none;
+}
+.sidebar .languages a[aria-current="page"] {
+  font-weight: 700;
+  background: #e8eff9;
+  color: #18365c;
+}

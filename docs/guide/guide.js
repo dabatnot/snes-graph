@@ -1,4 +1,5 @@
 /* Progressive enhancement: the complete manual also works without JavaScript. */
+const english = document.documentElement.lang === "en";
 const chapters = [...document.querySelectorAll(".chapter")];
 const nav = document.querySelector("#toc");
 const search = document.querySelector("#search");
@@ -23,7 +24,9 @@ function filterGuide() {
     if (link) link.hidden = !visible;
   });
   results.textContent = words.length
-    ? `${count} chapitre${count > 1 ? "s" : ""} trouvé${count > 1 ? "s" : ""}. Ctrl+F cherche dans le texte.`
+    ? english
+      ? `${count} chapter${count !== 1 ? "s" : ""} found. Ctrl+F searches the text.`
+      : `${count} chapitre${count > 1 ? "s" : ""} trouvé${count > 1 ? "s" : ""}. Ctrl+F cherche dans le texte.`
     : "";
 }
 search.addEventListener("input", filterGuide);
@@ -114,3 +117,12 @@ lightbox.addEventListener("click", (e) => {
   if (e.target === lightbox) lightbox.close();
 });
 revealHash();
+
+// Keep the current chapter when switching between the two static editions.
+function updateLanguageLinks() {
+  document.querySelectorAll("a[data-language]").forEach((link) => {
+    link.hash = location.hash;
+  });
+}
+window.addEventListener("hashchange", updateLanguageLinks);
+updateLanguageLinks();

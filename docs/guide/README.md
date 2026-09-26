@@ -1,11 +1,11 @@
 # Maintenir le manuel utilisateur
 
-Ouvrir [index.html](index.html) dans un navigateur. Aucun serveur, compilation ou téléchargement de dépendance n’est nécessaire. Conserver `index.html`, `style.css`, `guide.js` et `assets/` ensemble.
+Ouvrir le manuel [français](index.html) ou [anglais](en.html) dans un navigateur. Aucun serveur, compilation ou téléchargement de dépendance n’est nécessaire. Conserver `index.html`, `en.html`, `style.css`, `guide.js` et `assets/` ensemble. Le sélecteur Français / English conserve l’ancre du chapitre avec JavaScript et reste un lien normal sans JavaScript.
 
 ## Modifier le contenu
 
-1. Modifier directement le chapitre concerné dans `index.html`. Chaque chapitre est un `<section class="chapter" id="…">` ; conserver ses identifiants pour ne pas casser les liens partagés.
-2. Décrire le comportement réellement présent, avec le libellé exact des commandes, l’unité des champs, le résultat attendu et les limites locales. Ne pas déduire une fonction de la seule vision de `../specs.md`.
+1. Modifier directement le chapitre concerné dans **les deux éditions**, `index.html` (FR) et `en.html` (EN). Chaque chapitre est un `<section class="chapter" id="…">` ; conserver ses identifiants pour ne pas casser les liens partagés.
+2. Décrire le comportement réellement présent, avec le libellé exact des commandes dans la langue de chaque édition, l’unité des champs, le résultat attendu et les limites locales. Ne pas déduire une fonction de la seule vision de `../specs.md`.
 3. Ajouter le lien au sommaire `#toc` si un chapitre est créé. La recherche indexe automatiquement le texte des chapitres au chargement.
 4. Mettre à jour la version/date dans l’en-tête, le pied et les informations de provenance si nécessaire.
 5. Ouvrir le fichier localement et contrôler la section modifiée, les liens, les images et une recherche pertinente. Vérifier aussi la vue étroite et l’aperçu d’impression si la mise en page change.
@@ -32,7 +32,7 @@ Tous les chemins de cette table sont relatifs à la racine du dépôt.
 
 ## Renouveler les captures
 
-- Utiliser une copie du projet d’exemple, interface FR, fenêtre 1440 × 920. Les captures actuelles datent du 26 septembre 2026, sous Fedora/Wayland, application native 0.1.0.
+- Utiliser une copie du projet d’exemple, fenêtre 1440 × 920, interface FR pour `assets/` et EN pour `assets/en/`. Les captures FR datent du 26 septembre 2026, les EN du 27 septembre 2026, sous Fedora/Wayland, application native 0.1.0.
 - Capturer la véritable interface. Ne pas reconstruire une fausse fenêtre avec du HTML ni présenter le canevas de l’éditeur comme une capture d’émulateur.
 - Fermer les fenêtres de dialogue parasites. Arrêter la lecture pour une capture reproductible ; préciser toute modification de l’exemple dans la légende.
 - Garder le nom du fichier si le rôle de la capture reste le même. Mettre à jour les attributs `width`, `height`, `alt` et la légende si le contenu ou la taille change.
@@ -95,7 +95,7 @@ Le manuel comprend désormais 20 chapitres, 55 tableaux, 17 vues générales, 19
 
 Les extraits sont dans `assets/ui/`. `capture-regions.json` associe chaque nom d’extrait à sa capture source et à un rectangle `[gauche, haut, droite, bas]` en pixels. Les sources supplémentaires portent le préfixe `source-` ; les autres sources sont les vues générales de `assets/`. Pour renouveler un extrait :
 
-1. Reproduire l’état sur une copie du projet football, en français, dans une fenêtre native de 1440 × 920.
+1. Reproduire l’état sur une copie du projet football dans une fenêtre native de 1440 × 920, dans chaque langue concernée.
 2. Enregistrer la vraie capture source puis contrôler son contenu. Si les contrôles ont changé de position, adapter le rectangle dans le manifeste.
 3. Recadrer sans redessiner les boutons ; avec Pillow : `Image.open(source).crop(box).save(destination)`.
 4. Actualiser les dimensions et le texte alternatif du `<img>`, ainsi que la légende `data-caption` du lien `data-zoom`.
@@ -138,3 +138,15 @@ Cette passe ne modifie pas l’application et n’ajoute aucune dépendance à l
 Mise à jour ciblée des passages sur la sauvegarde/récupération, les raccourcis avec Majuscule, le bornage des sélections de carte, le changement de tileset, les poses affichées après annulation, la permutation des palettes, les PNG indexés/niveaux de gris et la transparence par couleur. Le chapitre Exporter renvoie aux nouvelles correspondances de tiles décrites dans `../formats.md`. Les commandes et leurs libellés restent identiques : les captures existantes sont conservées.
 
 Validation applicative : 32 tests automatisés réussis, compilation TypeScript/Vite réussie. Parcours web dans Chrome : Ctrl+Maj+Z, Ctrl+Maj+S, récupération puis modification/annulation avec avertissement de sauvegarde, création/annulation d’animation suivie d’un renommage, duplication/annulation de pose suivie d’un découpage, réduction d’une carte de 32 à 16 colonnes après sélection en colonne 20 puis capture du tampon et sauvegarde. Les entrelacements de sauvegarde ont aussi été vérifiés avec des écritures différées contrôlées ; ce contrôle ne constitue pas un essai de panne disque réelle.
+
+## Édition anglaise — 27 septembre 2026
+
+`en.html` reprend les 20 chapitres, 55 tableaux, 4 schémas SVG et 214 illustrations du manuel français. Les légendes, textes alternatifs, commandes du manuel et résultats de recherche sont traduits. Les noms enregistrés dans les projets restent inchangés (Joueur, Domicile, Extérieur, Terrain, etc.) et sont expliqués à l’accueil anglais.
+
+Les 17 vues générales et les sources des 197 extraits ont été **recapturées dans l’application native en anglais**, reconstruite depuis les sources courantes. Les manipulations utilisent des copies des exemples football, Mode 7 et HDMA, sans enregistrer les changements dans les exemples du dépôt. Les sources supplémentaires sont dans `assets/en/ui/source-*.png`. Le manifeste `capture-regions-en.json` donne leurs rectangles propres : ne pas recopier aveuglément les rectangles FR, car les libellés EN déplacent certains contrôles. `bg-ajouter` utilise notamment `source-melange.png`, où ce bouton est entièrement visible. Les valeurs et parcours restent ceux de l’inventaire FR ; la pièce sélectionnée pour les champs de sprite est la moitié droite de la tête (source X = 16).
+
+Pour chaque évolution utilisateur, mettre à jour les deux textes et renouveler les images concernées dans chaque langue. Conserver les mêmes identifiants de chapitres et sous-sections pour que le sélecteur garde le passage consulté. Les deux HTML sont édités directement ; aucun générateur ni dictionnaire de traduction intermédiaire n’est nécessaire. CSS et JavaScript sont partagés. Les documents techniques liés (`formats.md`, `status.md`, README) conservent leur langue propre.
+
+Contrôles de cette édition : intégrité des ancres et fichiers locaux, parité des chapitres/tableaux/schémas/illustrations, textes alternatifs, dimensions des images, syntaxe JavaScript et formatage. Les 197 extraits EN ont été inspectés sur des planches de contrôle, et leurs sources natives observées pendant la capture. Lecture réelle dans Firefox depuis `file://` : accueil, palettes, tableau des outils, passage FR → EN et EN → FR conservant le chapitre, recherche EN « HDMA » (5 chapitres), remise à zéro et agrandissement d’un bouton avec légende EN. L’aperçu d’impression après filtrage reprend le document complet ; sa couverture a été inspectée, sans impression physique ni contrôle de chaque page.
+
+La recherche FR « CGRAM » a également été vérifiée (6 chapitres). Le menu compact et son sélecteur de langue ont été ouverts à 260 % dans la fenêtre Firefox de 1878 pixels (environ 722 pixels CSS), puis le zoom a été rétabli à 100 %. Cela vérifie le point de rupture, pas un appareil mobile physique.

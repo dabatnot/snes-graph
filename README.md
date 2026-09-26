@@ -2,6 +2,8 @@
 
 Éditeur graphique SNES pour Linux et Windows, construit avec Tauri 2, React, TypeScript et Canvas 2D. Les projets restent locaux dans un fichier `.snesgraph`.
 
+Manuel utilisateur illustré : [Français](docs/guide/index.html) · [English](docs/guide/en.html). Les deux éditions se consultent hors ligne et proposent un sélecteur de langue.
+
 ## Démarrer
 
 Avec Node.js 24 et npm :
