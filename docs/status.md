@@ -77,3 +77,5 @@ Les associations de terrain sont retirées des cellules transformées. Les nouve
 tiles animées utilisent des bases indépendantes. Aperçu de rotation observé dans Chrome.
 
 - Lot 6 : diagnostic mémoire issu du compilateur, liens vers ressources, lignes OBJ et instances contributrices, analyse annulable de 1 à 600 images. UI web FR/EN observée ; deux tests ciblés et build réussis.
+
+- Import : original/conversion/masque des pertes, alpha et marge ; réimport avec tiles modifiées et usages, palette conservée.

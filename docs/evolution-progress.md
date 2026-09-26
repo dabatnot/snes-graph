@@ -8,7 +8,7 @@ Plan accepté : huit lots utilisables, documentés en français et en anglais.
 - [x] 4. Assemblage collectif, attaches visuelles et édition des séquences.
 - [x] 5. Régions de cartes, miroirs, rotations et raccords.
 - [x] 6. Diagnostics navigables, mémoire et analyse temporelle.
-- [ ] 7. Aperçus des pertes d’import et des changements de réimport.
+- [x] 7. Aperçus des pertes d’import et des changements de réimport.
 - [ ] 8. Exemples ca65, parcours natifs et mesures de performances.
 
 Conserver le format version 1, avec un nom facultatif pour les animations de tiles.

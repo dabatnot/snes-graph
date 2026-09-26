@@ -7192,6 +7192,42 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="import-review">Compare before replacing</h3>
+        <p>
+          The import dialog shows the original, SNES conversion and difference
+          mask at the same scale. Pink marks a changed color; orange marks
+          changed alpha (taking precedence over pink); purple marks transparent
+          padding to a multiple of eight pixels. Alpha below 128 becomes
+          transparent; other pixels become opaque. Invisible RGB changes in
+          transparent pixels are not counted as visible loss.
+        </p>
+        <p>
+          Dithering and palette selection refresh the previews. The
+          adjusted-color count compares opaque source colors with the
+          conversion; alpha has its own count. For Aseprite, the original is the
+          flattened imported frame atlas.
+        </p>
+        <p>
+          <strong>Reimport drawing</strong> retains its palette, identifier and
+          references. The list shows tiles with changed pixel indices
+          (zero-based), followed by resources using this drawing. Dimensions and
+          depth must match, and the drawing must have no layers. Aseprite poses
+          and animations are not reimported.
+          <strong>Import as new graphics</strong> lets you continue without
+          replacing the existing drawing. Close cancels; Undo after importing
+          restores the previous drawing.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/24-import-review.png"
+            ><img
+              src="assets/en/24-import-review.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Compare before replacing"
+          /></a>
+          <figcaption>Compare before replacing</figcaption>
+        </figure>
         <h3 id="import-aseprite">Aseprite</h3>
         <p>
           The extensions <code>.ase</code> and <code>.aseprite</code> use the

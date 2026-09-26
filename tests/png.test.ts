@@ -83,3 +83,24 @@ describe("PNG sample decoding", () => {
     expect(sheet.pixels[2]).toBe(0);
   });
 });
+
+it("reports color, alpha and padding losses against original samples", () => {
+  const bytes = encode({
+    width: 3,
+    height: 1,
+    channels: 4,
+    depth: 8,
+    data: new Uint8Array([123, 45, 67, 255, 255, 0, 0, 100, 0, 255, 0, 180]),
+  });
+  const result = importPng(bytes, "Losses");
+  expect(result.original.width).toBe(3);
+  expect(result.original.data.slice(0, 4)).toEqual(
+    new Uint8ClampedArray([123, 45, 67, 255]),
+  );
+  expect(result.alphaChanged).toBe(2);
+  expect(result.padding).toBe(61);
+  expect([...result.difference.data.slice(0, 12)]).toEqual([
+    245, 65, 105, 255, 255, 185, 60, 255, 255, 185, 60, 255,
+  ]);
+  expect(result.sheet.pixels[1]).toBe(0);
+});

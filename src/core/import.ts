@@ -13,7 +13,15 @@ export function importPng(
   name: string,
   target?: Palette,
   dither = false,
-): { sheet: Sheet; palette: Palette; changed: number } {
+): {
+  sheet: Sheet;
+  palette: Palette;
+  changed: number;
+  original: Raster;
+  difference: Raster;
+  alphaChanged: number;
+  padding: number;
+} {
   if (bytes.length < 24 || bytes.length > 128 * 1024 * 1024)
     throw new Error("Invalid PNG size");
   const header = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -24,7 +32,14 @@ export function importPng(
     throw new Error("PNG exceeds 4096 × 4096");
   const w = Math.ceil(png.width / 8) * 8,
     h = Math.ceil(png.height / 8) * 8;
-  let changed = 0;
+  let changed = 0,
+    alphaChanged = 0;
+  const original = raster(png.width, png.height),
+    difference = raster(w, h);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++)
+      if (x >= png.width || y >= png.height)
+        difference.data.set([135, 100, 220, 255], (y * w + x) * 4);
   const source: number[] = [];
   const quantized: boolean[] = [];
   // Sub-byte PNG samples are packed separately on each scanline.
@@ -42,9 +57,11 @@ export function importPng(
   for (let i = 0; i < png.width * png.height; i++) {
     if (png.palette) {
       const col = png.palette[sample(i)];
-      source.push(col[3] === 0 ? -1 : rgb555(col[0], col[1], col[2]));
+      const alpha = col[3] ?? 255;
+      original.data.set([col[0], col[1], col[2], alpha], i * 4);
+      source.push(alpha < 128 ? -1 : rgb555(col[0], col[1], col[2]));
       const converted = rgb(rgb555(col[0], col[1], col[2]));
-      quantized.push(col[3] !== 0 && converted.some((v, n) => v !== col[n]));
+      quantized.push(alpha >= 128 && converted.some((v, n) => v !== col[n]));
     } else {
       const factor = ((1 << png.depth) - 1) / 255;
       const n = i * png.channels,
@@ -61,6 +78,7 @@ export function importPng(
             : transparent
               ? 0
               : 255;
+      original.data.set([r, g, b, alpha], i * 4);
       source.push(alpha < 128 ? -1 : rgb555(r, g, b));
       const converted = rgb(rgb555(r, g, b));
       quantized.push(
@@ -135,7 +153,32 @@ export function importPng(
       sheet.pixels[y * w + x] = best;
       if (palette.colors[best] !== v || quantized[y * png.width + x]) changed++;
     }
-  return { sheet, palette, changed };
+  for (let y = 0; y < png.height; y++)
+    for (let x = 0; x < png.width; x++) {
+      const from = (y * png.width + x) * 4,
+        to = (y * w + x) * 4;
+      const index = sheet.pixels[y * w + x],
+        alpha = index ? 255 : 0;
+      const rgba = original.data.subarray(from, from + 4);
+      const alphaLoss = rgba[3] !== alpha;
+      if (alphaLoss) alphaChanged++;
+      const colorLoss =
+        alpha > 0 && rgb(palette.colors[index]).some((v, c) => v !== rgba[c]);
+      if (alphaLoss || colorLoss)
+        difference.data.set(
+          alphaLoss ? [255, 185, 60, 255] : [245, 65, 105, 255],
+          to,
+        );
+    }
+  return {
+    sheet,
+    palette,
+    changed,
+    original,
+    difference,
+    alphaChanged,
+    padding: w * h - png.width * png.height,
+  };
 }
 export const exportPng = (image: Raster) =>
   encode({

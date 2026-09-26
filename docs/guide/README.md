@@ -192,3 +192,9 @@ refus sans mutation et déplacement avec chevauchement.
 ## Lot 6 — diagnostic mémoire
 
 `23-scene-analysis.png`, FR/EN : Chrome web, Football → Scènes → Mémoire et analyse temporelle → Calculer la mémoire à cette image. Analyse de 2 images observée : 12 OBJ, 4 par ligne, 8 portions, étendue VRAM 17280 octets. Captures 1878 × 867. Comparaison au compilateur d’export et attribution des instances en surcharge couvertes par deux tests ciblés ; compilation réussie.
+
+### 24 — Import review / Comparaison du réimport
+Ouvrir une copie de Football, sélectionner Joueur, Réimporter le dessin, choisir
+`examples/reimport-review.png`. Garder le tramage désactivé. Capturer le dialogue
+en FR puis EN : 64 pixels alpha ajustés, tile 5 modifiée, usage Joueur.
+Le fichier est une variante de l’exemple interne, sans ressource tierce.

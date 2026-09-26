@@ -26,6 +26,7 @@ import {
   type ResourceKind,
 } from "./core/resources";
 import { importPng, exportPng } from "./core/import";
+import { ImportReview } from "./ui/ImportReview";
 import { importAseprite } from "./core/aseprite";
 import { renderSheet } from "./core/render";
 import {
@@ -102,18 +103,6 @@ export default function App() {
   const [usePose, setUsePose] = useState("");
   const [useKind, setUseKind] = useState<"maps" | "actors">("maps");
   const [targetFps, setTargetFps] = useState<50 | 60>(60);
-  const [originalImage, setOriginalImage] = useState("");
-  useEffect(() => {
-    if (!imported || !/\.png$/i.test(imported.name)) {
-      setOriginalImage("");
-      return;
-    }
-    const url = URL.createObjectURL(
-      new Blob([new Uint8Array(imported.bytes)], { type: "image/png" }),
-    );
-    setOriginalImage(url);
-    return () => URL.revokeObjectURL(url);
-  }, [imported]);
   const past = useRef<Project[]>([]),
     future = useRef<Project[]>([]),
     pRef = useRef(project),
@@ -394,6 +383,8 @@ export default function App() {
     setSelected(id);
     setModal(null);
   };
+  const reimportSheet = project.sheets.find((s) => s.id === reimportId);
+  const importTarget = reimportSheet?.paletteId ?? importPalette;
   let imp:
     | (ReturnType<typeof importPng> & { actor?: Project["actors"][number] })
     | undefined;
@@ -405,13 +396,13 @@ export default function App() {
             imported.bytes,
             imported.name.replace(/\.[^.]+$/, ""),
             project.fps,
-            project.palettes.find((p) => p.id === importPalette),
+            project.palettes.find((p) => p.id === importTarget),
             dither,
           )
         : importPng(
             imported.bytes,
             imported.name.replace(/\.[^.]+$/, ""),
-            project.palettes.find((p) => p.id === importPalette),
+            project.palettes.find((p) => p.id === importTarget),
             dither,
           );
     } catch (e) {
@@ -915,7 +906,11 @@ export default function App() {
       </footer>
       {modal && (
         <div className="modal-shade">
-          <section className="modal" role="dialog" aria-modal="true">
+          <section
+            className={modal === "import" ? "modal import-modal" : "modal"}
+            role="dialog"
+            aria-modal="true"
+          >
             <button
               className="close"
               aria-label={tr("Fermer", "Close")}
@@ -1123,21 +1118,23 @@ export default function App() {
             {modal === "import" && (
               <>
                 <h2>{tr("Importer un dessin", "Import graphics")}</h2>
-                <Select
-                  label={tr("Palette", "Palette")}
-                  value={importPalette}
-                  options={[
-                    {
-                      value: "",
-                      label: tr("Créer une palette", "Create palette"),
-                    },
-                    ...project.palettes.map((p) => ({
-                      value: p.id,
-                      label: p.name,
-                    })),
-                  ]}
-                  onChange={setImportPalette}
-                />
+                {!reimportSheet && (
+                  <Select
+                    label={tr("Palette", "Palette")}
+                    value={importPalette}
+                    options={[
+                      {
+                        value: "",
+                        label: tr("Créer une palette", "Create palette"),
+                      },
+                      ...project.palettes.map((p) => ({
+                        value: p.id,
+                        label: p.name,
+                      })),
+                    ]}
+                    onChange={setImportPalette}
+                  />
+                )}
                 <Check
                   label={tr("Tramage", "Dithering")}
                   value={dither}
@@ -1146,20 +1143,16 @@ export default function App() {
                 {imp && (
                   <>
                     <div className="import-preview">
-                      {originalImage && (
-                        <figure>
-                          <figcaption>{tr("Original", "Original")}</figcaption>
-                          <img
-                            className="pixel"
-                            alt={tr(
-                              "Image avant conversion",
-                              "Image before conversion",
-                            )}
-                            src={originalImage}
-                            style={{ maxWidth: 256, maxHeight: 256 }}
-                          />
-                        </figure>
-                      )}
+                      <figure>
+                        <figcaption>{tr("Original", "Original")}</figcaption>
+                        <Preview
+                          image={imp.original}
+                          scale={Math.min(
+                            4,
+                            200 / Math.max(imp.sheet.width, imp.sheet.height),
+                          )}
+                        />
+                      </figure>
                       <figure>
                         <figcaption>
                           {tr("Conversion SNES", "SNES conversion")}
@@ -1172,10 +1165,39 @@ export default function App() {
                             },
                             imp.sheet,
                           )}
-                          scale={Math.min(4, 256 / imp.sheet.width)}
+                          scale={Math.min(
+                            4,
+                            200 / Math.max(imp.sheet.width, imp.sheet.height),
+                          )}
+                        />
+                      </figure>
+                      <figure>
+                        <figcaption>
+                          {tr("Différences", "Differences")}
+                        </figcaption>
+                        <Preview
+                          image={imp.difference}
+                          scale={Math.min(
+                            4,
+                            200 / Math.max(imp.sheet.width, imp.sheet.height),
+                          )}
+                          label={tr("Masque des pertes", "Loss mask")}
                         />
                       </figure>
                     </div>
+                    <ImportReview
+                      project={project}
+                      result={imp}
+                      current={reimportSheet}
+                    />
+                    {reimportSheet && (
+                      <button onClick={() => setReimportId("")}>
+                        {tr(
+                          "Importer comme nouveau dessin",
+                          "Import as new graphics",
+                        )}
+                      </button>
+                    )}
                     <p>
                       {imp.changed}{" "}
                       {tr(
@@ -1185,6 +1207,13 @@ export default function App() {
                     </p>
                     <button
                       className="primary"
+                      disabled={
+                        !!reimportSheet &&
+                        (!!reimportSheet.layers ||
+                          reimportSheet.width !== imp.sheet.width ||
+                          reimportSheet.height !== imp.sheet.height ||
+                          reimportSheet.bpp !== imp.sheet.bpp)
+                      }
                       onClick={() => {
                         if (!imp) return;
                         const added = imp;

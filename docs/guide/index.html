@@ -7387,6 +7387,44 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="import-review">Comparer avant de remplacer</h3>
+        <p>
+          Le dialogue d’import présente l’original, la conversion SNES et un
+          masque des différences à la même échelle. Le rose indique une couleur
+          modifiée ; l’orange un alpha modifié (prioritaire sur le rose) ; le
+          violet la marge transparente ajoutée pour atteindre un multiple de
+          huit pixels. Un alpha inférieur à 128 devient transparent ; les autres
+          pixels deviennent opaques. Les couleurs invisibles des pixels
+          transparents ne comptent pas comme pertes visibles.
+        </p>
+        <p>
+          Le tramage et le choix de palette recalculent les aperçus. Le compteur
+          des couleurs ajustées compare les couleurs opaques à la conversion ;
+          le compteur alpha est séparé. Pour Aseprite, l’original est l’atlas
+          aplati des images importées.
+        </p>
+        <p>
+          <strong>Réimporter le dessin</strong> conserve sa palette, son
+          identifiant et ses références. La liste indique les tiles dont les
+          indices changent (numérotation à partir de zéro), puis les ressources
+          qui utilisent ce dessin. Les dimensions et la profondeur doivent
+          rester identiques et le dessin ne doit pas avoir de calques. Les poses
+          et animations Aseprite ne sont pas réimportées.
+          <strong>Importer comme nouveau dessin</strong> permet de poursuivre
+          sans remplacer l’existant. Fermer abandonne ; Annuler après validation
+          restaure le dessin précédent.
+        </p>
+        <figure>
+          <a data-zoom href="assets/24-import-review.png"
+            ><img
+              src="assets/24-import-review.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Comparer avant de remplacer"
+          /></a>
+          <figcaption>Comparer avant de remplacer</figcaption>
+        </figure>
         <h3 id="import-aseprite">Aseprite</h3>
         <p>
           Les extensions <code>.ase</code> et <code>.aseprite</code> passent par
