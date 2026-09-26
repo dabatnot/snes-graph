@@ -101,3 +101,5 @@ Le projet de démonstration inclut ses instructions de compilation. Le CLI et l'
 
 Les entrées `animatedTiles` peuvent contenir un `name` facultatif (chaîne).
 Les projets sans ce champ restent valides ; l’interface affiche leur numéro de tile.
+
+Les entrées `allocations` de la mémoire de scène peuvent inclure `resource`, identifiant du dessin ou de la carte propriétaire. Les allocations globales (OBJ, données Mode 7) n’ont pas nécessairement de propriétaire unique. Les adresses VRAM sont en octets ; les adresses de `palettes` restent des indices CGRAM (2 octets par entrée).

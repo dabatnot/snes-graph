@@ -1,3 +1,4 @@
+import { SceneAnalysis } from "./SceneAnalysis";
 import { useRef, useState } from "react";
 import {
   makeLayer,
@@ -80,9 +81,11 @@ export function Scenes({
   project,
   scene,
   change,
+  onResource,
 }: {
   project: Project;
   scene: Scene;
+  onResource: (id: string) => void;
   change: (fn: (p: Project) => void) => void;
 }) {
   const [play, setPlay] = useState(false),
@@ -106,9 +109,11 @@ export function Scenes({
     originX: number;
     originY: number;
   } | null>(null);
-  const tick = useTick(play, project.fps),
-    edit = (fn: (s: Scene) => void) =>
-      change((p) => fn(p.scenes.find((s) => s.id === scene.id)!));
+  const [seekTick, setSeekTick] = useState(0);
+  const liveTick = useTick(play, project.fps);
+  const tick = play ? liveTick + seekTick : seekTick;
+  const edit = (fn: (s: Scene) => void) =>
+    change((p) => fn(p.scenes.find((s) => s.id === scene.id)!));
   const diagnostics = diagnose(project, scene, tick);
   const shown = moved
     ? {
@@ -248,9 +253,27 @@ export function Scenes({
         </div>
         <div className="diagnostics">
           <h3>{tr("Contraintes de la scène", "Scene constraints")}</h3>
+          <SceneAnalysis
+            project={project}
+            scene={scene}
+            tick={tick}
+            onResource={onResource}
+            onSeek={(t) => {
+              setPlay(false);
+              setSeekTick(t);
+            }}
+            onLocate={(line, ids) => {
+              setLine(line);
+              setSelectedInstances(ids);
+              setSelected(ids[0] ?? "");
+            }}
+          />
           {diagnostics.map((d, n) => (
             <p key={n} className={d.level}>
-              {d.level === "error" ? "!" : "·"} {diagnosticText(d)}
+              {d.level === "error" ? "!" : "·"}{" "}
+              <button onClick={() => onResource(d.resource)}>
+                {diagnosticText(d)}
+              </button>
               {d.code === "scanline" && (
                 <button
                   onClick={() =>

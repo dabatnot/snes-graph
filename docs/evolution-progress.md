@@ -7,7 +7,7 @@ Plan accepté : huit lots utilisables, documentés en français et en anglais.
 - [x] 3. Comparaison, remappage et application groupée des palettes et variantes.
 - [x] 4. Assemblage collectif, attaches visuelles et édition des séquences.
 - [x] 5. Régions de cartes, miroirs, rotations et raccords.
-- [ ] 6. Diagnostics navigables, mémoire et analyse temporelle.
+- [x] 6. Diagnostics navigables, mémoire et analyse temporelle.
 - [ ] 7. Aperçus des pertes d’import et des changements de réimport.
 - [ ] 8. Exemples ca65, parcours natifs et mesures de performances.
 

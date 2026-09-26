@@ -96,36 +96,18 @@ export function diagnose(p: Project, s?: Scene, tick = 0): Diagnostic[] {
       (sh.width * sh.height * sh.bpp) / 8 +
       m.width * m.height * (s.mode === 7 ? 1 : 2);
   }
-  const counts = new Uint16Array(s.height),
-    slivers = new Uint16Array(s.height);
-  let total = 0;
+  const load = objectLoad(p, s, tick),
+    counts = load.rows.map((r) => r.sprites),
+    slivers = load.rows.map((r) => r.slivers);
+  const total = load.total;
   const seen = new Set<string>();
   for (const i of s.instances) {
     const a = p.actors.find((a) => a.id === i.actorId)!;
     const pose = frameAt(a, i.animationId, tick);
     if (!pose) continue;
     for (const c of pose.pieces) {
-      total++;
       if (!OBJ_SIZES[s.objSize].includes(c.size))
         add("objSize", a.id, { size: c.size });
-      const x = Math.round(
-        i.x +
-          (i.vx * tick) / p.fps -
-          a.originX +
-          (i.flipX ? -c.x - c.size + 2 * a.originX : c.x),
-      );
-      const y = Math.round(i.y + (i.vy * tick) / p.fps - a.originY + c.y);
-      for (
-        let row = Math.max(0, y);
-        row < Math.min(s.height, y + c.size);
-        row++
-      )
-        if (x > -c.size && x < 256) {
-          counts[row]++;
-          slivers[row] += Math.ceil(
-            (Math.min(256, x + c.size) - Math.max(0, x)) / 8,
-          );
-        }
       for (const pos of a.poses)
         for (const pc of pos.pieces) {
           const key = [pc.sheetId, pc.sx, pc.sy, pc.size].join(":");
@@ -498,4 +480,41 @@ export function exportProject(
   files["assets.inc"] = strToU8(constants.join("\n") + "\n");
   files["manifest.json"] = strToU8(JSON.stringify(manifest, null, 2));
   return files;
+}
+
+export function objectLoad(p: Project, s: Scene, tick: number) {
+  const rows = Array.from({ length: s.height }, () => ({
+    sprites: 0,
+    slivers: 0,
+    instances: [] as string[],
+  }));
+  let total = 0;
+  for (const i of s.instances) {
+    const a = p.actors.find((a) => a.id === i.actorId)!;
+    const pose = frameAt(a, i.animationId, tick);
+    if (!pose) continue;
+    for (const c of pose.pieces) {
+      total++;
+      const x = Math.round(
+          i.x +
+            (i.vx * tick) / p.fps -
+            a.originX +
+            (i.flipX ? -c.x - c.size + 2 * a.originX : c.x),
+        ),
+        y = Math.round(i.y + (i.vy * tick) / p.fps - a.originY + c.y);
+      if (x <= -c.size || x >= 256) continue;
+      for (
+        let row = Math.max(0, y);
+        row < Math.min(s.height, y + c.size);
+        row++
+      ) {
+        rows[row].sprites++;
+        rows[row].slivers += Math.ceil(
+          (Math.min(256, x + c.size) - Math.max(0, x)) / 8,
+        );
+        if (!rows[row].instances.includes(i.id)) rows[row].instances.push(i.id);
+      }
+    }
+  }
+  return { rows, total };
 }

@@ -6223,6 +6223,45 @@ npm run dev</code></pre>
           de déplacement complexe : c’est un mouvement linéaire de
           prévisualisation.
         </p>
+        <h3 id="scene-analysis">Mémoire et analyse temporelle</h3>
+        <p>
+          Dans Scènes, dépliez
+          <strong>Mémoire et analyse temporelle</strong> sous l’aperçu. Calculer
+          la mémoire à cette image affiche les allocations VRAM et CGRAM
+          produites par le compilateur d’export sans déduplication. Le numéro
+          d’image du calcul reste affiché. Les adresses sont en octets, en
+          hexadécimal ; les espaces noirs de la barre sont libres ou dus à
+          l’alignement. Cliquez sur un dessin, une carte ou une palette pour
+          l’ouvrir.
+        </p>
+        <p>
+          Choisissez une Image de départ et un Nombre d’images (1 à 600, 120 par
+          défaut), puis Analyser la plage. Le calcul est annulable. Il suit
+          poses, déplacements et ressources animées. Le tableau donne le nombre
+          total d’OBJ, les maxima par ligne, les portions de 8 pixels et la fin
+          de l’espace VRAM alloué (alignements inclus). Une erreur d’export
+          remplace la valeur mémoire lorsque la scène n’est pas compilable.
+        </p>
+        <p>
+          Cliquez sur un numéro d’image pour arrêter la lecture et examiner cet
+          instant. Les boutons Ligne listent les lignes dépassant les limites
+          OBJ ; un clic marque la ligne et sélectionne les instances qui y
+          contribuent. Le graphique représente le maximum d’OBJ par ligne, avec
+          32 au sommet. Toute modification du projet invalide les résultats.
+          Cette analyse ne simule pas l’ordre matériel de disparition des
+          sprites.
+        </p>
+        <figure>
+          <a data-zoom href="assets/23-scene-analysis.png"
+            ><img
+              src="assets/23-scene-analysis.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Mémoire et analyse temporelle"
+          /></a>
+          <figcaption>Mémoire et analyse temporelle</figcaption>
+        </figure>
         <h3 id="diagnostic-scene">Contraintes de la scène</h3>
         <p>
           Le panneau inférieur présente les incompatibilités de profondeur,

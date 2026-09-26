@@ -636,6 +636,10 @@ pre {
   overflow: auto;
   border-top: 1px solid #3a4351;
 }
+.diagnostics:has(> details[open]) {
+  max-height: 50vh;
+  flex-shrink: 0;
+}
 .diagnostics h3 {
   margin: 2px 0;
 }

@@ -188,3 +188,7 @@ Copier et transformer → Copier → Rotation 90° → Prévisualiser. Ce motif 
 déjà d’une équivalence par miroir (zéro nouvelle tile). Captures examinées.
 Tests : rotation rectangulaire pixel par pixel, animation indépendante,
 refus sans mutation et déplacement avec chevauchement.
+
+## Lot 6 — diagnostic mémoire
+
+`23-scene-analysis.png`, FR/EN : Chrome web, Football → Scènes → Mémoire et analyse temporelle → Calculer la mémoire à cette image. Analyse de 2 images observée : 12 OBJ, 4 par ligne, 8 portions, étendue VRAM 17280 octets. Captures 1878 × 867. Comparaison au compilateur d’export et attribution des instances en surcharge couvertes par deux tests ciblés ; compilation réussie.

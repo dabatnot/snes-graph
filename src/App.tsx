@@ -858,6 +858,20 @@ export default function App() {
             key={scene.id}
             project={project}
             scene={scene}
+            onResource={(id) => {
+              for (const kind of [
+                "sheets",
+                "palettes",
+                "actors",
+                "maps",
+                "scenes",
+              ] as const)
+                if (project[kind].some((r) => r.id === id)) {
+                  setTab(kind);
+                  setSelected(id);
+                  return;
+                }
+            }}
             change={change}
           />
         ) : tab === "exports" ? (

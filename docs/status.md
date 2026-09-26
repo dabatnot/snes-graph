@@ -75,3 +75,5 @@ Régions de cartes : copie, déplacement, miroirs, rotation 90° avec prévisual
 et déduplication, conservation des attributs, agrandissement explicite de la carte.
 Les associations de terrain sont retirées des cellules transformées. Les nouvelles
 tiles animées utilisent des bases indépendantes. Aperçu de rotation observé dans Chrome.
+
+- Lot 6 : diagnostic mémoire issu du compilateur, liens vers ressources, lignes OBJ et instances contributrices, analyse annulable de 1 à 600 images. UI web FR/EN observée ; deux tests ciblés et build réussis.

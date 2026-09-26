@@ -15,7 +15,12 @@ export type SceneMemory = {
   cgram: Uint8Array;
   oam: Uint8Array;
   registers: [number, number][];
-  allocations: { name: string; address: number; bytes: number }[];
+  allocations: {
+    name: string;
+    address: number;
+    bytes: number;
+    resource?: string;
+  }[];
   palettes: { id: string; layer: number; slot: number; address: number }[];
   hdma: { channel: number; mode: number; register: number; data: Uint8Array }[];
 };
@@ -69,12 +74,17 @@ export function compileScene(
   const signatures: (string | undefined)[] = new Array(256);
   colors[0] = s.backdrop;
   let cursor = 0;
-  const put = (name: string, bytes: Uint8Array, alignment: number) => {
+  const put = (
+    name: string,
+    bytes: Uint8Array,
+    alignment: number,
+    resource?: string,
+  ) => {
     const address = Math.ceil(cursor / alignment) * alignment;
     if (address + bytes.length > 65536)
       throw new Error("VRAM: " + name + " exceeds 64 KiB including alignment");
     out.vram.set(bytes, address);
-    out.allocations.push({ name, address, bytes: bytes.length });
+    out.allocations.push({ name, address, bytes: bytes.length, resource });
     cursor = address + bytes.length;
     return address;
   };
@@ -246,7 +256,7 @@ export function compileScene(
     if (base === undefined) {
       const bytes = files["tiles/" + sh.id + ".chr"];
       if (!bytes) throw new Error("Missing exported graphics " + sh.name);
-      base = put(sh.name, bytes, 8192);
+      base = put(sh.name, bytes, 8192, sh.id);
       tileBases.set(sh.id, base);
     }
     bases[li] = base / 8192;
@@ -290,7 +300,7 @@ export function compileScene(
           (x % 32);
         word(data, n * 2, value);
       }
-    const address = put(m.name, data, 2048);
+    const address = put(m.name, data, 2048, m.id);
     reg(
       0x2107 + li,
       ((address / 2048) << 2) |

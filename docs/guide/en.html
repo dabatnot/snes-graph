@@ -6049,6 +6049,41 @@ npm run dev</code></pre>
           Changing its velocity does not create a complex movement animation:
           this is linear preview movement.
         </p>
+        <h3 id="scene-analysis">Memory and time analysis</h3>
+        <p>
+          In Scenes, expand <strong>Memory and time analysis</strong> below the
+          preview. Calculate memory at this frame displays VRAM and CGRAM
+          allocations produced by the export compiler without deduplication. The
+          calculated frame number remains visible. Addresses are hexadecimal
+          bytes; black areas are free or alignment gaps. Click a drawing, map or
+          palette to open it.
+        </p>
+        <p>
+          Choose a Start frame and Frame count (1–600, default 120), then
+          Analyze range. The calculation can be cancelled. It follows poses,
+          movement and animated resources. The table gives total OBJ count,
+          scanline peaks, 8-pixel slivers and the end of allocated VRAM space
+          (including alignment). An export error replaces the memory value when
+          the scene cannot compile.
+        </p>
+        <p>
+          Click a frame number to stop playback and inspect that instant. Line
+          buttons list scanlines exceeding OBJ limits; clicking one marks the
+          line and selects contributing instances. The graph shows peak OBJ per
+          scanline, with 32 at the top. Editing the project invalidates the
+          results. This analysis does not emulate hardware sprite dropout order.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/23-scene-analysis.png"
+            ><img
+              src="assets/en/23-scene-analysis.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Memory and time analysis"
+          /></a>
+          <figcaption>Memory and time analysis</figcaption>
+        </figure>
         <h3 id="diagnostic-scene">Scene constraints</h3>
         <p>
           The bottom panel reports incompatible bit depths, OBJ sizes, palette
