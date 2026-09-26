@@ -197,3 +197,77 @@ export function replaceReferences(
   }
   validateProject(p);
 }
+
+/** Reorder a palette family and its pixels without changing any saved use. */
+export function swapPaletteColors(
+  p: Project,
+  paletteId: string,
+  index: number,
+) {
+  const palette = p.palettes.find((pal) => pal.id === paletteId)!;
+  if (index <= 0 || index >= palette.colors.length - 1) return;
+  const ids = new Set([paletteId]);
+  let expanded = true;
+  while (expanded) {
+    expanded = false;
+    for (const actor of p.actors)
+      for (const variant of actor.variants)
+        for (const [base, replacement] of Object.entries(variant.palettes))
+          if (ids.has(base) || ids.has(replacement))
+            for (const id of [base, replacement])
+              if (!ids.has(id)) {
+                ids.add(id);
+                expanded = true;
+              }
+  }
+  const palettes = p.palettes.filter((pal) => ids.has(pal.id));
+  for (const pal of palettes)
+    if (pal.locked[index] || pal.locked[index + 1])
+      throw new Error(
+        "Une couleur liée est verrouillée / A linked color is locked",
+      );
+  const sheets = p.sheets.filter((sheet) => {
+    const usedPalettes = new Set([sheet.paletteId]);
+    for (const actor of p.actors)
+      for (const pose of actor.poses)
+        for (const piece of pose.pieces)
+          if (piece.sheetId === sheet.id) usedPalettes.add(piece.paletteId);
+    for (const map of p.maps)
+      if (map.sheetId === sheet.id)
+        for (const cell of [
+          ...map.cells,
+          ...map.stamps.flatMap((s) => s.cells),
+        ])
+          usedPalettes.add(cell.paletteId);
+    if (![...usedPalettes].some((id) => ids.has(id))) return false;
+    if ([...usedPalettes].some((id) => !ids.has(id)))
+      throw new Error(
+        "Dupliquez le dessin avant de réordonner : il utilise aussi une autre famille de palettes. / Duplicate these graphics before reordering: they also use an unrelated palette family.",
+      );
+    if (index < 1 << sheet.bpp && index + 1 >= 1 << sheet.bpp)
+      throw new Error(
+        "Cet échange dépasse les indices du dessin. / This swap exceeds the drawing's color indices.",
+      );
+    return true;
+  });
+  for (const pal of palettes) {
+    [pal.colors[index], pal.colors[index + 1]] = [
+      pal.colors[index + 1],
+      pal.colors[index],
+    ];
+    [pal.labels[index], pal.labels[index + 1]] = [
+      pal.labels[index + 1],
+      pal.labels[index],
+    ];
+    [pal.locked[index], pal.locked[index + 1]] = [
+      pal.locked[index + 1],
+      pal.locked[index],
+    ];
+  }
+  const remap = (pixels: Uint8Array) =>
+    pixels.map((v) => (v === index ? index + 1 : v === index + 1 ? index : v));
+  for (const sheet of sheets) {
+    sheet.pixels = remap(sheet.pixels);
+    for (const layer of sheet.layers ?? []) layer.pixels = remap(layer.pixels);
+  }
+}

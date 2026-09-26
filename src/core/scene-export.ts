@@ -3,6 +3,7 @@ import {
   MODES,
   OBJ_SIZES,
   frameAt,
+  tileAt,
   paletteAt,
   type Project,
   type Scene,
@@ -188,9 +189,10 @@ export function compileScene(
         throw new Error("Mode 7: at most 256 exported tiles");
       const data = new Uint8Array(32768);
       m.cells.forEach((c, n) => {
-        if (b.refs[c.tile].flipX || b.refs[c.tile].flipY)
+        const ref = b.refs[tileAt(m, c.tile, tick)];
+        if (ref.flipX || ref.flipY)
           throw new Error("Disable flipped tile deduplication for Mode 7");
-        data[n * 2] = b.refs[c.tile].tile;
+        data[n * 2] = ref.tile;
         if (!s.directColor || s.extbg) assignPalette(c.paletteId, 0, 8);
       });
       for (let n = 0; n < b.pixels.length; n++) data[n * 2 + 1] = b.pixels[n];
@@ -268,10 +270,7 @@ export function compileScene(
             ((((y + offsetY) % m.height) + m.height) % m.height) * m.width +
               ((((x + offsetX) % m.width) + m.width) % m.width)
           ];
-        const anim = m.animatedTiles.find((a) => a.tile === c.tile),
-          source = anim?.frames.length
-            ? anim.frames[Math.floor(tick / anim.ticks) % anim.frames.length]
-            : c.tile;
+        const source = tileAt(m, c.tile, tick);
         const ref = b.refs[source];
         if (!ref || ref.tile > 1023) throw new Error("BG tile outside 0…1023");
         const slot =

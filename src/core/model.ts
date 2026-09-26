@@ -370,6 +370,15 @@ export function newProject(): Project {
     exports: [],
   };
 }
+export function tileAt(map: Tilemap, tile: number, tick = 0): number {
+  const animation = map.animatedTiles.find((a) => a.tile === tile);
+  return animation?.frames.length
+    ? animation.frames[
+        Math.floor(tick / Math.max(animation.ticks, 1)) %
+          animation.frames.length
+      ]
+    : tile;
+}
 export function frameAt(
   actor: Actor,
   animationId: string,

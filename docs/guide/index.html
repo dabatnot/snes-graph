@@ -804,7 +804,11 @@ npm run dev</code></pre>
           Renommer le projet ne renomme pas un fichier déjà ouvert. Utilisez
           Enregistrer sous pour changer aussi le nom de fichier. Dans le
           navigateur, chaque sauvegarde est un téléchargement : vérifiez son
-          emplacement dans les téléchargements.
+          emplacement dans les téléchargements. <kbd>Ctrl</kbd> +
+          <kbd>Shift</kbd> + <kbd>S</kbd> déclenche Enregistrer sous. Une
+          sauvegarde déjà en cours doit se terminer avant d’en lancer une autre.
+          Si vous modifiez ou annulez pendant l’écriture, le point reste affiché
+          lorsque l’état courant diffère de celui enregistré.
         </p>
         <h3 id="historique">Annulation, rétablissement et fermeture</h3>
         <p>
@@ -859,7 +863,9 @@ npm run dev</code></pre>
           environ 1,5 seconde sans nouvelle modification. Au démarrage, un
           bandeau peut proposer <strong>Récupérer</strong> ou
           <strong>Ignorer</strong>. Récupérer charge la copie comme projet à
-          enregistrer ; choisissez ensuite une destination.
+          enregistrer ; choisissez ensuite une destination. Même si vous
+          modifiez puis annulez pour revenir à la copie récupérée, elle reste à
+          enregistrer.
         </p>
         <div class="warning">
           <p>
@@ -2803,10 +2809,12 @@ npm run dev</code></pre>
             conservation du rendu propage la permutation à la famille de
             palettes reliées par les variantes et aux dessins concernés. Il est
             refusé si une entrée liée est verrouillée ou si le dessin est
-            partagé avec une autre famille de palettes incompatible. Dupliquez
-            et réaffectez le dessin pour isoler ce travail. Après un
-            réordonnancement, revérifiez vos plages de cycle : leurs bornes
-            restent des indices.
+            partagé avec une autre famille de palettes incompatible, y compris
+            sa palette par défaut et celles des tampons. Un échange qui
+            dépasserait les indices autorisés par la profondeur du dessin est
+            également refusé. Dupliquez et réaffectez le dessin pour isoler ce
+            travail. Après un réordonnancement, revérifiez vos plages de cycle :
+            leurs bornes restent des indices.
           </p>
         </div>
         <h3 id="cycles">Cycles de palette</h3>
@@ -3933,7 +3941,10 @@ npm run dev</code></pre>
           Cliquez sur une miniature pour sélectionner une pose et arrêter la
           lecture. Le champ <strong>Nom de la pose</strong> la renomme.
           <strong>Dupliquer la pose</strong> copie pièces, boîtes et attaches ;
-          les dessins source restent partagés.
+          les dessins source restent partagés. Après une annulation, les champs
+          modifient la pose et l’animation actuellement affichées. Pendant la
+          lecture, les commandes de pose ciblent la pose visible à cet instant ;
+          arrêtez la lecture avant une modification précise.
         </p>
         <p>
           <strong>Supprimer la pose</strong> est désactivé s’il n’en reste
@@ -4778,6 +4789,13 @@ npm run dev</code></pre>
             animations.
           </figcaption>
         </figure>
+        <p>
+          Si vous réduisez les dimensions d’une carte, sa sélection est limitée
+          aux cellules encore présentes. Capturer cette sélection produit donc
+          un tampon valide. Le changement de tileset est refusé si une tile
+          nécessaire à la carte, à un tampon ou à une animation (source ou
+          image) n’existe pas dans le nouveau dessin.
+        </p>
         <h3 id="ajouter-tiles">Ajouter des tiles au terrain</h3>
         <figure>
           <a href="assets/17-ajouter-tiles.png" data-zoom
@@ -6121,7 +6139,9 @@ npm run dev</code></pre>
           <strong>128 × 128 tiles</strong>, un dessin 8 bpp et au plus 256 tiles
           exportées. Les attributs de miroir par cellule ne sont pas disponibles
           dans cette organisation ; désactivez aussi la réutilisation de miroirs
-          à l’export.
+          à l’export. Les animations de tiles sont prises en compte dans
+          l’aperçu et la ROM Mode 7 ; chaque image doit respecter cette
+          contrainte de miroirs.
         </p>
         <div class="table-wrap">
           <table>
@@ -6854,6 +6874,12 @@ npm run dev</code></pre>
           adaptées au projet. Examinez la conversion avant de l’accepter.
         </p>
         <h3 id="import-png">PNG</h3>
+        <p>
+          Les images indexées sur 1, 2, 4 ou 8 bits sont prises en charge, ainsi
+          que les images en niveaux de gris. Le nombre de bits du PNG décrit le
+          fichier importé ; la palette de destination détermine la profondeur du
+          dessin SNES.
+        </p>
         <div class="table-wrap">
           <table class="control-reference">
             <caption>
@@ -7060,8 +7086,10 @@ npm run dev</code></pre>
                 <td>Transparence PNG non indexé</td>
                 <td>
                   Alpha inférieur à 128 → transparent ; sinon pixel opaque avec
-                  couleur quantifiée. Il n’y a pas de semi-transparence par
-                  pixel dans le dessin indexé.
+                  couleur quantifiée. Une couleur déclarée transparente dans un
+                  PNG RVB ou en niveaux de gris est également convertie en
+                  indice 0. Il n’y a pas de semi-transparence par pixel dans le
+                  dessin indexé.
                 </td>
               </tr>
               <tr>
@@ -7467,6 +7495,14 @@ npm run dev</code></pre>
           réutilisation de miroirs n’est pas compatible avec le format de carte.
           Les contraintes peuvent être signalées seulement au lancement de
           l’export.
+        </p>
+        <p>
+          Les tampons et animations du manifeste gardent leurs indices de tiles
+          source. Pour intégrer un export optimisé dans un jeu, utilisez les
+          correspondances <code>refs</code> du dessin et les positions
+          <code>cellIndices</code> des animations ; elles préservent les
+          références malgré les tiles réservées, les fusions et les miroirs. Le
+          détail est décrit dans <a href="../formats.md">Formats</a>.
         </p>
         <h3 id="archive-export">Exporter les ressources</h3>
         <p>

@@ -42,6 +42,14 @@ Pour une grande carte, les blocs génériques sont les unités disponibles pour 
 
 La déduplication transforme uniquement les fichiers exportés et leurs références. Elle ne fusionne pas les dessins éditables. En haute résolution, les tiles vont par paires consécutives : la déduplication est refusée afin de préserver cette relation.
 
+### Correspondance des tiles après optimisation
+
+`manifest.sheets[*].refs` contient une entrée par tile du dessin source, dans l’ordre ligne par ligne. `refs[sourceTile]` donne `{tile, flipX, flipY}` : l’index dans `tiles/<sheet-id>.chr` et les miroirs nécessaires pour retrouver les pixels source. Cette correspondance inclut les tiles réservées et la déduplication. Pour une cellule de tampon, combiner ses miroirs avec ceux de la référence par XOR.
+
+Les `stamps[*].cells[*].tile`, `animatedTiles[*].tile` et `animatedTiles[*].frames` du manifeste restent des **indices source**. Chaque animation fournit aussi `cellIndices`, les positions des cellules de la carte qui utilisaient sa tile source, calculées par `y * largeur + x` avant optimisation. Cela distingue une occurrence animée d’une tile statique identique fusionnée dans le CHR. Ces positions sont celles de la carte source, pas des offsets dans les blocs binaires de 32 × 32.
+
+La mémoire de scène applique les animations de tiles au tick demandé, y compris en Mode 7. Une frame Mode 7 nécessitant un miroir de tile est refusée : désactiver la réutilisation des miroirs pour ce mode.
+
 ### Métasprite `.meta`
 
 En-tête : `u16 nombreDePièces`. Puis **10 octets par pièce**, dans l'ordre OAM :

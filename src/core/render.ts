@@ -1,6 +1,7 @@
 import {
   MODES,
   frameAt,
+  tileAt,
   paletteAt,
   rgb,
   type Project,
@@ -83,12 +84,7 @@ export function renderMap(p: Project, mapId: string, tick = 0): Raster {
       const c = m.cells[cy * m.width + cx],
         colors = pals.get(c.paletteId);
       if (!colors) continue;
-      const anim = m.animatedTiles.find((t) => t.tile === c.tile);
-      const tile = anim?.frames.length
-        ? anim.frames[
-            Math.floor(tick / Math.max(anim.ticks, 1)) % anim.frames.length
-          ]
-        : c.tile;
+      const tile = tileAt(m, c.tile, tick);
       for (let y = 0; y < 8; y++)
         for (let x = 0; x < 8; x++) {
           const v = pixel(
@@ -221,12 +217,7 @@ export function renderScene(p: Project, s: Scene, tick = 0): Raster {
         const c =
           m.cells[Math.floor(py / 8) * m.width + Math.floor(px / tileW)];
         if (!c) continue;
-        const anim = m.animatedTiles.find((a) => a.tile === c.tile);
-        let tile = anim?.frames.length
-          ? anim.frames[
-              Math.floor(tick / Math.max(anim.ticks, 1)) % anim.frames.length
-            ]
-          : c.tile;
+        let tile = tileAt(m, c.tile, tick);
         let tx = px % tileW,
           ty = py % 8;
         if (c.flipX && s.mode !== 7) tx = tileW - 1 - tx;

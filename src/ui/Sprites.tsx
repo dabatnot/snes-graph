@@ -81,6 +81,16 @@ export function Sprites({
     piece = pose?.pieces.find((c) => c.id === pieceId);
   const edit = (fn: (a: Actor) => void) =>
     change((p) => fn(p.actors.find((a) => a.id === actor.id)!));
+  const editPose = (fn: (p: Pose) => void) =>
+    edit((a) => {
+      const target = a.poses.find((p) => p.id === pose?.id);
+      if (target) fn(target);
+    });
+  const editAnimation = (fn: (a: Actor["animations"][number]) => void) =>
+    edit((a) => {
+      const target = a.animations.find((v) => v.id === animation?.id);
+      if (target) fn(target);
+    });
   const editPiece = (fn: (c: Piece) => void) =>
     edit((a) => {
       const c = a.poses
@@ -105,9 +115,7 @@ export function Sprites({
       priority: 2,
       group: "",
     };
-    edit((a) =>
-      a.poses[Math.min(poseIndex, a.poses.length - 1)].pieces.push(c),
-    );
+    editPose((p) => p.pieces.push(c));
     setPiece(c.id);
   };
   return (
@@ -335,8 +343,8 @@ export function Sprites({
                       label: p.name,
                     }))}
                     onChange={(v) =>
-                      edit((a) => {
-                        a.animations[animIndex].frames[n].poseId = v;
+                      editAnimation((a) => {
+                        a.frames[n].poseId = v;
                       })
                     }
                   />
@@ -345,8 +353,8 @@ export function Sprites({
                     value={f.ticks}
                     min={1}
                     onChange={(v) =>
-                      edit((a) => {
-                        a.animations[animIndex].frames[n].ticks = v;
+                      editAnimation((a) => {
+                        a.frames[n].ticks = v;
                       })
                     }
                   />
@@ -355,17 +363,16 @@ export function Sprites({
                     placeholder={tr("Événement", "Event")}
                     value={f.event}
                     onChange={(e) =>
-                      edit((a) => {
-                        a.animations[animIndex].frames[n].event =
-                          e.target.value;
+                      editAnimation((a) => {
+                        a.frames[n].event = e.target.value;
                       })
                     }
                   />
                   <button
                     disabled={animation.frames.length < 2}
                     onClick={() =>
-                      edit((a) => {
-                        a.animations[animIndex].frames.splice(n, 1);
+                      editAnimation((a) => {
+                        a.frames.splice(n, 1);
                       })
                     }
                   >
@@ -375,8 +382,8 @@ export function Sprites({
               ))}
               <button
                 onClick={() =>
-                  edit((a) => {
-                    a.animations[animIndex].frames.push({
+                  editAnimation((a) => {
+                    a.frames.push({
                       poseId: pose!.id,
                       ticks: 8,
                       event: "",
@@ -548,8 +555,7 @@ export function Sprites({
           onClick={() => {
             const s = project.sheets.find((s) => s.id === sliceSheet);
             if (!s) return;
-            edit((a) => {
-              const f = a.poses[poseIndex];
+            editPose((f) => {
               f.pieces = [];
               const size =
                 s.width % sliceSize === 0 && s.height % sliceSize === 0
@@ -737,8 +743,8 @@ export function Sprites({
               <input
                 value={animation.name}
                 onChange={(e) =>
-                  edit((a) => {
-                    a.animations[animIndex].name = e.target.value;
+                  editAnimation((a) => {
+                    a.name = e.target.value;
                   })
                 }
               />
@@ -747,8 +753,8 @@ export function Sprites({
               label={tr("Boucle", "Loop")}
               value={animation.loop}
               onChange={(v) =>
-                edit((a) => {
-                  a.animations[animIndex].loop = v;
+                editAnimation((a) => {
+                  a.loop = v;
                 })
               }
             />
@@ -756,8 +762,8 @@ export function Sprites({
               label={tr("Aller-retour", "Ping-pong")}
               value={animation.pingPong}
               onChange={(v) =>
-                edit((a) => {
-                  a.animations[animIndex].pingPong = v;
+                editAnimation((a) => {
+                  a.pingPong = v;
                 })
               }
             />
@@ -817,8 +823,8 @@ export function Sprites({
                 <input
                   value={b.name}
                   onChange={(e) =>
-                    edit((a) => {
-                      a.poses[poseIndex].boxes[n].name = e.target.value;
+                    editPose((p) => {
+                      p.boxes[n].name = e.target.value;
                     })
                   }
                 />
@@ -830,16 +836,16 @@ export function Sprites({
                   value={b[k]}
                   min={k === "width" || k === "height" ? 1 : -32768}
                   onChange={(v) =>
-                    edit((a) => {
-                      a.poses[poseIndex].boxes[n][k] = v;
+                    editPose((p) => {
+                      p.boxes[n][k] = v;
                     })
                   }
                 />
               ))}
               <button
                 onClick={() =>
-                  edit((a) => {
-                    a.poses[poseIndex].boxes.splice(n, 1);
+                  editPose((p) => {
+                    p.boxes.splice(n, 1);
                   })
                 }
               >
@@ -849,8 +855,8 @@ export function Sprites({
           ))}
           <button
             onClick={() =>
-              edit((a) => {
-                a.poses[poseIndex].boxes.push({
+              editPose((p) => {
+                p.boxes.push({
                   name: "hitbox",
                   x: 0,
                   y: 0,
@@ -868,8 +874,8 @@ export function Sprites({
                 <input
                   value={b.name}
                   onChange={(e) =>
-                    edit((a) => {
-                      a.poses[poseIndex].anchors[n].name = e.target.value;
+                    editPose((p) => {
+                      p.anchors[n].name = e.target.value;
                     })
                   }
                 />
@@ -880,16 +886,16 @@ export function Sprites({
                   label={k}
                   value={b[k]}
                   onChange={(v) =>
-                    edit((a) => {
-                      a.poses[poseIndex].anchors[n][k] = v;
+                    editPose((p) => {
+                      p.anchors[n][k] = v;
                     })
                   }
                 />
               ))}
               <button
                 onClick={() =>
-                  edit((a) => {
-                    a.poses[poseIndex].anchors.splice(n, 1);
+                  editPose((p) => {
+                    p.anchors.splice(n, 1);
                   })
                 }
               >
@@ -899,8 +905,8 @@ export function Sprites({
           ))}
           <button
             onClick={() =>
-              edit((a) => {
-                a.poses[poseIndex].anchors.push({ name: "attach", x: 0, y: 0 });
+              editPose((p) => {
+                p.anchors.push({ name: "attach", x: 0, y: 0 });
               })
             }
           >

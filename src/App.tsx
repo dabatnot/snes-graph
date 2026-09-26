@@ -106,7 +106,9 @@ export default function App() {
     future = useRef<Project[]>([]),
     pRef = useRef(project),
     dirtyRef = useRef(dirty),
-    savedId = useRef(project);
+    savedId = useRef<Project | null>(project),
+    projectSession = useRef(0),
+    saving = useRef(false);
   pRef.current = project;
   dirtyRef.current = dirty;
   const report = useCallback((s: string) => setNotice(s), []);
@@ -143,13 +145,14 @@ export default function App() {
     [report],
   );
   const replace = (p: Project, destination?: string, recovered = false) => {
+    projectSession.current++;
     setProject(p);
     pRef.current = p;
     setSelected("");
     setPalette("");
     setDirty(recovered);
     dirtyRef.current = recovered;
-    savedId.current = p;
+    savedId.current = recovered ? null : p;
     past.current = [];
     future.current = [];
     setPath(destination);
@@ -161,7 +164,7 @@ export default function App() {
     destination?: string,
     recovered = false,
   ) => {
-    if (dirtyRef.current) {
+    if (dirtyRef.current || saving.current) {
       setPending({ project: p, path: destination, recovered });
       setModal("replace");
     } else replace(p, destination, recovered);
@@ -172,7 +175,8 @@ export default function App() {
       future.current.push(pRef.current);
       pRef.current = previous;
       setProject(previous);
-      setDirty(previous !== savedId.current);
+      dirtyRef.current = previous !== savedId.current;
+      setDirty(dirtyRef.current);
     }
   };
   const redo = () => {
@@ -181,10 +185,14 @@ export default function App() {
       past.current.push(pRef.current);
       pRef.current = next;
       setProject(next);
-      setDirty(next !== savedId.current);
+      dirtyRef.current = next !== savedId.current;
+      setDirty(dirtyRef.current);
     }
   };
   const save = async (as = false) => {
+    if (saving.current) return false;
+    saving.current = true;
+    const session = projectSession.current;
     try {
       const current = pRef.current;
       const dest = await saveBytes(
@@ -192,18 +200,20 @@ export default function App() {
         current.name + ".snesgraph",
         as ? undefined : path,
       );
-      if (dest) {
+      if (dest && projectSession.current === session) {
         setPath(dest);
         savedId.current = current;
-        if (pRef.current === current) {
-          setDirty(false);
-          dirtyRef.current = false;
-        }
+        dirtyRef.current = pRef.current !== current;
+        setDirty(dirtyRef.current);
         report(tr("Projet enregistré", "Project saved"));
+        return !dirtyRef.current;
       }
     } catch (e) {
       report(String(e));
+    } finally {
+      saving.current = false;
     }
+    return false;
   };
   const openProject = async () => {
     try {
@@ -222,7 +232,7 @@ export default function App() {
     let unsubscribe: (() => void) | undefined;
     void getCurrentWindow()
       .onCloseRequested((event) => {
-        if (dirtyRef.current) {
+        if (dirtyRef.current || saving.current) {
           event.preventDefault();
           setModal("close");
         }
@@ -276,7 +286,7 @@ export default function App() {
   }, [project, dirty, report]);
   useEffect(() => {
     const fn = (e: BeforeUnloadEvent) => {
-      if (dirtyRef.current) {
+      if (dirtyRef.current || saving.current) {
         e.preventDefault();
         e.returnValue = "";
       }
@@ -287,20 +297,21 @@ export default function App() {
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === "s") {
+        const key = e.key.toLowerCase();
+        if (key === "s") {
           e.preventDefault();
           void save(e.shiftKey);
         }
-        if (e.key === "z") {
+        if (key === "z") {
           e.preventDefault();
           if (e.shiftKey) redo();
           else undo();
         }
-        if (e.key === "y") {
+        if (key === "y") {
           e.preventDefault();
           redo();
         }
-        if (e.key === "o") {
+        if (key === "o") {
           e.preventDefault();
           void openProject();
         }
@@ -912,8 +923,7 @@ export default function App() {
                   <button
                     className="primary"
                     onClick={async () => {
-                      await save();
-                      if (!dirtyRef.current) {
+                      if (await save()) {
                         if (modal === "close")
                           void getCurrentWindow().destroy();
                         else if (pending)

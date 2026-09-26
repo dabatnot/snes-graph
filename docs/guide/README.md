@@ -132,3 +132,9 @@ Les vues générales 01, 02, 04, 06, 07, 08 et 09 ont été renouvelées avec **
 - Aperçu d’impression : couverture et page de tableau illustré contrôlées. Il ne s’agit pas d’un audit de toutes les pages ni d’un PDF distribué.
 
 Cette passe ne modifie pas l’application et n’ajoute aucune dépendance à la documentation.
+
+## Corrections issues de la revue initiale — 26 septembre 2026
+
+Mise à jour ciblée des passages sur la sauvegarde/récupération, les raccourcis avec Majuscule, le bornage des sélections de carte, le changement de tileset, les poses affichées après annulation, la permutation des palettes, les PNG indexés/niveaux de gris et la transparence par couleur. Le chapitre Exporter renvoie aux nouvelles correspondances de tiles décrites dans `../formats.md`. Les commandes et leurs libellés restent identiques : les captures existantes sont conservées.
+
+Validation applicative : 32 tests automatisés réussis, compilation TypeScript/Vite réussie. Parcours web dans Chrome : Ctrl+Maj+Z, Ctrl+Maj+S, récupération puis modification/annulation avec avertissement de sauvegarde, création/annulation d’animation suivie d’un renommage, duplication/annulation de pose suivie d’un découpage, réduction d’une carte de 32 à 16 colonnes après sélection en colonne 20 puis capture du tampon et sauvegarde. Les entrelacements de sauvegarde ont aussi été vérifiés avec des écritures différées contrôlées ; ce contrôle ne constitue pas un essai de panne disque réelle.

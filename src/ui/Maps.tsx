@@ -33,7 +33,20 @@ export function Maps({
     [directColor, setDirectColor] = useState(0),
     [draft, setDraft] = useState<Tilemap | null>(null),
     [brush, setBrush] = useState<"paint" | "fill" | "pick" | "select">("paint"),
-    [selection, setSelection] = useState({ x: 0, y: 0, width: 2, height: 2 });
+    [selectedRegion, setSelection] = useState({
+      x: 0,
+      y: 0,
+      width: 2,
+      height: 2,
+    });
+  const selection = {
+    x: Math.min(selectedRegion.x, map.width - 1),
+    y: Math.min(selectedRegion.y, map.height - 1),
+    width: 1,
+    height: 1,
+  };
+  selection.width = Math.min(selectedRegion.width, map.width - selection.x);
+  selection.height = Math.min(selectedRegion.height, map.height - selection.y);
   const stroke = useRef<Tilemap | null>(null),
     start = useRef({ x: 0, y: 0 });
   const sheet = project.sheets.find((s) => s.id === map.sheetId)!;
@@ -217,8 +230,10 @@ export function Maps({
                 m.terrains?.some((t) =>
                   t.tiles.some((n) => n >= s.pixels.length / 64),
                 ) ||
-                m.animatedTiles.some((a) =>
-                  a.frames.some((n) => n >= s.pixels.length / 64),
+                m.animatedTiles.some(
+                  (a) =>
+                    a.tile >= s.pixels.length / 64 ||
+                    a.frames.some((n) => n >= s.pixels.length / 64),
                 )
               )
                 throw new Error(

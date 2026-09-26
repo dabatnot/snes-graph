@@ -402,7 +402,12 @@ export function exportProject(
       sheetId: m.sheetId,
       palettes,
       stamps: m.stamps,
-      animatedTiles: m.animatedTiles,
+      animatedTiles: m.animatedTiles.map((animation) => ({
+        ...animation,
+        cellIndices: m.cells.flatMap((cell, index) =>
+          cell.tile === animation.tile ? [index] : [],
+        ),
+      })),
     };
   }
   const packed = packSprites(p, opt.actorIds);
@@ -424,7 +429,7 @@ export function exportProject(
   );
   manifest.sheets = p.sheets
     .filter((s) => opt.sheetIds.includes(s.id))
-    .map(({ pixels, layers, ...s }) => s);
+    .map(({ pixels, layers, ...s }) => ({ ...s, refs: built.get(s.id)!.refs }));
   manifest.maps = maps;
   manifest.actors = actors;
   manifest.scene = scene;

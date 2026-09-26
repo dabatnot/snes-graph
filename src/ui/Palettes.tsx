@@ -11,6 +11,7 @@ import {
   type Palette,
 } from "../core/model";
 import { renderSheet } from "../core/render";
+import { swapPaletteColors } from "../core/resources";
 import { Check, Field, NumberField, Preview } from "./controls";
 import { tr } from "../i18n";
 import { useTick } from "./Sprites";
@@ -34,70 +35,7 @@ export function Palettes({
   const update = (fn: (p: Palette) => void) =>
     change((p) => fn(p.palettes.find((x) => x.id === palette.id)!));
   const [r, g, b] = rgb(palette.colors[i]);
-  const swap = () =>
-    change((p) => {
-      if (i === 0 || i >= palette.colors.length - 1) return;
-      const ids = new Set([palette.id]);
-      let expanded = true;
-      while (expanded) {
-        expanded = false;
-        for (const a of p.actors)
-          for (const v of a.variants)
-            for (const [base, replacement] of Object.entries(v.palettes))
-              if (ids.has(base) || ids.has(replacement)) {
-                for (const id of [base, replacement])
-                  if (!ids.has(id)) {
-                    ids.add(id);
-                    expanded = true;
-                  }
-              }
-      }
-      for (const pal of p.palettes.filter((p) => ids.has(p.id))) {
-        if (pal.locked[i] || pal.locked[i + 1])
-          throw new Error(
-            tr("Une couleur liée est verrouillée", "A linked color is locked"),
-          );
-        [pal.colors[i], pal.colors[i + 1]] = [pal.colors[i + 1], pal.colors[i]];
-        [pal.labels[i], pal.labels[i + 1]] = [pal.labels[i + 1], pal.labels[i]];
-        [pal.locked[i], pal.locked[i + 1]] = [pal.locked[i + 1], pal.locked[i]];
-      }
-      const sheetIds = new Set(
-        p.sheets.filter((s) => ids.has(s.paletteId)).map((s) => s.id),
-      );
-      for (const a of p.actors)
-        for (const pose of a.poses)
-          for (const c of pose.pieces)
-            if (ids.has(c.paletteId)) sheetIds.add(c.sheetId);
-      for (const m of p.maps)
-        if (m.cells.some((c) => ids.has(c.paletteId))) sheetIds.add(m.sheetId);
-      for (const s of p.sheets.filter((s) => sheetIds.has(s.id))) {
-        const outside =
-          p.actors.some((a) =>
-            a.poses.some((pose) =>
-              pose.pieces.some(
-                (c) => c.sheetId === s.id && !ids.has(c.paletteId),
-              ),
-            ),
-          ) ||
-          p.maps.some(
-            (m) =>
-              m.sheetId === s.id && m.cells.some((c) => !ids.has(c.paletteId)),
-          );
-        if (outside)
-          throw new Error(
-            tr(
-              "Dupliquez le dessin avant de réordonner : il utilise aussi une autre famille de palettes.",
-              "Duplicate these graphics before reordering: they also use an unrelated palette family.",
-            ),
-          );
-        s.pixels = s.pixels.map((v) => (v === i ? i + 1 : v === i + 1 ? i : v));
-        if (s.layers)
-          for (const l of s.layers)
-            l.pixels = l.pixels.map((v) =>
-              v === i ? i + 1 : v === i + 1 ? i : v,
-            );
-      }
-    });
+  const swap = () => change((p) => swapPaletteColors(p, palette.id, i));
   return (
     <>
       <div className="work palette-work">

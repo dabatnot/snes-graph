@@ -27,23 +27,40 @@ export function importPng(
   let changed = 0;
   const source: number[] = [];
   const quantized: boolean[] = [];
+  // Sub-byte PNG samples are packed separately on each scanline.
+  const sample = (n: number) => {
+    if (png.depth >= 8) return Number(png.data[n]);
+    const x = n % png.width,
+      row = Math.floor(n / png.width),
+      stride = Math.ceil((png.width * png.depth) / 8);
+    return (
+      (Number(png.data[row * stride + Math.floor((x * png.depth) / 8)]) >>
+        (8 - png.depth - ((x * png.depth) % 8))) &
+      ((1 << png.depth) - 1)
+    );
+  };
   for (let i = 0; i < png.width * png.height; i++) {
     if (png.palette) {
-      const col = png.palette[Number(png.data[i])];
+      const col = png.palette[sample(i)];
       source.push(col[3] === 0 ? -1 : rgb555(col[0], col[1], col[2]));
       const converted = rgb(rgb555(col[0], col[1], col[2]));
       quantized.push(col[3] !== 0 && converted.some((v, n) => v !== col[n]));
     } else {
-      const factor = png.depth === 16 ? 257 : 1;
+      const factor = ((1 << png.depth) - 1) / 255;
       const n = i * png.channels,
         gray = png.channels <= 2,
-        r = Number(png.data[n]) / factor,
-        g = gray ? r : Number(png.data[n + 1]) / factor,
-        b = gray ? r : Number(png.data[n + 2]) / factor,
+        r = sample(n) / factor,
+        g = gray ? r : sample(n + 1) / factor,
+        b = gray ? r : sample(n + 2) / factor,
+        transparent =
+          png.transparency?.length === png.channels &&
+          png.transparency.every((value, c) => value === sample(n + c)),
         alpha =
           png.channels === 2 || png.channels === 4
-            ? Number(png.data[n + png.channels - 1]) / factor
-            : 255;
+            ? sample(n + png.channels - 1) / factor
+            : transparent
+              ? 0
+              : 255;
       source.push(alpha < 128 ? -1 : rgb555(r, g, b));
       const converted = rgb(rgb555(r, g, b));
       quantized.push(
@@ -114,7 +131,7 @@ export function importPng(
         png.palette.length <= 16 &&
         png.palette[0]?.[3] === 0
       )
-        best = Number(png.data[y * png.width + x]);
+        best = sample(y * png.width + x);
       sheet.pixels[y * w + x] = best;
       if (palette.colors[best] !== v || quantized[y * png.width + x]) changed++;
     }
