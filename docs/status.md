@@ -55,3 +55,9 @@ usages navigables. Tampons et terrains renommables, duplicables et supprimables 
 animations de tiles nommables et supprimables. La suppression d’un terrain
 conserve ses pixels peints ou applique explicitement un terrain de remplacement.
 Parcours de création/retour et captures FR/EN vérifiés dans Chrome.
+
+Redimensionnement avec neuf ancrages, recadrage, insertion/retrait de lignes et
+colonnes, échange de blocs de tiles disponibles. Les références sont remappées ;
+une pièce fragmentée ou une référence supprimée non remplacée bloque l’opération.
+Tests ciblés : préservation des rendus et calques, références secondaires et refus
+sans mutation. Agrandissement et annulation observés dans Chrome.

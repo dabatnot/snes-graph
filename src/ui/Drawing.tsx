@@ -10,6 +10,7 @@ import {
 import { fill, line, pixel, put, transform, type Point } from "../core/pixels";
 import { renderSheet } from "../core/render";
 import { growSheet, tileUses } from "../core/resources";
+import { SheetLayout } from "./SheetLayout";
 import { tr } from "../i18n";
 import { Check, Field, NumberField, Select, Preview } from "./controls";
 type Tool =
@@ -503,6 +504,16 @@ export function Drawing({
             + {tr("Colonne de tiles", "Column of tiles")}
           </button>
         </div>
+        <SheetLayout
+          project={project}
+          sheet={sheet}
+          selection={selection}
+          change={change}
+          onApplied={() => {
+            setSelection(null);
+            mask.current = null;
+          }}
+        />
         <div className="preview-tile">
           <Preview image={renderSheet(project, sheet, pal.id)} scale={2} />
         </div>

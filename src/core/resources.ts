@@ -320,3 +320,161 @@ export function removeTerrain(
   }
   m.terrains = m.terrains?.filter((t) => t.id !== id);
 }
+
+/** Map old tile positions to new ones. Removed pixels never overwrite replacements. */
+export function transformSheet(
+  p: Project,
+  id: string,
+  width: number,
+  height: number,
+  positions: number[],
+  replacements: Record<number, number> = {},
+) {
+  const original = p.sheets.find((s) => s.id === id)!;
+  if (
+    ![width, height].every(
+      (n) => Number.isInteger(n) && n >= 8 && n <= 4096 && n % 8 === 0,
+    ) ||
+    positions.length !== (original.width * original.height) / 64
+  )
+    throw new Error("Dimensions invalides / Invalid dimensions");
+  const count = (width * height) / 64;
+  const retained = positions.filter((n) => n >= 0);
+  if (
+    new Set(retained).size !== retained.length ||
+    positions.some((n) => !Number.isInteger(n) || n < -1 || n >= count)
+  )
+    throw new Error("Placement de tiles invalide / Invalid tile placement");
+  const next = clone(p),
+    sheet = next.sheets.find((s) => s.id === id)!;
+  const mapRef = (tile: number, usage: string) => {
+    const mapped =
+      positions[tile] === -1 ? replacements[tile] : positions[tile];
+    if (!Number.isInteger(mapped) || mapped < 0 || mapped >= count)
+      throw new Error(
+        `${usage} : tile ${tile} — choisissez un remplacement / choose a replacement`,
+      );
+    return mapped;
+  };
+  for (const m of next.maps.filter((m) => m.sheetId === id)) {
+    for (const c of [...m.cells, ...m.stamps.flatMap((s) => s.cells)])
+      c.tile = mapRef(c.tile, m.name);
+    for (const t of m.terrains ?? [])
+      t.tiles = t.tiles.map((n) => mapRef(n, `${m.name} / ${t.name}`));
+    for (const a of m.animatedTiles) {
+      a.tile = mapRef(a.tile, m.name);
+      a.frames = a.frames.map((n) => mapRef(n, m.name));
+    }
+    if (
+      new Set(m.animatedTiles.map((a) => a.tile)).size !==
+      m.animatedTiles.length
+    )
+      throw new Error(
+        `${m.name} : plusieurs animations sur la même tile / duplicate animated tile`,
+      );
+  }
+  for (const a of next.actors)
+    for (const pose of a.poses)
+      for (const c of pose.pieces.filter((c) => c.sheetId === id)) {
+        const old = (c.sy / 8) * (original.width / 8) + c.sx / 8;
+        const first = mapRef(old, `${a.name} / ${pose.name}`),
+          x = first % (width / 8),
+          y = Math.floor(first / (width / 8));
+        for (let dy = 0; dy < c.size / 8; dy++)
+          for (let dx = 0; dx < c.size / 8; dx++) {
+            if (
+              x + dx >= width / 8 ||
+              y + dy >= height / 8 ||
+              mapRef(old + (dy * original.width) / 8 + dx, a.name) !==
+                first + (dy * width) / 8 + dx
+            )
+              throw new Error(
+                `${a.name} / ${pose.name} : pièce fragmentée — corrigez sa source / fragmented piece — edit its source`,
+              );
+          }
+        c.sx = x * 8;
+        c.sy = y * 8;
+      }
+  const relocate = (data: Uint8Array) => {
+    const out = new Uint8Array(width * height);
+    positions.forEach((dest, tile) => {
+      if (dest < 0) return;
+      const sx = (tile % (original.width / 8)) * 8,
+        sy = Math.floor(tile / (original.width / 8)) * 8;
+      const tx = (dest % (width / 8)) * 8,
+        ty = Math.floor(dest / (width / 8)) * 8;
+      for (let y = 0; y < 8; y++)
+        out.set(
+          data.subarray(
+            (sy + y) * original.width + sx,
+            (sy + y) * original.width + sx + 8,
+          ),
+          (ty + y) * width + tx,
+        );
+    });
+    return out;
+  };
+  sheet.pixels = relocate(sheet.pixels);
+  for (const layer of sheet.layers ?? []) layer.pixels = relocate(layer.pixels);
+  sheet.width = width;
+  sheet.height = height;
+  validateProject(next);
+  Object.assign(p, next);
+}
+export function resizePositions(
+  oldWidth: number,
+  oldHeight: number,
+  width: number,
+  height: number,
+  dx: number,
+  dy: number,
+) {
+  return Array.from({ length: (oldWidth * oldHeight) / 64 }, (_, i) => {
+    const x = (i % (oldWidth / 8)) + dx,
+      y = Math.floor(i / (oldWidth / 8)) + dy;
+    return x < 0 || y < 0 || x >= width / 8 || y >= height / 8
+      ? -1
+      : (y * width) / 8 + x;
+  });
+}
+export function exchangeTileBlocks(
+  columns: number,
+  rows: number,
+  source: { x: number; y: number; width: number; height: number },
+  x: number,
+  y: number,
+) {
+  const { width, height } = source;
+  if (
+    ![source.x, source.y, width, height, x, y].every(Number.isInteger) ||
+    width < 1 ||
+    height < 1 ||
+    source.x < 0 ||
+    source.y < 0 ||
+    x < 0 ||
+    y < 0 ||
+    source.x + width > columns ||
+    source.y + height > rows ||
+    x + width > columns ||
+    y + height > rows
+  )
+    throw new Error("Bloc hors du dessin / Block outside drawing");
+  if (
+    x < source.x + width &&
+    x + width > source.x &&
+    y < source.y + height &&
+    y + height > source.y
+  )
+    throw new Error(
+      "Les blocs doivent être disjoints / Blocks must not overlap",
+    );
+  const positions = Array.from({ length: columns * rows }, (_, i) => i);
+  for (let dy = 0; dy < height; dy++)
+    for (let dx = 0; dx < width; dx++) {
+      const a = (source.y + dy) * columns + source.x + dx,
+        b = (y + dy) * columns + x + dx;
+      positions[a] = b;
+      positions[b] = a;
+    }
+  return positions;
+}

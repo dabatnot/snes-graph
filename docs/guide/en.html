@@ -1870,6 +1870,44 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="sheet-layout">Drawing size and tile arrangement</h3>
+        <p>
+          Open <strong>Size and arrangement…</strong> in the drawing inspector.
+          Resize uses dimensions in tiles and one of nine anchors. Pixel
+          dimensions and the preview are shown before applying. The + Row and +
+          Column buttons remain available for adding space at the bottom or
+          right.
+        </p>
+        <p>
+          To crop, select a region before opening the dialog; its edges extend
+          to tile boundaries. Insert/remove row or column uses a zero-based
+          index. To move a block, select it and choose Move / exchange:
+          destination tiles are exchanged without overwriting. Blocks must not
+          overlap.
+        </p>
+        <p>
+          Maps, stamps, terrains, animations and piece sources are remapped; all
+          layers are retained. If a sprite piece would be fragmented, edit its
+          source in the assembly before trying again. For a removed tile that is
+          still used, enter a replacement index in the new drawing. This
+          redirects references, not the removed pixels.
+        </p>
+        <p>
+          Reduction requires accepting pixel deletion. Apply remains disabled
+          while any conflict remains. Cancel closes the dialog without changes;
+          Ctrl+Z undoes an applied transformation in one step.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/19-sheet-layout.png"
+            ><img
+              src="assets/en/19-sheet-layout.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Drawing size and tile arrangement"
+          /></a>
+          <figcaption>Drawing size and tile arrangement</figcaption>
+        </figure>
         <h3 id="calques">Drawing layers</h3>
         <div class="table-wrap">
           <table class="control-reference">
@@ -4705,7 +4743,9 @@ npm run dev</code></pre>
         </p>
         <p>
           Parts extending beyond the map are clipped. Choose
-          <strong>Single tile</strong> again to return to a simple brush. The selected stamp can be renamed, duplicated and deleted without erasing the map.
+          <strong>Single tile</strong> again to return to a simple brush. The
+          selected stamp can be renamed, duplicated and deleted without erasing
+          the map.
         </p>
         <figure>
           <a data-zoom="" href="assets/en/07-metatiles.png"
@@ -5004,7 +5044,8 @@ npm run dev</code></pre>
         <p>
           All 16 rules initially use the active tile: customize them to see
           actual connections. A terrain does not automatically generate new
-          artwork; draw the different pieces in the tileset. Rename, duplicate and delete controls are in the connection rules.
+          artwork; draw the different pieces in the tileset. Rename, duplicate
+          and delete controls are in the connection rules.
         </p>
         <h3 id="tiles-animees">Animated tiles</h3>
         <div class="table-wrap">
@@ -5124,7 +5165,8 @@ npm run dev</code></pre>
         </p>
         <p>
           The Maps workspace has no Play button: watch this animation by playing
-          a scene that uses the map. Sequences can be named, duplicated onto another base tile and deleted. Undo restores the deleted sequence.
+          a scene that uses the map. Sequences can be named, duplicated onto
+          another base tile and deleted. Undo restores the deleted sequence.
         </p>
       </section>
       <section class="chapter" id="scenes">

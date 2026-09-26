@@ -158,3 +158,10 @@ La recherche FR « CGRAM » a également été vérifiée (6 chapitres). Le menu
 Le dessin Terrain passe de 16 × 8 à 16 × 16 ; le pinceau sélectionne la tile 2.
 Parcours observé avec le contrôle du navigateur, captures examinées dans les deux langues.
 Tests ciblés de gestion des ressources et compilation web réussis.
+
+## Évolution : dimensions
+
+`19-sheet-layout.png` (FR/EN) : web Chrome, 1878 × 867 ; exemple intégré,
+Joueur → Dimensions et organisation → 5 colonnes, 6 lignes, ancrage bas droite.
+Réduction à une colonne refusée (pièce fragmentée), agrandissement appliqué puis
+annulé en une étape, observés dans l’interface. Tests de remappage et build réussis.

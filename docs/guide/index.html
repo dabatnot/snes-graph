@@ -1939,6 +1939,47 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="sheet-layout">Dimensions et organisation des tiles</h3>
+        <p>
+          Ouvrez <strong>Dimensions et organisation…</strong> dans l’inspecteur
+          du dessin. Redimensionner utilise des dimensions en tiles et l’un des
+          neuf ancrages. Les dimensions en pixels et l’aperçu sont affichés
+          avant application. Les boutons + Ligne et + Colonne restent
+          disponibles pour agrandir à droite ou en bas.
+        </p>
+        <p>
+          Pour recadrer, sélectionnez une zone avant d’ouvrir le dialogue ; ses
+          bords sont étendus aux limites de tiles. Insérer/retirer une ligne ou
+          colonne utilise un numéro à partir de zéro. Pour déplacer un bloc,
+          sélectionnez-le et choisissez Déplacer / échanger : les tiles de
+          destination sont échangées, sans écrasement. Les blocs doivent être
+          disjoints.
+        </p>
+        <p>
+          Les cartes, tampons, terrains, animations et sources de pièces sont
+          remappés ; tous les calques sont conservés. Si une pièce de sprite
+          serait fragmentée, corrigez sa source dans l’assemblage avant de
+          recommencer. Pour une tile supprimée encore utilisée, renseignez un
+          numéro de remplacement dans le nouveau dessin. Ce remplacement
+          redirige les références, pas les pixels supprimés.
+        </p>
+        <p>
+          Une réduction exige de cocher l’acceptation de la suppression.
+          Appliquer reste désactivé tant qu’un conflit subsiste. Annuler ferme
+          le dialogue sans modification ; Ctrl+Z annule toute la transformation
+          validée en une étape.
+        </p>
+        <figure>
+          <a data-zoom href="assets/19-sheet-layout.png"
+            ><img
+              src="assets/19-sheet-layout.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Dimensions et organisation des tiles"
+          /></a>
+          <figcaption>Dimensions et organisation des tiles</figcaption>
+        </figure>
         <h3 id="calques">Calques de dessin</h3>
         <div class="table-wrap">
           <table class="control-reference">
@@ -4834,8 +4875,9 @@ npm run dev</code></pre>
         </p>
         <p>
           Les parties dépassant le bord de la carte sont coupées. Rechoisissez
-          <strong>Tile seule</strong> pour reprendre un pinceau simple.
-          Le tampon sélectionné peut être renommé, dupliqué et supprimé sans effacer la carte.
+          <strong>Tile seule</strong> pour reprendre un pinceau simple. Le
+          tampon sélectionné peut être renommé, dupliqué et supprimé sans
+          effacer la carte.
         </p>
         <figure>
           <a data-zoom href="assets/07-metatiles.png"
@@ -5266,7 +5308,9 @@ npm run dev</code></pre>
         </p>
         <p>
           L’atelier Cartes n’a pas de bouton Lecture : observez cette animation
-          en lecture dans une scène utilisant la carte. Les séquences peuvent être nommées, dupliquées sur une autre tile de base et supprimées. Annuler restaure la séquence supprimée.
+          en lecture dans une scène utilisant la carte. Les séquences peuvent
+          être nommées, dupliquées sur une autre tile de base et supprimées.
+          Annuler restaure la séquence supprimée.
         </p>
       </section>
 
@@ -8603,9 +8647,8 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>Édition des dessins</td>
                 <td>
-                  Agrandissement par lignes ou colonnes de tiles disponible. Pas
-                  de réduction de taille ni de conversion de profondeur dans
-                  l’inspecteur.
+                  Redimensionnement, recadrage et échange de blocs disponibles.
+                  La conversion de profondeur n’est pas proposée.
                 </td>
                 <td>
                   Utilisez + Ligne de tiles ou + Colonne de tiles pour agrandir.
