@@ -1,3 +1,4 @@
+import { PaletteCompare } from "./PaletteCompare";
 import { useState } from "react";
 import {
   clone,
@@ -63,6 +64,7 @@ export function Palettes({
             </button>
           ))}
         </div>
+        <PaletteCompare project={project} palette={palette} change={change} />
         <h3>{tr("Aperçu sur les dessins", "Preview on graphics")}</h3>
         <div className="palette-previews">
           {project.sheets

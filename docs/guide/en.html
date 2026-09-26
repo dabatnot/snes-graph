@@ -2826,6 +2826,43 @@ npm run dev</code></pre>
             cycle ranges again: their endpoints remain indices.
           </p>
         </div>
+        <h3 id="palette-compare">Compare palettes and remap pixels</h3>
+        <p>
+          Expand <strong>Compare and remap</strong> in Palettes. Choose another
+          palette of the same size and a preview resource. Both previews share
+          the same playback time; for a sprite, also select its animation. The
+          table highlights differing colours. On a sprite, comparison only
+          substitutes the selected palette, preserving other piece palettes.
+        </p>
+        <p>
+          For a drawing, <strong>Remap indices…</strong> opens source →
+          destination mappings. Zero stays transparent and visible indices stay
+          nonzero. Preview the result before choosing
+          <strong>Apply to shared pixels</strong>. All layers and uses of that
+          drawing are affected; palette colours remain unchanged. A locked index
+          in a used palette blocks its remapping. Cancel discards the mapping;
+          Ctrl+Z undoes an applied remap.
+        </p>
+        <p>
+          In Maps, select a region then choose
+          <strong>Apply palette to selection</strong>. In Sprites, Shift+click
+          selects multiple pieces and
+          <strong>Selected pieces palette</strong> changes them together. A
+          variant can be duplicated without copying drawings. In Scenes, check
+          multiple instances then choose <strong>Selection variant</strong>; all
+          must use the same actor.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/20-palette-compare.png"
+            ><img
+              src="assets/en/20-palette-compare.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Compare palettes and remap pixels"
+          /></a>
+          <figcaption>Compare palettes and remap pixels</figcaption>
+        </figure>
         <h3 id="cycles">Palette cycles</h3>
         <div class="table-wrap">
           <table class="control-reference">

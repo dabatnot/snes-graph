@@ -478,3 +478,42 @@ export function exchangeTileBlocks(
     }
   return positions;
 }
+
+export function remapSheetIndices(p: Project, id: string, indices: number[]) {
+  const s = p.sheets.find((s) => s.id === id)!;
+  const limit = 1 << s.bpp;
+  if (
+    indices.length !== limit ||
+    indices[0] !== 0 ||
+    indices.some(
+      (n, i) =>
+        !Number.isInteger(n) || n < 0 || n >= limit || (i > 0 && n === 0),
+    )
+  )
+    throw new Error(
+      "Indices invalides : zéro reste transparent / Invalid indices: zero stays transparent",
+    );
+  const paletteIds = new Set([s.paletteId]);
+  for (const a of p.actors) {
+    for (const pose of a.poses)
+      for (const c of pose.pieces)
+        if (c.sheetId === id) paletteIds.add(c.paletteId);
+    for (const v of a.variants)
+      for (const [base, replacement] of Object.entries(v.palettes))
+        if (paletteIds.has(base)) paletteIds.add(replacement);
+  }
+  for (const m of p.maps.filter((m) => m.sheetId === id))
+    for (const c of [...m.cells, ...m.stamps.flatMap((s) => s.cells)])
+      paletteIds.add(c.paletteId);
+  for (const palette of p.palettes.filter((pal) => paletteIds.has(pal.id)))
+    if (
+      indices.some(
+        (to, from) =>
+          to !== from && (palette.locked[from] || palette.locked[to]),
+      )
+    )
+      throw new Error(`${palette.name} : indice verrouillé / locked index`);
+  const remap = (pixels: Uint8Array) => pixels.map((n) => indices[n]);
+  s.pixels = remap(s.pixels);
+  for (const l of s.layers ?? []) l.pixels = remap(l.pixels);
+}

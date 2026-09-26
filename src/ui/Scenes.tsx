@@ -89,10 +89,16 @@ export function Scenes({
     [scale, setScale] = useState(2),
     [crt, setCrt] = useState(false),
     [selected, setSelected] = useState(""),
+    [selectedInstances, setSelectedInstances] = useState<string[]>([]),
     [moved, setMoved] = useState<{ id: string; x: number; y: number } | null>(
       null,
     ),
     [line, setLine] = useState<number | null>(null);
+  const batch = scene.instances.filter((i) => selectedInstances.includes(i.id));
+  const batchActor =
+    batch.length && batch.every((i) => i.actorId === batch[0].actorId)
+      ? project.actors.find((a) => a.id === batch[0].actorId)
+      : undefined;
   const drag = useRef<{
     id: string;
     x: number;
@@ -489,12 +495,62 @@ export function Scenes({
         >
           ＋ {tr("Couche", "Layer")}
         </button>
-        <h3>{tr("Personnages", "Characters")}</h3>
+        <h3>{tr("Instances", "Instances")}</h3>
+        {batch.length > 0 && (
+          <>
+            <p>
+              {batch.length}{" "}
+              {tr("instances sélectionnées", "selected instances")}
+            </p>
+            {batchActor ? (
+              <Select
+                label={tr("Variante de la sélection", "Selection variant")}
+                value="choose"
+                options={[
+                  { value: "choose", label: tr("Choisir…", "Choose…") },
+                  { value: "", label: tr("Original", "Original") },
+                  ...batchActor.variants.map((v) => ({
+                    value: v.id,
+                    label: v.name,
+                  })),
+                ]}
+                onChange={(v) => {
+                  if (v !== "choose")
+                    edit((s) => {
+                      for (const i of s.instances)
+                        if (selectedInstances.includes(i.id)) i.variantId = v;
+                    });
+                }}
+              />
+            ) : (
+              <p>
+                {tr(
+                  "Sélectionnez des instances d’un même acteur pour appliquer une variante.",
+                  "Select instances of the same actor to apply a variant.",
+                )}
+              </p>
+            )}
+          </>
+        )}
+
         {scene.instances.map((i, n) => {
           const a = project.actors.find((a) => a.id === i.actorId)!;
           return (
             <details key={i.id} open={selected === i.id}>
               <summary>
+                <input
+                  type="checkbox"
+                  aria-label={`${tr("Sélectionner l’instance", "Select instance")} ${n + 1}`}
+                  checked={selectedInstances.includes(i.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) =>
+                    setSelectedInstances((ids) =>
+                      e.target.checked
+                        ? [...ids, i.id]
+                        : ids.filter((id) => id !== i.id),
+                    )
+                  }
+                />
                 <span
                   onClick={(e) => {
                     e.preventDefault();

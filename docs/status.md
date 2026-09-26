@@ -61,3 +61,7 @@ colonnes, échange de blocs de tiles disponibles. Les références sont remappé
 une pièce fragmentée ou une référence supprimée non remplacée bloque l’opération.
 Tests ciblés : préservation des rendus et calques, références secondaires et refus
 sans mutation. Agrandissement et annulation observés dans Chrome.
+
+Comparaison de palettes et aperçu synchronisé, remappage explicite des indices,
+application de palette à une région de carte ou une sélection de pièces,
+duplication de variante et application à plusieurs instances du même acteur.

@@ -165,3 +165,11 @@ Tests ciblés de gestion des ressources et compilation web réussis.
 Joueur → Dimensions et organisation → 5 colonnes, 6 lignes, ancrage bas droite.
 Réduction à une colonne refusée (pièce fragmentée), agrandissement appliqué puis
 annulé en une étape, observés dans l’interface. Tests de remappage et build réussis.
+
+## Évolution : palettes et variantes
+
+`20-palette-compare.png` FR/EN : Chrome 1878 × 867, Palettes → Comparer et
+remapper → seconde palette de l’exemple → aperçu du dessin, panneau central
+défilé pour montrer les rendus et le début du tableau. Les noms de ressources
+restent ceux du projet. Captures examinées ; test des pixels/calques et verrous
+et compilation web réussis.

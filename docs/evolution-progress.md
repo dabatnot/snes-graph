@@ -4,7 +4,7 @@ Plan accepté : huit lots utilisables, documentés en français et en anglais.
 
 - [x] 1. Navigation contextuelle, bibliothèque, gestion des ressources secondaires.
 - [x] 2. Redimensionnement, recadrage et réorganisation avec références préservées.
-- [ ] 3. Comparaison, remappage et application groupée des palettes et variantes.
+- [x] 3. Comparaison, remappage et application groupée des palettes et variantes.
 - [ ] 4. Assemblage collectif, attaches visuelles et édition des séquences.
 - [ ] 5. Régions de cartes, miroirs, rotations et raccords.
 - [ ] 6. Diagnostics navigables, mémoire et analyse temporelle.

@@ -92,3 +92,31 @@ describe("resource lifecycle", () => {
     );
   });
 });
+
+it("remaps shared drawing layers without changing palettes and rejects locked indices", async () => {
+  const { remapSheetIndices } = await import("../src/core/resources");
+  const p = footballProject(),
+    s = p.sheets[0],
+    paletteBefore = clone(p.palettes);
+  const indices = Array.from({ length: 16 }, (_, i) => i);
+  indices[1] = 2;
+  indices[2] = 1;
+  s.layers = [
+    {
+      id: "layer",
+      name: "Layer",
+      visible: true,
+      locked: false,
+      pixels: s.pixels.slice(),
+    },
+  ];
+  const before = s.pixels.slice();
+  remapSheetIndices(p, s.id, indices);
+  expect(s.pixels).toEqual(before.map((n) => indices[n]));
+  expect(s.layers[0].pixels).toEqual(s.pixels);
+  expect(p.palettes).toEqual(paletteBefore);
+  p.palettes[0].locked[1] = true;
+  const snapshot = clone(p);
+  expect(() => remapSheetIndices(p, s.id, indices)).toThrow(/locked/);
+  expect(p).toEqual(snapshot);
+});

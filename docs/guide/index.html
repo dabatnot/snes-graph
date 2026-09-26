@@ -2922,6 +2922,49 @@ npm run dev</code></pre>
             leurs bornes restent des indices.
           </p>
         </div>
+        <h3 id="palette-compare">
+          Comparer les palettes et remapper les pixels
+        </h3>
+        <p>
+          Dépliez <strong>Comparer et remapper</strong> dans Palettes.
+          Choisissez une seconde palette de même taille et une ressource
+          d’aperçu. Les deux rendus partagent le même temps de lecture ; pour un
+          sprite, choisissez aussi son animation. Le tableau surligne les
+          couleurs différentes. Sur un sprite, la comparaison substitue
+          uniquement la palette sélectionnée, en conservant les autres palettes
+          de ses pièces.
+        </p>
+        <p>
+          Pour un dessin, <strong>Remapper les indices…</strong> ouvre les
+          correspondances source → destination. Zéro reste transparent et les
+          indices visibles restent non nuls. L’aperçu montre le résultat avant
+          <strong>Appliquer aux pixels partagés</strong>. Tous les calques et
+          usages de ce dessin sont affectés ; les couleurs de palette restent
+          inchangées. Un indice verrouillé dans une palette utilisée bloque sa
+          modification. Annuler abandonne les correspondances ; Ctrl+Z annule
+          l’application.
+        </p>
+        <p>
+          Dans Cartes, sélectionnez une région puis utilisez
+          <strong>Appliquer la palette à la sélection</strong>. Dans Sprites,
+          Maj+clic sélectionne plusieurs pièces et le champ
+          <strong>Palette des pièces sélectionnées</strong> les modifie
+          ensemble. Une variante peut être dupliquée sans copier les dessins.
+          Dans Scènes, cochez plusieurs instances puis choisissez
+          <strong>Variante de la sélection</strong> ; elles doivent utiliser le
+          même acteur.
+        </p>
+        <figure>
+          <a data-zoom href="assets/20-palette-compare.png"
+            ><img
+              src="assets/20-palette-compare.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Comparer les palettes et remapper les pixels"
+          /></a>
+          <figcaption>Comparer les palettes et remapper les pixels</figcaption>
+        </figure>
         <h3 id="cycles">Cycles de palette</h3>
         <div class="table-wrap">
           <table class="control-reference">

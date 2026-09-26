@@ -46,6 +46,7 @@ export function Sprites({
     [animIndex, setAnim] = useState(0),
     [variantId, setVariant] = useState(""),
     [pieceId, setPiece] = useState(""),
+    [selectedPieces, setSelectedPieces] = useState<string[]>([]),
     [play, setPlay] = useState(false),
     [onion, setOnion] = useState(false),
     [compare, setCompare] = useState(false);
@@ -91,6 +92,9 @@ export function Sprites({
       const target = a.animations.find((v) => v.id === animation?.id);
       if (target) fn(target);
     });
+  const selectedIds = selectedPieces.filter((id) =>
+    pose?.pieces.some((c) => c.id === id),
+  );
   const editPiece = (fn: (c: Piece) => void) =>
     edit((a) => {
       const c = a.poses
@@ -196,18 +200,28 @@ export function Sprites({
                     title={c.group || tr("Pièce", "Piece")}
                     aria-label={`${tr("Pièce", "Piece")} ${pose.pieces.indexOf(c) + 1}`}
                     key={c.id}
-                    className={`piece-overlay ${c.id === pieceId ? "selected" : ""}`}
+                    className={`piece-overlay ${selectedIds.includes(c.id) || c.id === pieceId ? "selected" : ""}`}
                     style={{
                       left: (64 - actor.originX + c.x) * 3,
                       top: (80 - actor.originY + c.y) * 3,
                       width: c.size * 3,
                       height: c.size * 3,
                     }}
-                    onClick={() => setPiece(c.id)}
+
                     onDoubleClick={() => onEditSheet(c.sheetId)}
                     onPointerDown={(e) => {
                       e.currentTarget.setPointerCapture(e.pointerId);
                       setPiece(c.id);
+                      if (e.shiftKey || e.ctrlKey || e.metaKey) {
+                        setSelectedPieces((ids) =>
+                          ids.includes(c.id)
+                            ? ids.filter((id) => id !== c.id)
+                            : [...ids, c.id],
+                        );
+                        return;
+                      }
+                      if (!selectedIds.includes(c.id))
+                        setSelectedPieces([c.id]);
                       dragging.current = {
                         x: e.clientX,
                         y: e.clientY,
@@ -226,6 +240,7 @@ export function Sprites({
                       for (const pc of next.pieces)
                         if (
                           pc.id === d.piece.id ||
+                          selectedIds.includes(pc.id) ||
                           (d.piece.group && pc.group === d.piece.group)
                         ) {
                           pc.x += d.dx;
@@ -241,6 +256,7 @@ export function Sprites({
                           for (const pc of pos.pieces)
                             if (
                               pc.id === d.piece.id ||
+                              selectedIds.includes(pc.id) ||
                               (d.piece.group && pc.group === d.piece.group)
                             ) {
                               pc.x += d.dx;
@@ -446,6 +462,19 @@ export function Sprites({
         </button>
         {variant && (
           <>
+            <button
+              onClick={() =>
+                edit((a) => {
+                  const cp = clone(variant);
+                  cp.id = uid();
+                  cp.name += tr(" copie", " copy");
+                  a.variants.push(cp);
+                  setVariant(cp.id);
+                })
+              }
+            >
+              {tr("Dupliquer la variante", "Duplicate variant")}
+            </button>
             <Field label={tr("Nom de la variante", "Variant name")}>
               <input
                 value={variant.name}
@@ -734,6 +763,37 @@ export function Sprites({
             >
               {tr("Supprimer la pièce", "Delete piece")}
             </button>
+          </>
+        )}
+        {selectedIds.length > 0 && (
+          <>
+            <p>
+              {selectedIds.length}{" "}
+              {tr(
+                "pièces sélectionnées (Maj+clic)",
+                "selected pieces (Shift+click)",
+              )}
+            </p>
+            <Select
+              label={tr(
+                "Palette des pièces sélectionnées",
+                "Selected pieces palette",
+              )}
+              value=""
+              options={[
+                { value: "", label: tr("Choisir…", "Choose…") },
+                ...project.palettes
+                  .filter((p) => p.colors.length >= 16)
+                  .map((p) => ({ value: p.id, label: p.name })),
+              ]}
+              onChange={(id) => {
+                if (id)
+                  editPose((p) => {
+                    for (const c of p.pieces)
+                      if (selectedIds.includes(c.id)) c.paletteId = id;
+                  });
+              }}
+            />
           </>
         )}
         <h3>{tr("Animation", "Animation")}</h3>

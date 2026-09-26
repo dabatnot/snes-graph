@@ -378,6 +378,25 @@ export function Maps({
           max={255}
           onChange={setCollision}
         />
+        <button
+          disabled={brush !== "select"}
+          onClick={() =>
+            edit((m) => {
+              for (let y = selection.y; y < selection.y + selection.height; y++)
+                for (
+                  let x = selection.x;
+                  x < selection.x + selection.width;
+                  x++
+                )
+                  m.cells[y * m.width + x].paletteId = paletteId;
+            })
+          }
+        >
+          {tr(
+            "Appliquer la palette à la sélection",
+            "Apply palette to selection",
+          )}
+        </button>
         <h3>{tr("Métatiles", "Metatiles")}</h3>
         <p className="muted">
           {tileUses(project, sheet.id, tile)
