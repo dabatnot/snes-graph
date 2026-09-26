@@ -1,0 +1,790 @@
+{
+  "outil-crayon": {
+    "source": "assets/01-dessins.png",
+    "box": [221, 155, 257, 193]
+  },
+  "outil-gomme": {
+    "source": "assets/01-dessins.png",
+    "box": [264, 155, 300, 193]
+  },
+  "outil-remplir": {
+    "source": "assets/01-dessins.png",
+    "box": [305, 155, 341, 193]
+  },
+  "outil-pipette": {
+    "source": "assets/01-dessins.png",
+    "box": [345, 155, 381, 193]
+  },
+  "outil-ligne": {
+    "source": "assets/01-dessins.png",
+    "box": [384, 155, 420, 193]
+  },
+  "outil-rectangle": {
+    "source": "assets/01-dessins.png",
+    "box": [425, 155, 461, 193]
+  },
+  "outil-ellipse": {
+    "source": "assets/01-dessins.png",
+    "box": [466, 155, 502, 193]
+  },
+  "outil-selection": {
+    "source": "assets/01-dessins.png",
+    "box": [507, 155, 543, 193]
+  },
+  "outil-lasso": {
+    "source": "assets/01-dessins.png",
+    "box": [547, 155, 583, 193]
+  },
+  "outil-deplacer": {
+    "source": "assets/01-dessins.png",
+    "box": [588, 155, 624, 193]
+  },
+  "global-nouveau": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [945, 55, 1017, 94]
+  },
+  "global-ouvrir": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1022, 55, 1087, 94]
+  },
+  "global-enregistrer": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1088, 55, 1178, 94]
+  },
+  "global-menu": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1181, 55, 1221, 94]
+  },
+  "global-historique": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1240, 55, 1318, 94]
+  },
+  "global-langue": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1323, 52, 1388, 98]
+  },
+  "global-aide": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1394, 55, 1420, 94]
+  },
+  "global-frequence": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1354, 890, 1430, 920]
+  },
+  "bibliotheque-nouveau": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [7, 153, 201, 191]
+  },
+  "bibliotheque-recherche": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [8, 194, 201, 232]
+  },
+  "bibliotheque-actions": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [7, 578, 201, 870]
+  },
+  "dessin-zoom": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [642, 153, 764, 194]
+  },
+  "dessin-grille": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [769, 156, 824, 190]
+  },
+  "dessin-symetrie": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [830, 156, 909, 190]
+  },
+  "dessin-indices": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [220, 834, 890, 882]
+  },
+  "palette-entree": {
+    "source": "assets/02-palettes.png",
+    "box": [689, 235, 916, 337]
+  },
+  "palette-transparent": {
+    "source": "assets/02-palettes.png",
+    "box": [236, 235, 461, 337]
+  },
+  "palette-apercu": {
+    "source": "assets/02-palettes.png",
+    "box": [235, 686, 490, 889]
+  },
+  "sprite-lecture": {
+    "source": "assets/04-sprites.png",
+    "box": [221, 156, 302, 198]
+  },
+  "sprite-animation": {
+    "source": "assets/04-sprites.png",
+    "box": [304, 153, 452, 202]
+  },
+  "sprite-pelure": {
+    "source": "assets/04-sprites.png",
+    "box": [607, 158, 721, 198]
+  },
+  "sprite-comparer": {
+    "source": "assets/04-sprites.png",
+    "box": [725, 158, 807, 198]
+  },
+  "sprite-poses": {
+    "source": "assets/04-sprites.png",
+    "box": [221, 698, 428, 803]
+  },
+  "sprite-pose-nom": {
+    "source": "assets/04-sprites.png",
+    "box": [421, 658, 590, 697]
+  },
+  "sprite-pose-dupliquer": {
+    "source": "assets/04-sprites.png",
+    "box": [738, 658, 882, 697]
+  },
+  "sprite-pose-supprimer": {
+    "source": "assets/04-sprites.png",
+    "box": [1028, 658, 1164, 697]
+  },
+  "sprite-sequence": {
+    "source": "assets/04-sprites.png",
+    "box": [224, 808, 535, 882]
+  },
+  "sprite-frame-plus": {
+    "source": "assets/04-sprites.png",
+    "box": [846, 808, 883, 882]
+  },
+  "sprite-frame-supprimer": {
+    "source": "assets/04-sprites.png",
+    "box": [487, 826, 524, 864]
+  },
+  "carte-outil": {
+    "source": "assets/06-cartes.png",
+    "box": [218, 153, 370, 204]
+  },
+  "carte-zoom": {
+    "source": "assets/06-cartes.png",
+    "box": [371, 154, 490, 202]
+  },
+  "scene-lecture": {
+    "source": "assets/08-scenes.png",
+    "box": [220, 155, 302, 194]
+  },
+  "scene-zoom": {
+    "source": "assets/08-scenes.png",
+    "box": [305, 155, 420, 194]
+  },
+  "scene-crt": {
+    "source": "assets/08-scenes.png",
+    "box": [425, 155, 538, 194]
+  },
+  "scene-temps": {
+    "source": "assets/08-scenes.png",
+    "box": [538, 155, 645, 194]
+  },
+  "export-lancer": {
+    "source": "assets/09-export.png",
+    "box": [973, 175, 1140, 216]
+  },
+  "export-selection": {
+    "source": "assets/09-export.png",
+    "box": [24, 274, 674, 456]
+  },
+  "export-rom": {
+    "source": "assets/10-rom.png",
+    "box": [26, 536, 558, 634]
+  },
+  "export-outils": {
+    "source": "assets/10-rom.png",
+    "box": [25, 636, 755, 842]
+  },
+  "dessin-nom": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 194, 1420, 254]
+  },
+  "dessin-palette": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 255, 1420, 326]
+  },
+  "dessin-defaut": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 328, 1420, 366]
+  },
+  "dessin-dimensions": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 370, 1420, 396]
+  },
+  "dessin-agrandir": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 400, 1420, 453]
+  },
+  "dessin-raccords": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 502, 1420, 533]
+  },
+  "dessin-calque-ajout": {
+    "source": "assets/ui/source-dessin-terrain.png",
+    "box": [1186, 566, 1420, 599]
+  },
+  "dessin-remplacer": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1186, 586, 1420, 618]
+  },
+  "dessin-source-indice": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1186, 626, 1420, 687]
+  },
+  "dessin-copier-coller": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1186, 720, 1420, 757]
+  },
+  "dessin-deselectionner": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1186, 759, 1420, 796]
+  },
+  "dessin-indice-actif": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1186, 800, 1420, 858]
+  },
+  "calque-actif": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 570, 1420, 606]
+  },
+  "calque-visible": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 607, 1420, 633]
+  },
+  "calque-verrou": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 633, 1420, 657]
+  },
+  "calque-nom": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 661, 1420, 719]
+  },
+  "calque-ordre": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 727, 1353, 776]
+  },
+  "calque-aplatir": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1186, 816, 1420, 855]
+  },
+  "palette-nom": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 239, 1420, 295]
+  },
+  "palette-dupliquer": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 299, 1420, 338]
+  },
+  "palette-copier-nombre": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 373, 1420, 430]
+  },
+  "palette-copier": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 434, 1420, 472]
+  },
+  "palette-couleur": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 477, 1420, 553]
+  },
+  "palette-rgb": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 558, 1420, 616]
+  },
+  "palette-code": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 618, 1420, 644]
+  },
+  "palette-role": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 648, 1420, 705]
+  },
+  "palette-verrou": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 707, 1420, 734]
+  },
+  "palette-permuter": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 736, 1420, 788]
+  },
+  "palette-degrade": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 792, 1420, 842]
+  },
+  "palette-cycle-apercu": {
+    "source": "assets/02-palettes.png",
+    "box": [1186, 194, 1420, 233]
+  },
+  "palette-cycle-activer": {
+    "source": "assets/ui/source-cycle.png",
+    "box": [1186, 496, 1420, 524]
+  },
+  "palette-cycle-premier": {
+    "source": "assets/ui/source-cycle.png",
+    "box": [1186, 526, 1420, 582]
+  },
+  "palette-cycle-dernier": {
+    "source": "assets/ui/source-cycle.png",
+    "box": [1186, 589, 1420, 645]
+  },
+  "palette-cycle-duree": {
+    "source": "assets/ui/source-cycle.png",
+    "box": [1186, 650, 1420, 707]
+  },
+  "palette-usages": {
+    "source": "assets/ui/source-cycle.png",
+    "box": [1186, 718, 1420, 853]
+  },
+  "sprite-nom": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 194, 1420, 254]
+  },
+  "sprite-origine": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 268, 1420, 326]
+  },
+  "sprite-ajout-variante": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 335, 1420, 376]
+  },
+  "sprite-accrochage": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 409, 1420, 479]
+  },
+  "sprite-ajout-piece": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 481, 1420, 520]
+  },
+  "sprite-decouper-source": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 522, 1420, 593]
+  },
+  "sprite-decoupage": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 595, 1420, 665]
+  },
+  "sprite-decouper-appliquer": {
+    "source": "assets/04-sprites.png",
+    "box": [1186, 668, 1420, 706]
+  },
+  "variante-nom": {
+    "source": "assets/ui/source-variante-piece.png",
+    "box": [1186, 378, 1420, 439]
+  },
+  "variante-remplacement": {
+    "source": "assets/ui/source-variante-piece.png",
+    "box": [1186, 443, 1420, 509]
+  },
+  "variante-supprimer": {
+    "source": "assets/ui/source-variante-piece.png",
+    "box": [1186, 513, 1420, 553]
+  },
+  "piece-dessin": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 198, 1420, 266]
+  },
+  "piece-taille": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 270, 1420, 340]
+  },
+  "piece-position": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 350, 1420, 413]
+  },
+  "piece-source": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 425, 1420, 485]
+  },
+  "piece-palette": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 498, 1420, 569]
+  },
+  "piece-priorite": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 571, 1420, 629]
+  },
+  "piece-miroirs": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 630, 1420, 683]
+  },
+  "piece-groupe": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 686, 1420, 745]
+  },
+  "piece-supprimer": {
+    "source": "assets/ui/source-piece.png",
+    "box": [1186, 748, 1420, 784]
+  },
+  "animation-nom": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 231, 1420, 290]
+  },
+  "animation-boucle": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 290, 1420, 316]
+  },
+  "animation-retour": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 317, 1420, 343]
+  },
+  "animation-supprimer": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 346, 1420, 384]
+  },
+  "animation-ajouter": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 384, 1420, 424]
+  },
+  "sprite-collision": {
+    "source": "assets/ui/source-collision.png",
+    "box": [1186, 436, 1420, 813]
+  },
+  "sprite-attache": {
+    "source": "assets/ui/source-attache.png",
+    "box": [1186, 585, 1420, 814]
+  },
+  "carte-nom": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 194, 1420, 254]
+  },
+  "carte-tileset": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 255, 1420, 326]
+  },
+  "carte-taille": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 336, 1420, 398]
+  },
+  "carte-tile": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 416, 1420, 538]
+  },
+  "carte-palette": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 542, 1420, 611]
+  },
+  "carte-miroirs": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 611, 1420, 665]
+  },
+  "carte-priorite": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 666, 1420, 689]
+  },
+  "carte-collision": {
+    "source": "assets/06-cartes.png",
+    "box": [1186, 693, 1420, 751]
+  },
+  "carte-locale": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 454, 1420, 507]
+  },
+  "carte-remplacer": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 508, 1420, 560]
+  },
+  "carte-terrain": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 564, 1420, 634]
+  },
+  "carte-terrain-ajouter": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 637, 1420, 675]
+  },
+  "carte-tampon": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 680, 1420, 747]
+  },
+  "carte-capturer": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 750, 1420, 790]
+  },
+  "carte-animer": {
+    "source": "assets/07-metatiles.png",
+    "box": [1186, 824, 1420, 861]
+  },
+  "tile-animation-source": {
+    "source": "assets/ui/source-tile-animee.png",
+    "box": [1186, 621, 1420, 681]
+  },
+  "tile-animation-sequence": {
+    "source": "assets/ui/source-tile-animee.png",
+    "box": [1186, 685, 1420, 758]
+  },
+  "tile-animation-duree": {
+    "source": "assets/ui/source-tile-animee.png",
+    "box": [1186, 761, 1420, 820]
+  },
+  "scene-nom": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 194, 1420, 254]
+  },
+  "scene-mode": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 255, 1420, 324]
+  },
+  "scene-obj": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 327, 1420, 397]
+  },
+  "scene-hauteur": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 398, 1420, 469]
+  },
+  "scene-entrelace": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 469, 1420, 495]
+  },
+  "scene-bg3": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 496, 1420, 522]
+  },
+  "scene-direct": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 523, 1420, 548]
+  },
+  "scene-fond": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 550, 1420, 602]
+  },
+  "scene-camera": {
+    "source": "assets/08-scenes.png",
+    "box": [1186, 614, 1420, 676]
+  },
+  "bg-carte": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 258, 1420, 326]
+  },
+  "bg-visible": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 326, 1420, 355]
+  },
+  "bg-position": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 367, 1420, 426]
+  },
+  "bg-vitesse": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 440, 1420, 559]
+  },
+  "bg-main": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 561, 1420, 588]
+  },
+  "bg-sub": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 588, 1420, 614]
+  },
+  "bg-math": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 614, 1420, 640]
+  },
+  "bg-mosaique": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 642, 1420, 701]
+  },
+  "bg-retirer": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 708, 1420, 748]
+  },
+  "bg-ajouter": {
+    "source": "assets/ui/source-bg.png",
+    "box": [1186, 764, 1420, 803]
+  },
+  "instance-position": {
+    "source": "assets/ui/source-instance.png",
+    "box": [1186, 181, 1420, 295]
+  },
+  "instance-vitesse": {
+    "source": "assets/ui/source-instance.png",
+    "box": [1186, 301, 1420, 418]
+  },
+  "instance-miroir": {
+    "source": "assets/ui/source-instance.png",
+    "box": [1186, 419, 1420, 448]
+  },
+  "instance-actions": {
+    "source": "assets/ui/source-instance.png",
+    "box": [1186, 453, 1420, 491]
+  },
+  "instance-ajouter": {
+    "source": "assets/ui/source-instance.png",
+    "box": [1186, 545, 1420, 584]
+  },
+  "melange-mode": {
+    "source": "assets/ui/source-melange.png",
+    "box": [1186, 637, 1420, 705]
+  },
+  "melange-demi": {
+    "source": "assets/ui/source-melange.png",
+    "box": [1186, 707, 1420, 734]
+  },
+  "melange-sprites": {
+    "source": "assets/ui/source-melange.png",
+    "box": [1186, 734, 1420, 761]
+  },
+  "melange-fixe": {
+    "source": "assets/ui/source-melange.png",
+    "box": [1186, 763, 1420, 814]
+  },
+  "effets-ajouter": {
+    "source": "assets/ui/source-melange.png",
+    "box": [1186, 816, 1420, 871]
+  },
+  "cgram-palette": {
+    "source": "assets/ui/source-cgram.png",
+    "box": [1186, 328, 1420, 396]
+  },
+  "cgram-destination": {
+    "source": "assets/ui/source-cgram.png",
+    "box": [1186, 399, 1420, 469]
+  },
+  "cgram-slot": {
+    "source": "assets/ui/source-cgram.png",
+    "box": [1186, 473, 1420, 531]
+  },
+  "cgram-liberer": {
+    "source": "assets/ui/source-cgram.png",
+    "box": [1186, 539, 1420, 577]
+  },
+  "cgram-ajouter": {
+    "source": "assets/ui/source-cgram.png",
+    "box": [1186, 579, 1420, 619]
+  },
+  "gradient-actif": {
+    "source": "assets/ui/source-gradient.png",
+    "box": [1186, 562, 1420, 591]
+  },
+  "gradient-canal": {
+    "source": "assets/ui/source-gradient.png",
+    "box": [1186, 594, 1420, 652]
+  },
+  "gradient-couleurs": {
+    "source": "assets/ui/source-gradient.png",
+    "box": [1186, 655, 1420, 762]
+  },
+  "gradient-supprimer": {
+    "source": "assets/ui/source-gradient.png",
+    "box": [1186, 770, 1420, 809]
+  },
+  "vague-reglages": {
+    "source": "assets/15-effets-reglages.png",
+    "box": [1186, 153, 1420, 397]
+  },
+  "iris-reglages": {
+    "source": "assets/15-effets-reglages.png",
+    "box": [1186, 466, 1420, 811]
+  },
+  "mode7-extbg": {
+    "source": "assets/16-mode7-reglages.png",
+    "box": [1186, 539, 1420, 565]
+  },
+  "mode7-angle": {
+    "source": "assets/16-mode7-reglages.png",
+    "box": [1186, 569, 1420, 627]
+  },
+  "mode7-scale": {
+    "source": "assets/16-mode7-reglages.png",
+    "box": [1186, 633, 1420, 690]
+  },
+  "mode7-perspective": {
+    "source": "assets/16-mode7-reglages.png",
+    "box": [1186, 695, 1420, 752]
+  },
+  "mode7-horizon": {
+    "source": "assets/16-mode7-reglages.png",
+    "box": [1186, 758, 1420, 815]
+  },
+  "export-ensemble": {
+    "source": "assets/09-export.png",
+    "box": [1186, 194, 1420, 263]
+  },
+  "export-nom": {
+    "source": "assets/09-export.png",
+    "box": [1186, 270, 1420, 324]
+  },
+  "export-scene": {
+    "source": "assets/09-export.png",
+    "box": [1186, 329, 1420, 397]
+  },
+  "export-dedupliquer": {
+    "source": "assets/09-export.png",
+    "box": [1186, 427, 1420, 454]
+  },
+  "export-miroirs": {
+    "source": "assets/09-export.png",
+    "box": [1186, 454, 1420, 481]
+  },
+  "export-reserver": {
+    "source": "assets/09-export.png",
+    "box": [1186, 483, 1420, 542]
+  },
+  "export-compteurs": {
+    "source": "assets/09-export.png",
+    "box": [1186, 545, 1420, 606]
+  },
+  "dessin-miroir-horizontal": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1191, 546, 1230, 583]
+  },
+  "dessin-miroir-vertical": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1233, 546, 1269, 583]
+  },
+  "dessin-rotation": {
+    "source": "assets/ui/source-dessin-selection.png",
+    "box": [1271, 546, 1307, 583]
+  },
+  "import-palette": {
+    "source": "assets/ui/source-import.png",
+    "box": [514, 267, 927, 333]
+  },
+  "import-tramage": {
+    "source": "assets/ui/source-import.png",
+    "box": [514, 337, 609, 364]
+  },
+  "import-apercu": {
+    "source": "assets/ui/source-import.png",
+    "box": [514, 365, 927, 644]
+  },
+  "import-bilan": {
+    "source": "assets/ui/source-import.png",
+    "box": [514, 650, 927, 679]
+  },
+  "import-valider": {
+    "source": "assets/ui/source-import.png",
+    "box": [514, 697, 927, 741]
+  },
+  "creation-nom": {
+    "source": "assets/ui/source-creation-dessin.png",
+    "box": [514, 364, 927, 426]
+  },
+  "creation-taille": {
+    "source": "assets/ui/source-creation-dessin.png",
+    "box": [514, 436, 927, 498]
+  },
+  "creation-profondeur": {
+    "source": "assets/ui/source-creation-dessin.png",
+    "box": [514, 509, 927, 579]
+  },
+  "creation-valider": {
+    "source": "assets/ui/source-creation-dessin.png",
+    "box": [514, 598, 927, 639]
+  },
+  "carte-remplir": {
+    "source": "assets/ui/source-carte-remplir.png",
+    "box": [218, 153, 370, 204]
+  },
+  "carte-prelever": {
+    "source": "assets/ui/source-carte-prelever.png",
+    "box": [218, 153, 370, 204]
+  },
+  "carte-selectionner": {
+    "source": "assets/ui/source-carte-selectionner.png",
+    "box": [218, 153, 370, 204]
+  },
+  "calque-supprimer": {
+    "source": "assets/ui/source-calques.png",
+    "box": [1351, 727, 1432, 776]
+  }
+}

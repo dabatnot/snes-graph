@@ -1,0 +1,11 @@
+{
+  "identifier": "default",
+  "description": "Local project editing",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-destroy",
+    "dialog:default",
+    "fs:allow-read-file"
+  ]
+}

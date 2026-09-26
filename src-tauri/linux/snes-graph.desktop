@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=SNES Graph
+Comment=SNES graphics editor
+Comment[fr]=Éditeur graphique SNES
+Exec=snes-graph %f
+Icon=snes-graph
+Terminal=false
+Categories=Graphics;
+StartupWMClass=snes-graph
+MimeType=application/x-snesgraph;

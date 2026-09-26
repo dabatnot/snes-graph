@@ -1,0 +1,19 @@
+{
+  "bundle": {
+    "targets": ["rpm", "appimage"],
+    "linux": {
+      "rpm": {
+        "desktopTemplate": "linux/snes-graph.desktop",
+        "files": {
+          "/usr/share/mime/packages/snes-graph.xml": "linux/snes-graph.xml"
+        }
+      },
+      "deb": { "desktopTemplate": "linux/snes-graph.desktop" },
+      "appimage": {
+        "files": {
+          "usr/share/mime/packages/snes-graph.xml": "linux/snes-graph.xml"
+        }
+      }
+    }
+  }
+}
