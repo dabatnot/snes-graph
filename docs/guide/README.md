@@ -180,3 +180,11 @@ et compilation web réussis.
 Duplication de la seconde image : durée 8 et événement `step` conservés ;
 annulation observée. Captures examinées. Tests ciblés : déplacement d’une sélection
 de séquence et validation de tous les groupes de destination avant modification.
+
+## Évolution : régions de carte
+
+`22-map-region.png` FR/EN : Chrome 1878 × 867, Carte, sélection initiale 2 × 2,
+Copier et transformer → Copier → Rotation 90° → Prévisualiser. Ce motif dispose
+déjà d’une équivalence par miroir (zéro nouvelle tile). Captures examinées.
+Tests : rotation rectangulaire pixel par pixel, animation indépendante,
+refus sans mutation et déplacement avec chevauchement.

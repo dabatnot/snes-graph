@@ -4889,6 +4889,48 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="map-regions">Copier, déplacer et tourner une région</h3>
+        <p>
+          Choisissez Sélectionner, tracez un rectangle, puis dépliez
+          <strong>Copier et transformer une région</strong>. Copiez la région
+          avant de choisir la transformation et les coordonnées X/Y de
+          destination en cellules. Prévisualiser n’altère pas le projet.
+          Appliquer le collage valide la carte et ses éventuelles nouvelles
+          tiles en une opération annulable.
+        </p>
+        <p>
+          Les miroirs retournent la disposition et les attributs des cellules.
+          La rotation horaire échange largeur et hauteur ; elle réutilise les
+          tiles identiques, y compris par miroir, et crée celles qui manquent.
+          Une animation tournée reçoit une nouvelle tile de base et ses images
+          tournées pour ne pas animer une tile existante par accident. Le nombre
+          affiché compte les nouveaux motifs ; le dessin s’agrandit par lignes
+          complètes. Avec des calques, les pixels générés sont placés dans un
+          calque Rotation.
+        </p>
+        <p>
+          Un collage dépassant la carte est refusé tant que l’agrandissement
+          n’est pas coché. Déplacer remplit d’abord la région source avec la
+          cellule du pinceau courant, puis colle la copie ; les chevauchements
+          sont autorisés. Palettes, collisions et priorités restent conservées.
+          Les associations de terrain des cellules transformées sont retirées.
+          Toute modification du projet exige de recalculer l’aperçu.
+        </p>
+        <p>
+          Les règles de terrain affichent maintenant leurs seize tiles en grille
+          4 × 4, dans l’ordre des masques 0 à 15.
+        </p>
+        <figure>
+          <a data-zoom href="assets/22-map-region.png"
+            ><img
+              src="assets/22-map-region.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Copier, déplacer et tourner une région"
+          /></a>
+          <figcaption>Copier, déplacer et tourner une région</figcaption>
+        </figure>
         <h3 id="metatiles">Tampons et métatiles</h3>
         <div class="table-wrap">
           <table class="control-reference">

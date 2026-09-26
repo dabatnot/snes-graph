@@ -1,3 +1,4 @@
+import { MapRegion } from "./MapRegion";
 import { useEffect, useRef, useState } from "react";
 import {
   clone,
@@ -397,6 +398,23 @@ export function Maps({
             "Apply palette to selection",
           )}
         </button>
+        {brush === "select" && (
+          <MapRegion
+            project={project}
+            map={map}
+            region={selection}
+            fill={{
+              tile,
+              paletteId,
+              flipX,
+              flipY,
+              priority,
+              collision,
+              directColor,
+            }}
+            change={change}
+          />
+        )}
         <h3>{tr("Métatiles", "Metatiles")}</h3>
         <p className="muted">
           {tileUses(project, sheet.id, tile)
@@ -528,6 +546,24 @@ export function Maps({
               >
                 {tr("Supprimer ce terrain", "Delete this terrain")}
               </button>
+              <Preview
+                image={renderMap(
+                  {
+                    ...project,
+                    maps: [
+                      ...project.maps.filter((m) => m.id !== map.id),
+                      {
+                        ...map,
+                        width: 4,
+                        height: 4,
+                        cells: t.tiles.map((tile) => makeCell(paletteId, tile)),
+                      },
+                    ],
+                  },
+                  map.id,
+                )}
+                scale={4}
+              />
               <p className="muted">N=1 · E=2 · S=4 · O/W=8</p>
               {t.tiles.map((value, mask) => (
                 <NumberField

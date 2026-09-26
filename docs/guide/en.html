@@ -4748,6 +4748,45 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="map-regions">Copy, move and rotate a region</h3>
+        <p>
+          Choose Select, draw a rectangle, then expand
+          <strong>Copy and transform a region</strong>. Copy the region before
+          choosing a transformation and destination X/Y in cells. Preview does
+          not change the project. Apply paste commits the map and any new tiles
+          as one undoable operation.
+        </p>
+        <p>
+          Flips reverse both layout and cell attributes. Clockwise rotation
+          swaps width and height; it reuses identical tiles, including flipped
+          matches, and creates missing ones. A rotated animation receives a new
+          base tile and rotated frames to avoid accidentally animating an
+          existing tile. The count reports new patterns; the drawing grows by
+          whole rows. With layers, generated pixels go into a Rotation layer.
+        </p>
+        <p>
+          Paste beyond map bounds is rejected unless enlargement is checked.
+          Move first fills the source region with the current brush cell, then
+          pastes the copy; overlapping destinations are allowed. Palettes,
+          collisions and priorities are preserved. Terrain associations are
+          removed from transformed cells. Any project change requires
+          recalculating the preview.
+        </p>
+        <p>
+          Terrain rules now show their sixteen tiles in a 4 × 4 grid, ordered by
+          masks 0 to 15.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/22-map-region.png"
+            ><img
+              src="assets/en/22-map-region.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Copy, move and rotate a region"
+          /></a>
+          <figcaption>Copy, move and rotate a region</figcaption>
+        </figure>
         <h3 id="metatiles">Stamps and metatiles</h3>
         <div class="table-wrap">
           <table class="control-reference">

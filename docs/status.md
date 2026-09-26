@@ -70,3 +70,8 @@ Sélection multiple et rectangulaire des pièces, transformations collectives,
 repères d’origine/attaches/collisions manipulables, copie de placement de groupes.
 Séquences : sélection, duplication/suppression, réorganisation, durée commune,
 curseur et boucle temporaire de plage. Duplication/annulation observée dans Chrome.
+
+Régions de cartes : copie, déplacement, miroirs, rotation 90° avec prévisualisation
+et déduplication, conservation des attributs, agrandissement explicite de la carte.
+Les associations de terrain sont retirées des cellules transformées. Les nouvelles
+tiles animées utilisent des bases indépendantes. Aperçu de rotation observé dans Chrome.
