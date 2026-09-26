@@ -1,3 +1,5 @@
+import { AnimationTimeline } from "./AnimationTimeline";
+import { copyGroupPlacement } from "../core/animation-edit";
 import { useEffect, useRef, useState } from "react";
 import {
   clone,
@@ -50,6 +52,23 @@ export function Sprites({
     [play, setPlay] = useState(false),
     [onion, setOnion] = useState(false),
     [compare, setCompare] = useState(false);
+  const [playRange, setPlayRange] = useState<[number, number] | null>(null);
+  const [targetPoses, setTargetPoses] = useState<string[]>([]);
+  const [marquee, setMarquee] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const selectionStart = useRef<{ x: number; y: number } | null>(null);
+  const [dragMarker, setDragMarker] = useState<{
+    kind: "origin" | "anchor" | "box" | "box-size";
+    index: number;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+  } | null>(null);
   const [dragPose, setDragPose] = useState<Pose | null>(null),
     [snap, setSnap] = useState(1);
   const [sliceSheet, setSliceSheet] = useState(
@@ -76,7 +95,25 @@ export function Sprites({
     pose =
       dragPose ??
       (play
-        ? frameAt(actor, animation?.id ?? "", tick)
+        ? frameAt(
+            playRange
+              ? {
+                  ...actor,
+                  animations: [
+                    {
+                      ...animation,
+                      loop: true,
+                      frames: animation.frames.slice(
+                        Math.min(playRange[0], animation.frames.length - 1),
+                        Math.max(playRange[0], playRange[1]) + 1,
+                      ),
+                    },
+                  ],
+                }
+              : actor,
+            animation?.id ?? "",
+            tick,
+          )
         : actor.poses[Math.min(poseIndex, actor.poses.length - 1)]),
     variant = actor.variants.find((v) => v.id === variantId),
     piece = pose?.pieces.find((c) => c.id === pieceId);
@@ -139,9 +176,10 @@ export function Sprites({
               value: a.id,
               label: a.name,
             }))}
-            onChange={(id) =>
-              setAnim(actor.animations.findIndex((a) => a.id === id))
-            }
+            onChange={(id) => {
+              setAnim(actor.animations.findIndex((a) => a.id === id));
+              setPlayRange(null);
+            }}
           />
           <Select
             label={tr("Variante", "Variant")}
@@ -175,7 +213,66 @@ export function Sprites({
               </div>
             ))
           ) : (
-            <div className="sprite-canvas">
+            <div
+              className="sprite-canvas"
+              onPointerDown={(e) => {
+                if (play || e.target instanceof HTMLButtonElement) return;
+                const r = e.currentTarget.getBoundingClientRect();
+                selectionStart.current = {
+                  x: (e.clientX - r.left) / 3,
+                  y: (e.clientY - r.top) / 3,
+                };
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setMarquee({ ...selectionStart.current, width: 0, height: 0 });
+              }}
+              onPointerMove={(e) => {
+                const start = selectionStart.current;
+                if (!start) return;
+                const r = e.currentTarget.getBoundingClientRect(),
+                  x = (e.clientX - r.left) / 3,
+                  y = (e.clientY - r.top) / 3;
+                setMarquee({
+                  x: Math.min(x, start.x),
+                  y: Math.min(y, start.y),
+                  width: Math.abs(x - start.x),
+                  height: Math.abs(y - start.y),
+                });
+              }}
+              onPointerUp={() => {
+                if (marquee) {
+                  const ids = (pose?.pieces ?? [])
+                    .filter((c) => {
+                      const x = 64 - actor.originX + c.x,
+                        y = 80 - actor.originY + c.y;
+                      return (
+                        x < marquee.x + marquee.width &&
+                        x + c.size > marquee.x &&
+                        y < marquee.y + marquee.height &&
+                        y + c.size > marquee.y
+                      );
+                    })
+                    .map((c) => c.id);
+                  setSelectedPieces(ids);
+                  setPiece(ids.at(-1) ?? "");
+                }
+                selectionStart.current = null;
+                setMarquee(null);
+              }}
+            >
+              {marquee && (
+                <div
+                  style={{
+                    position: "absolute",
+                    pointerEvents: "none",
+                    zIndex: 5,
+                    border: "1px dashed white",
+                    left: marquee.x * 3,
+                    top: marquee.y * 3,
+                    width: marquee.width * 3,
+                    height: marquee.height * 3,
+                  }}
+                />
+              )}
               {onion && poseIndex > 0 && (
                 <div className="onion">
                   <Preview
@@ -195,6 +292,129 @@ export function Sprites({
                 scale={3}
               />
               {!play &&
+                pose &&
+                [
+                  {
+                    kind: "origin" as const,
+                    index: 0,
+                    x: 64,
+                    y: 80,
+                    width: 5,
+                    height: 5,
+                    name: tr("Origine", "Origin"),
+                  },
+                  ...pose.anchors.map((a, index) => ({
+                    kind: "anchor" as const,
+                    index,
+                    x: 64 - actor.originX + a.x,
+                    y: 80 - actor.originY + a.y,
+                    width: 4,
+                    height: 4,
+                    name: a.name,
+                  })),
+                  ...pose.boxes.flatMap((b, index) => [
+                    {
+                      kind: "box" as const,
+                      index,
+                      x: 64 - actor.originX + b.x,
+                      y: 80 - actor.originY + b.y,
+                      width: b.width,
+                      height: b.height,
+                      name: b.name,
+                    },
+                    {
+                      kind: "box-size" as const,
+                      index,
+                      x: 64 - actor.originX + b.x + b.width,
+                      y: 80 - actor.originY + b.y + b.height,
+                      width: 4,
+                      height: 4,
+                      name: tr("Taille ", "Size ") + b.name,
+                    },
+                  ]),
+                ].map((m) => (
+                  <button
+                    key={m.kind + m.index}
+                    title={m.name}
+                    aria-label={m.name}
+                    style={{
+                      position: "absolute",
+                      zIndex: 4,
+                      left:
+                        (m.x +
+                          (dragMarker?.kind === m.kind &&
+                          dragMarker.index === m.index
+                            ? dragMarker.dx
+                            : 0)) *
+                        3,
+                      top:
+                        (m.y +
+                          (dragMarker?.kind === m.kind &&
+                          dragMarker.index === m.index
+                            ? dragMarker.dy
+                            : 0)) *
+                        3,
+                      width: m.width * 3,
+                      height: m.height * 3,
+                      minWidth: 0,
+                      padding: 0,
+                      background: m.kind === "box" ? "transparent" : "#ffc857",
+                      border: "1px solid #ffc857",
+                    }}
+                    onPointerDown={(e) => {
+                      e.stopPropagation();
+                      e.currentTarget.setPointerCapture(e.pointerId);
+                      setDragMarker({
+                        ...m,
+                        x: e.clientX,
+                        y: e.clientY,
+                        dx: 0,
+                        dy: 0,
+                      });
+                    }}
+                    onPointerMove={(e) => {
+                      if (dragMarker)
+                        setDragMarker(
+                          (d) =>
+                            d && {
+                              ...d,
+                              dx: Math.round((e.clientX - d.x) / 3),
+                              dy: Math.round((e.clientY - d.y) / 3),
+                            },
+                        );
+                    }}
+                    onPointerUp={(e) => {
+                      e.stopPropagation();
+                      const d = dragMarker;
+                      if (d && (d.dx || d.dy))
+                        edit((a) => {
+                          const p = a.poses.find((p) => p.id === pose.id)!;
+                          if (d.kind === "origin") {
+                            a.originX += d.dx;
+                            a.originY += d.dy;
+                          } else if (d.kind === "anchor") {
+                            p.anchors[d.index].x += d.dx;
+                            p.anchors[d.index].y += d.dy;
+                          } else if (d.kind === "box") {
+                            p.boxes[d.index].x += d.dx;
+                            p.boxes[d.index].y += d.dy;
+                          } else {
+                            p.boxes[d.index].width = Math.max(
+                              1,
+                              p.boxes[d.index].width + d.dx,
+                            );
+                            p.boxes[d.index].height = Math.max(
+                              1,
+                              p.boxes[d.index].height + d.dy,
+                            );
+                          }
+                        });
+                      setDragMarker(null);
+                    }}
+                    onPointerCancel={() => setDragMarker(null)}
+                  />
+                ))}
+              {!play &&
                 pose?.pieces.map((c) => (
                   <button
                     title={c.group || tr("Pièce", "Piece")}
@@ -210,6 +430,7 @@ export function Sprites({
 
                     onDoubleClick={() => onEditSheet(c.sheetId)}
                     onPointerDown={(e) => {
+                      e.stopPropagation();
                       e.currentTarget.setPointerCapture(e.pointerId);
                       setPiece(c.id);
                       if (e.shiftKey || e.ctrlKey || e.metaKey) {
@@ -348,68 +569,20 @@ export function Sprites({
             ))}
           </div>
           {animation && (
-            <div className="frame-sequence">
-              {animation.frames.map((f, n) => (
-                <div key={n}>
-                  <Select
-                    label={`${n + 1}`}
-                    value={f.poseId}
-                    options={actor.poses.map((p) => ({
-                      value: p.id,
-                      label: p.name,
-                    }))}
-                    onChange={(v) =>
-                      editAnimation((a) => {
-                        a.frames[n].poseId = v;
-                      })
-                    }
-                  />
-                  <NumberField
-                    label={tr("Images", "Frames")}
-                    value={f.ticks}
-                    min={1}
-                    onChange={(v) =>
-                      editAnimation((a) => {
-                        a.frames[n].ticks = v;
-                      })
-                    }
-                  />
-                  <input
-                    aria-label={tr("Événement", "Event")}
-                    placeholder={tr("Événement", "Event")}
-                    value={f.event}
-                    onChange={(e) =>
-                      editAnimation((a) => {
-                        a.frames[n].event = e.target.value;
-                      })
-                    }
-                  />
-                  <button
-                    disabled={animation.frames.length < 2}
-                    onClick={() =>
-                      editAnimation((a) => {
-                        a.frames.splice(n, 1);
-                      })
-                    }
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() =>
-                  editAnimation((a) => {
-                    a.frames.push({
-                      poseId: pose!.id,
-                      ticks: 8,
-                      event: "",
-                    });
-                  })
-                }
-              >
-                ＋
-              </button>
-            </div>
+            <AnimationTimeline
+              key={animation.id}
+              actor={actor}
+              animation={animation}
+              fps={project.fps}
+              edit={editAnimation}
+              tick={tick}
+              playing={play}
+              onSeek={(id) => {
+                setPose(actor.poses.findIndex((p) => p.id === id));
+                setPlay(false);
+              }}
+              onRange={setPlayRange}
+            />
           )}
         </div>
       </div>
@@ -764,6 +937,143 @@ export function Sprites({
               {tr("Supprimer la pièce", "Delete piece")}
             </button>
           </>
+        )}
+        {selectedIds.length > 0 && (
+          <details open>
+            <summary>
+              {tr("Transformer la sélection", "Transform selection")}
+            </summary>
+            <button
+              onClick={() =>
+                editPose((p) => {
+                  const copies = p.pieces
+                    .filter((c) => selectedIds.includes(c.id))
+                    .map((c) => ({ ...clone(c), id: uid(), x: c.x + 8 }));
+                  p.pieces.push(...copies);
+                  setSelectedPieces(copies.map((c) => c.id));
+                  setPiece(copies.at(-1)?.id ?? "");
+                })
+              }
+            >
+              {tr("Dupliquer les pièces", "Duplicate pieces")}
+            </button>
+            <button
+              onClick={() => {
+                editPose((p) => {
+                  p.pieces = p.pieces.filter(
+                    (c) => !selectedIds.includes(c.id),
+                  );
+                });
+                setSelectedPieces([]);
+                setPiece("");
+              }}
+            >
+              {tr("Supprimer les pièces", "Delete pieces")}
+            </button>
+            {piece && (
+              <Select
+                label={tr(
+                  "Aligner sur la pièce active",
+                  "Align to active piece",
+                )}
+                value=""
+                options={[
+                  { value: "", label: tr("Choisir…", "Choose…") },
+                  ...[
+                    tr("Gauche", "Left"),
+                    tr("Centre horizontal", "Horizontal centre"),
+                    tr("Droite", "Right"),
+                    tr("Haut", "Top"),
+                    tr("Centre vertical", "Vertical centre"),
+                    tr("Bas", "Bottom"),
+                  ].map((label, value) => ({ label, value: String(value) })),
+                ]}
+                onChange={(v) => {
+                  if (v === "") return;
+                  const index = Number(v),
+                    axis = index < 3 ? "x" : "y",
+                    factor = (index % 3) / 2;
+                  editPose((p) => {
+                    for (const c of p.pieces)
+                      if (selectedIds.includes(c.id))
+                        c[axis] = Math.round(
+                          piece[axis] + piece.size * factor - c.size * factor,
+                        );
+                  });
+                }}
+              />
+            )}
+            <button
+              onClick={() =>
+                editPose((p) => {
+                  for (const c of p.pieces)
+                    if (selectedIds.includes(c.id)) c.flipX = !c.flipX;
+                })
+              }
+            >
+              {tr(
+                "Inverser les miroirs horizontaux",
+                "Toggle horizontal flips",
+              )}
+            </button>
+            <button
+              onClick={() =>
+                editPose((p) => {
+                  for (const c of p.pieces)
+                    if (selectedIds.includes(c.id)) c.flipY = !c.flipY;
+                })
+              }
+            >
+              {tr("Inverser les miroirs verticaux", "Toggle vertical flips")}
+            </button>
+            <NumberField
+              label={tr("Priorité de la sélection", "Selection priority")}
+              min={0}
+              max={3}
+              value={piece?.priority ?? 0}
+              onChange={(v) =>
+                editPose((p) => {
+                  for (const c of p.pieces)
+                    if (selectedIds.includes(c.id)) c.priority = v;
+                })
+              }
+            />
+            {piece?.group && (
+              <>
+                <p>
+                  {tr(
+                    "Copier le placement du groupe ",
+                    "Copy placement of group ",
+                  )}
+                  {piece.group}
+                </p>
+                {actor.poses
+                  .filter((p) => p.id !== pose!.id)
+                  .map((p) => (
+                    <Check
+                      key={p.id}
+                      label={p.name}
+                      value={targetPoses.includes(p.id)}
+                      onChange={(v) =>
+                        setTargetPoses((ids) =>
+                          v ? [...ids, p.id] : ids.filter((id) => id !== p.id),
+                        )
+                      }
+                    />
+                  ))}
+                <button
+                  disabled={!targetPoses.length}
+                  onClick={() =>
+                    edit((a) =>
+                      copyGroupPlacement(a, pose!.id, piece.group, targetPoses),
+                    )
+                  }
+                >
+                  {tr("Copier le placement", "Copy placement")}
+                </button>
+              </>
+            )}
+          </details>
         )}
         {selectedIds.length > 0 && (
           <>

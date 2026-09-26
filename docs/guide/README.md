@@ -173,3 +173,10 @@ remapper → seconde palette de l’exemple → aperçu du dessin, panneau centr
 défilé pour montrer les rendus et le début du tableau. Les noms de ressources
 restent ceux du projet. Captures examinées ; test des pixels/calques et verrous
 et compilation web réussis.
+
+## Évolution : assemblage et animation
+
+`21-animation-edit.png` FR/EN : Chrome, exemple → Sprites → séquence visible.
+Duplication de la seconde image : durée 8 et événement `step` conservés ;
+annulation observée. Captures examinées. Tests ciblés : déplacement d’une sélection
+de séquence et validation de tous les groupes de destination avant modification.

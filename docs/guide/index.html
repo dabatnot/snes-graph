@@ -4099,6 +4099,51 @@ npm run dev</code></pre>
           qu’une ou si une animation la référence. Remplacez ou retirez d’abord
           toutes ses occurrences dans les séquences.
         </p>
+        <h3 id="animation-batch">Sélection et édition collective</h3>
+        <p>
+          Dans l’assemblage, Maj+clic ajoute ou retire une pièce de la sélection
+          ; un rectangle tracé dans le canevas sélectionne les pièces
+          rencontrées. La dernière pièce cliquée sert de référence aux
+          alignements. Déplacer une pièce sélectionnée déplace la sélection ;
+          les groupes nommés conservent leur déplacement lié. Transformer la
+          sélection permet duplication, suppression, alignements, miroirs et
+          priorité commune.
+        </p>
+        <p>
+          Les repères jaunes manipulent l’origine et les attaches. Glissez une
+          boîte de collision pour la déplacer, ou sa poignée inférieure droite
+          pour modifier sa taille. Déplacer l’origine change le rendu par
+          rapport au point d’ancrage. Pour copier le placement d’un groupe
+          nommé, sélectionnez ses poses de destination ; leur nombre de pièces
+          dans ce groupe doit être identique. La correspondance suit l’ordre des
+          pièces.
+        </p>
+        <p>
+          Cochez les images de séquence pour les dupliquer, les supprimer ou
+          appliquer une durée commune. Au moins une image doit rester. Glissez
+          une carte d’image sur une autre pour insérer la sélection avant cette
+          image ; poses, durées et événements sont conservés. Le bouton numéroté
+          affiche l’événement et ouvre la pose. Le curseur permet de retrouver
+          une pose à un instant donné.
+        </p>
+        <p>
+          Boucler une plage limite temporairement la lecture aux images choisies
+          ; lancez ensuite Lecture. Ce réglage ne modifie pas l’animation
+          enregistrée. Les durées sont en images console et leur équivalent en
+          millisecondes dépend des 50/60 Hz du projet. Chaque opération
+          collective s’annule en une étape.
+        </p>
+        <figure>
+          <a data-zoom href="assets/21-animation-edit.png"
+            ><img
+              src="assets/21-animation-edit.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Sélection et édition collective"
+          /></a>
+          <figcaption>Sélection et édition collective</figcaption>
+        </figure>
         <h3 id="sequence">Séquence d’animation</h3>
         <div class="table-wrap">
           <table>

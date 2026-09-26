@@ -3969,6 +3969,47 @@ npm run dev</code></pre>
           an animation references it. Replace or remove all its occurrences in
           sequences first.
         </p>
+        <h3 id="animation-batch">Selection and batch editing</h3>
+        <p>
+          In the assembly, Shift+click adds or removes a piece from the
+          selection; dragging a rectangle in the canvas selects intersecting
+          pieces. The last clicked piece is the alignment reference. Dragging a
+          selected piece moves the selection; named groups retain linked
+          movement. Transform selection provides duplication, deletion,
+          alignment, flips and shared priority.
+        </p>
+        <p>
+          Yellow handles manipulate the origin and anchors. Drag a collision box
+          to move it, or its bottom-right handle to resize it. Moving the origin
+          changes the rendering relative to the anchor point. To copy a named
+          group’s placement, select destination poses; they must have the same
+          number of pieces in that group. Pieces are matched in their existing
+          order.
+        </p>
+        <p>
+          Check sequence frames to duplicate, delete or apply a shared duration.
+          At least one frame must remain. Drag a frame card onto another to
+          insert the selected frames before it; poses, durations and events are
+          preserved. The numbered button shows the event and opens the pose. The
+          playhead lets you find a pose at a given time.
+        </p>
+        <p>
+          Loop a range temporarily restricts playback to the chosen frames; then
+          press Play. This does not change the saved animation. Durations are
+          console frames and the millisecond equivalent depends on the project’s
+          50/60 Hz setting. Each batch operation is undone in one step.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/21-animation-edit.png"
+            ><img
+              src="assets/en/21-animation-edit.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Selection and batch editing"
+          /></a>
+          <figcaption>Selection and batch editing</figcaption>
+        </figure>
         <h3 id="sequence">Animation sequence</h3>
         <div class="table-wrap">
           <table>

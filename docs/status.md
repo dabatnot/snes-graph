@@ -65,3 +65,8 @@ sans mutation. Agrandissement et annulation observés dans Chrome.
 Comparaison de palettes et aperçu synchronisé, remappage explicite des indices,
 application de palette à une région de carte ou une sélection de pièces,
 duplication de variante et application à plusieurs instances du même acteur.
+
+Sélection multiple et rectangulaire des pièces, transformations collectives,
+repères d’origine/attaches/collisions manipulables, copie de placement de groupes.
+Séquences : sélection, duplication/suppression, réorganisation, durée commune,
+curseur et boucle temporaire de plage. Duplication/annulation observée dans Chrome.
