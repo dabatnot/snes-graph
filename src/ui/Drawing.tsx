@@ -29,9 +29,11 @@ export function Drawing({
   change,
   paletteId,
   setPalette,
+  focusTile,
 }: {
   project: Project;
   sheet: Sheet;
+  focusTile?: number;
   change: (fn: (p: Project) => void) => void;
   paletteId: string;
   setPalette: (id: string) => void;
@@ -51,7 +53,16 @@ export function Drawing({
       y: number;
       width: number;
       height: number;
-    } | null>(null);
+    } | null>(
+      focusTile === undefined
+        ? null
+        : {
+            x: (focusTile % (sheet.width / 8)) * 8,
+            y: Math.floor(focusTile / (sheet.width / 8)) * 8,
+            width: 8,
+            height: 8,
+          },
+    );
   const [layerId, setLayerId] = useState(sheet.layers?.[0]?.id ?? ""),
     [repeat, setRepeat] = useState(false),
     [replaceIndex, setReplaceIndex] = useState(0);

@@ -150,3 +150,11 @@ Pour chaque évolution utilisateur, mettre à jour les deux textes et renouveler
 Contrôles de cette édition : intégrité des ancres et fichiers locaux, parité des chapitres/tableaux/schémas/illustrations, textes alternatifs, dimensions des images, syntaxe JavaScript et formatage. Les 197 extraits EN ont été inspectés sur des planches de contrôle, et leurs sources natives observées pendant la capture. Lecture réelle dans Firefox depuis `file://` : accueil, palettes, tableau des outils, passage FR → EN et EN → FR conservant le chapitre, recherche EN « HDMA » (5 chapitres), remise à zéro et agrandissement d’un bouton avec légende EN. L’aperçu d’impression après filtrage reprend le document complet ; sa couverture a été inspectée, sans impression physique ni contrôle de chaque page.
 
 La recherche FR « CGRAM » a également été vérifiée (6 chapitres). Le menu compact et son sélecteur de langue ont été ouverts à 260 % dans la fenêtre Firefox de 1878 pixels (environ 722 pixels CSS), puis le zoom a été rétabli à 100 %. Cela vérifie le point de rupture, pas un appareil mobile physique.
+
+## Évolution : parcours et ressources
+
+`18-resource-workflow.png` (FR et EN) : application web sous Chrome, capture
+1878 × 867. Exemple intégré → Cartes → Créer une tile → Revenir à la carte.
+Le dessin Terrain passe de 16 × 8 à 16 × 16 ; le pinceau sélectionne la tile 2.
+Parcours observé avec le contrôle du navigateur, captures examinées dans les deux langues.
+Tests ciblés de gestion des ressources et compilation web réussis.

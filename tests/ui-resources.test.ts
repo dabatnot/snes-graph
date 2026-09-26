@@ -67,3 +67,28 @@ describe("palette reordering", () => {
     expect(() => saveProject(p)).not.toThrow();
   });
 });
+
+describe("resource lifecycle", () => {
+  it("identifies usages by ID even with duplicate names and detaches deleted terrains", async () => {
+    const { resourceUses, removeTerrain } =
+      await import("../src/core/resources");
+    const p = footballProject();
+    const m = p.maps[0];
+    m.name = p.actors[0].name;
+    expect(
+      resourceUses(p, m.sheetId).some(
+        (u) => u.id === m.id && u.kind === "maps",
+      ),
+    ).toBe(true);
+    m.terrains = [{ id: "ground", name: "Ground", tiles: Array(16).fill(0) }];
+    m.cells[0].terrain = "ground";
+    const before = { ...m.cells[0] };
+    removeTerrain(p, m.id, "ground");
+    delete before.terrain;
+    expect(m.cells[0]).toEqual(before);
+    m.animatedTiles.push({ name: "Water", tile: 0, frames: [0], ticks: 8 });
+    expect(loadProject(saveProject(p)).maps[0].animatedTiles[0].name).toBe(
+      "Water",
+    );
+  });
+});

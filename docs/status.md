@@ -46,3 +46,12 @@ SNES_GRAPH_TEST_OUTPUT="$PWD/artifacts/football" Mesen --testrunner --timeout=15
 ```
 
 Le script nécessite les entrées/sorties Lua pour écrire uniquement sa capture et son état dans le répertoire de test. Le mode test de Mesen ne sauvegarde pas ce réglage. `artifacts/football/mesen.png` est la capture émulée ; elle ne provient pas du moteur d'aperçu de l'éditeur.
+
+## Évolution : navigation et ressources
+
+Navigation carte → dessin source → retour, création contextualisée de tile,
+utilisation d’un dessin dans une carte ou un sprite, tri et filtres d’usage,
+usages navigables. Tampons et terrains renommables, duplicables et supprimables ;
+animations de tiles nommables et supprimables. La suppression d’un terrain
+conserve ses pixels peints ou applique explicitement un terrain de remplacement.
+Parcours de création/retour et captures FR/EN vérifiés dans Chrome.

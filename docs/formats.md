@@ -98,3 +98,6 @@ Le projet de démonstration inclut ses instructions de compilation. Le CLI et l'
 - [Registres PPU dans bsnes](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/io.cpp) : tailles OBJ, adresses VRAM, fenêtres, mélange et ordre des priorités.
 - [Rendu des BG dans bsnes](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/background.cpp) : paires haute résolution et offsets par tiles.
 - [API Lua Mesen](https://github.com/SourMesen/Mesen2/blob/master/Core/Debugger/LuaApi.cpp) : capture du résultat émulé pour la vérification de la ROM.
+
+Les entrées `animatedTiles` peuvent contenir un `name` facultatif (chaîne).
+Les projets sans ce champ restent valides ; l’interface affiche leur numéro de tile.

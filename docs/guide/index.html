@@ -1220,6 +1220,59 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <h3 id="resource-workflow">
+          Parcours directs et gestion des ressources
+        </h3>
+        <p>
+          Utilisez <strong>Trier</strong> pour choisir l’ordre de création ou le
+          nom, et <strong>Afficher</strong> pour filtrer les ressources
+          utilisées ou non utilisées. La recherche filtre toujours les noms. Les
+          boutons des <strong>Usages et remplacement</strong> ouvrent les
+          ressources concernées. Une duplication conserve les références
+          externes partagées.
+        </p>
+        <p>
+          Dans une carte, <strong>Créer une tile</strong> ajoute une ligne au
+          dessin source et ouvre sa première nouvelle tile. Dessinez votre
+          motif, puis choisissez <strong>Revenir à la carte</strong> : la
+          nouvelle tile devient le pinceau ; sélection, zoom et défilement de la
+          carte sont conservés. Aucune cellule n’est peinte automatiquement.
+          <strong>Modifier le dessin source</strong> ouvre la tile du pinceau,
+          ou celle de la cellule sélectionnée avec l’outil Sélectionner.
+          Modifier cette source partagée affecte tous ses usages.
+        </p>
+        <p>
+          Depuis un dessin, <strong>Utiliser dans une carte</strong> ouvre une
+          carte compatible ou en crée une.
+          <strong>Utiliser dans un sprite</strong> (4 bpp uniquement) permet de
+          choisir un acteur et une pose ; une pièce de 8 × 8 issue du coin
+          supérieur gauche est ajoutée. Sa taille et sa source restent
+          modifiables dans l’inspecteur du sprite.
+        </p>
+        <p>
+          Le tampon sélectionné peut être renommé, dupliqué ou supprimé sans
+          effacer les cellules peintes. Dépliez les règles de raccord d’un
+          terrain pour le renommer ou le dupliquer. Avant sa suppression,
+          choisissez un autre terrain ou conservez les tiles sans leur
+          association au terrain. Le remplacement recalcule les raccords. Les
+          animations de tiles ont un nom facultatif ; leur suppression conserve
+          la tile de base. Pour dupliquer une animation, choisissez d’abord une
+          tile de base non animée dans le pinceau.
+        </p>
+        <figure>
+          <a href="assets/18-resource-workflow.png" data-zoom
+            ><img
+              src="assets/18-resource-workflow.png"
+              width="1878"
+              height="867"
+              alt="Créer une tile, modifier son dessin partagé, puis revenir à la carte."
+              loading="lazy"
+          /></a>
+          <figcaption>
+            Créer une tile, modifier son dessin partagé, puis revenir à la
+            carte.
+          </figcaption>
+        </figure>
         <h3 id="dupliquer">Dupliquer sans perdre de vue les liens</h3>
         <p>
           <strong>Dupliquer</strong> copie la ressource sélectionnée, mais
@@ -4782,8 +4835,7 @@ npm run dev</code></pre>
         <p>
           Les parties dépassant le bord de la carte sont coupées. Rechoisissez
           <strong>Tile seule</strong> pour reprendre un pinceau simple.
-          L’interface actuelle nomme les motifs automatiquement et ne fournit
-          pas de gestion complète de renommage/suppression de ces motifs.
+          Le tampon sélectionné peut être renommé, dupliqué et supprimé sans effacer la carte.
         </p>
         <figure>
           <a data-zoom href="assets/07-metatiles.png"
@@ -5214,9 +5266,7 @@ npm run dev</code></pre>
         </p>
         <p>
           L’atelier Cartes n’a pas de bouton Lecture : observez cette animation
-          en lecture dans une scène utilisant la carte. L’interface propose
-          l’ajout et la modification des séquences, mais pas leur suppression
-          dédiée ; Annuler permet de revenir immédiatement sur un ajout.
+          en lecture dans une scène utilisant la carte. Les séquences peuvent être nommées, dupliquées sur une autre tile de base et supprimées. Annuler restaure la séquence supprimée.
         </p>
       </section>
 
@@ -8597,12 +8647,12 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>Cartes</td>
                 <td>
-                  Pas de gestion complète de suppression/renommage des tampons,
-                  terrains et animations de tiles dans cette interface.
+                  Le remplacement d’un terrain recalcule les raccords ;
+                  supprimer une animation conserve sa tile de base.
                 </td>
                 <td>
-                  Planifiez leur création et utilisez Annuler immédiatement pour
-                  corriger un ajout.
+                  Choisissez le comportement de remplacement avant de supprimer
+                  un terrain.
                 </td>
               </tr>
               <tr>

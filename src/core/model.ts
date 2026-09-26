@@ -98,7 +98,12 @@ export type Tilemap = {
   height: number;
   cells: Cell[];
   stamps: Metatile[];
-  animatedTiles: { tile: number; frames: number[]; ticks: number }[];
+  animatedTiles: {
+    name?: string;
+    tile: number;
+    frames: number[];
+    ticks: number;
+  }[];
   terrains?: { id: string; name: string; tiles: number[] }[];
 };
 export type SceneLayer = {

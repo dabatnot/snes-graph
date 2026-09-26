@@ -18,6 +18,8 @@ import {
 } from "./core/model";
 import { loadProject, saveProject } from "./core/archive";
 import {
+  growSheet,
+  resourceUses,
   duplicateResource,
   removeResource,
   replaceReferences,
@@ -59,6 +61,8 @@ export default function App() {
     [dirty, setDirty] = useState(false),
     [notice, setNotice] = useState(""),
     [search, setSearch] = useState(""),
+    [sort, setSort] = useState("created"),
+    [usageFilter, setUsageFilter] = useState("all"),
     [modal, setModal] = useState<
       | null
       | "create"
@@ -68,6 +72,7 @@ export default function App() {
       | "close"
       | "usages"
       | "fps"
+      | "use-sheet"
     >(null),
     [name, setName] = useState(""),
     [width, setWidth] = useState(32),
@@ -88,7 +93,14 @@ export default function App() {
     [dither, setDither] = useState(false);
   const [replacement, setReplacement] = useState(""),
     [reimportId, setReimportId] = useState("");
-  const [returnActor, setReturnActor] = useState("");
+  const [returnTo, setReturnTo] = useState<{
+    tab: "maps" | "actors";
+    id: string;
+  } | null>(null);
+  const [focusTile, setFocusTile] = useState<number>();
+  const [useTarget, setUseTarget] = useState("");
+  const [usePose, setUsePose] = useState("");
+  const [useKind, setUseKind] = useState<"maps" | "actors">("maps");
   const [targetFps, setTargetFps] = useState<50 | 60>(60);
   const [originalImage, setOriginalImage] = useState("");
   useEffect(() => {
@@ -148,6 +160,8 @@ export default function App() {
     projectSession.current++;
     setProject(p);
     pRef.current = p;
+    setReturnTo(null);
+    setFocusTile(undefined);
     setSelected("");
     setPalette("");
     setDirty(recovered);
@@ -540,10 +554,42 @@ export default function App() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            <Select
+              label={tr("Trier", "Sort")}
+              value={sort}
+              options={[
+                {
+                  value: "created",
+                  label: tr("Ordre de création", "Creation order"),
+                },
+                { value: "name", label: tr("Nom", "Name") },
+              ]}
+              onChange={setSort}
+            />
+            <Select
+              label={tr("Afficher", "Show")}
+              value={usageFilter}
+              options={[
+                { value: "all", label: tr("Toutes", "All") },
+                { value: "used", label: tr("Utilisées", "Used") },
+                { value: "unused", label: tr("Non utilisées", "Unused") },
+              ]}
+              onChange={setUsageFilter}
+            />
             <div className="resource-list">
               {items
                 .filter((s) =>
                   s.name.toLowerCase().includes(search.toLowerCase()),
+                )
+                .filter(
+                  (s) =>
+                    usageFilter === "all" ||
+                    resourceUses(project, s.id).length > 0 ===
+                      (usageFilter === "used"),
+                )
+                .slice()
+                .sort((a, b) =>
+                  sort === "name" ? a.name.localeCompare(b.name) : 0,
                 )
                 .map((s) => (
                   <button
@@ -627,15 +673,18 @@ export default function App() {
             </button>
             {resource && (
               <div className="library-bottom">
-                {returnActor && tab === "sheets" && (
+                {returnTo && tab === "sheets" && (
                   <button
                     onClick={() => {
-                      setTab("actors");
-                      setSelected(returnActor);
-                      setReturnActor("");
+                      setTab(returnTo.tab);
+                      setSelected(returnTo.id);
+                      setReturnTo(null);
+                      setFocusTile(undefined);
                     }}
                   >
-                    {tr("Revenir au personnage", "Back to character")}
+                    {returnTo.tab === "maps"
+                      ? tr("Revenir à la carte", "Back to map")
+                      : tr("Revenir au sprite", "Back to sprite")}
                   </button>
                 )}
                 <button
@@ -646,7 +695,35 @@ export default function App() {
                 >
                   {tr("Usages et remplacement", "Uses and replacement")}
                 </button>
+                {sheet && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setUseKind("maps");
+                        setUseTarget("");
+                        setModal("use-sheet");
+                      }}
+                    >
+                      {tr("Utiliser dans une carte", "Use in a map")}
+                    </button>
+                    <button
+                      disabled={sheet.bpp !== 4}
+                      onClick={() => {
+                        setUseKind("actors");
+                        setUseTarget("");
+                        setUsePose("");
+                        setModal("use-sheet");
+                      }}
+                    >
+                      {tr("Utiliser dans un sprite", "Use in a sprite")}
+                    </button>
+                  </>
+                )}
                 <button
+                  title={tr(
+                    "Nouvelle ressource ; les ressources qu’elle utilise restent partagées.",
+                    "New resource; its referenced resources remain shared.",
+                  )}
                   onClick={() =>
                     change((p) => {
                       setSelected(
@@ -690,6 +767,74 @@ export default function App() {
             )}
           </aside>
         )}
+        {project.actors
+          .filter(
+            (a) =>
+              (tab === "actors" && a.id === actor?.id) ||
+              (returnTo?.tab === "actors" && returnTo.id === a.id),
+          )
+          .map((a) => (
+            <div
+              key={a.id}
+              style={{ display: tab === "actors" ? "contents" : "none" }}
+            >
+              <Sprites
+                project={project}
+                actor={a}
+                change={change}
+                onEditSheet={(id) => {
+                  setReturnTo({ tab: "actors", id: a.id });
+                  setTab("sheets");
+                  setSelected(id);
+                  setPalette("");
+                  setFocusTile(undefined);
+                }}
+              />
+            </div>
+          ))}
+        {project.maps
+          .filter(
+            (m) =>
+              (tab === "maps" && m.id === map?.id) ||
+              (returnTo?.tab === "maps" && returnTo.id === m.id),
+          )
+          .map((m) => (
+            <div
+              key={m.id}
+              style={{ display: tab === "maps" ? "contents" : "none" }}
+            >
+              <Maps
+                project={project}
+                map={m}
+                change={change}
+                onEditSheet={(tile) => {
+                  setReturnTo({ tab: "maps", id: m.id });
+                  setTab("sheets");
+                  setSelected(m.sheetId);
+                  setPalette("");
+                  setFocusTile(tile);
+                }}
+                onCreateTile={() => {
+                  const source = project.sheets.find(
+                    (s) => s.id === m.sheetId,
+                  )!;
+                  const tile = (source.width * source.height) / 64;
+                  if (
+                    !change((p) =>
+                      growSheet(p, source.id, source.width, source.height + 8),
+                    )
+                  )
+                    return;
+                  setReturnTo({ tab: "maps", id: m.id });
+                  setTab("sheets");
+                  setSelected(source.id);
+                  setPalette("");
+                  setFocusTile(tile);
+                  return tile;
+                }}
+              />
+            </div>
+          ))}
         {tab === "sheets" && sheet ? (
           <Drawing
             key={sheet.id}
@@ -698,6 +843,7 @@ export default function App() {
             change={change}
             paletteId={paletteId || sheet.paletteId}
             setPalette={setPalette}
+            focusTile={focusTile}
           />
         ) : tab === "palettes" && palette ? (
           <Palettes
@@ -707,21 +853,6 @@ export default function App() {
             change={change}
             select={setSelected}
           />
-        ) : tab === "actors" && actor ? (
-          <Sprites
-            key={actor.id}
-            project={project}
-            actor={actor}
-            change={change}
-            onEditSheet={(id) => {
-              setReturnActor(actor.id);
-              setTab("sheets");
-              setSelected(id);
-              setPalette("");
-            }}
-          />
-        ) : tab === "maps" && map ? (
-          <Maps key={map.id} project={project} map={map} change={change} />
         ) : tab === "scenes" && scene ? (
           <Scenes
             key={scene.id}
@@ -731,7 +862,7 @@ export default function App() {
           />
         ) : tab === "exports" ? (
           <Exports project={project} change={change} report={report} />
-        ) : (
+        ) : tab === "actors" || tab === "maps" ? null : (
           <div className="work">
             <Empty
               text={tr(
@@ -1093,16 +1224,118 @@ export default function App() {
                 {importError && <p className="error">{importError}</p>}
               </>
             )}
+            {modal === "use-sheet" && sheet && (
+              <>
+                <h2>
+                  {useKind === "maps"
+                    ? tr("Utiliser dans une carte", "Use in a map")
+                    : tr("Utiliser dans un sprite", "Use in a sprite")}
+                </h2>
+                <Select
+                  label={tr("Destination", "Destination")}
+                  value={useTarget}
+                  options={[
+                    {
+                      value: "",
+                      label: tr(
+                        "Créer une nouvelle ressource",
+                        "Create new resource",
+                      ),
+                    },
+                    ...(useKind === "maps"
+                      ? project.maps.filter((m) => m.sheetId === sheet.id)
+                      : project.actors
+                    ).map((r) => ({ value: r.id, label: r.name })),
+                  ]}
+                  onChange={(v) => {
+                    setUseTarget(v);
+                    setUsePose("");
+                  }}
+                />
+                {useKind === "actors" && useTarget && (
+                  <Select
+                    label={tr("Pose", "Pose")}
+                    value={
+                      usePose ||
+                      project.actors.find((a) => a.id === useTarget)!.poses[0]
+                        .id
+                    }
+                    options={project.actors
+                      .find((a) => a.id === useTarget)!
+                      .poses.map((p) => ({ value: p.id, label: p.name }))}
+                    onChange={setUsePose}
+                  />
+                )}
+                <button
+                  onClick={() => {
+                    let destination = useTarget;
+                    const ok = change((p) => {
+                      if (useKind === "maps") {
+                        if (!destination) {
+                          const m = makeMap(sheet);
+                          m.name = sheet.name;
+                          p.maps.push(m);
+                          destination = m.id;
+                        }
+                      } else {
+                        let a = p.actors.find((a) => a.id === destination);
+                        if (!a) {
+                          a = makeActor(sheet.name);
+                          p.actors.push(a);
+                          destination = a.id;
+                        }
+                        const pose =
+                          a.poses.find((p) => p.id === usePose) ?? a.poses[0];
+                        pose.pieces.push({
+                          id: uid(),
+                          sheetId: sheet.id,
+                          sx: 0,
+                          sy: 0,
+                          size: 8,
+                          x: 0,
+                          y: 0,
+                          paletteId: sheet.paletteId,
+                          flipX: false,
+                          flipY: false,
+                          priority: 2,
+                          group: "",
+                        });
+                      }
+                    });
+                    if (ok) {
+                      setTab(useKind);
+                      setSelected(destination);
+                      setModal(null);
+                    }
+                  }}
+                >
+                  {tr("Ouvrir", "Open")}
+                </button>
+              </>
+            )}
             {modal === "usages" && resource && (
               <>
                 <h2>{resource.name}</h2>
-                <p>
-                  {uses(project, resource.id).join(", ") ||
-                    tr(
+                {resourceUses(project, resource.id).map((u) => (
+                  <button
+                    key={u.id}
+                    onClick={() => {
+                      setTab(u.kind);
+                      setSelected(u.id);
+                      setModal(null);
+                    }}
+                  >
+                    {u.name}
+                  </button>
+                ))}
+                {!resourceUses(project, resource.id).length && (
+                  <p>
+                    {tr(
                       "Aucun usage dans le projet.",
                       "No uses in this project.",
                     )}
-                </p>
+                  </p>
+                )}
                 <Select
                   label={tr(
                     "Remplacer les références par",

@@ -271,3 +271,52 @@ export function swapPaletteColors(
     for (const layer of sheet.layers ?? []) layer.pixels = remap(layer.pixels);
   }
 }
+
+/** Resource targets for the library, without relying on potentially duplicate names. */
+export function resourceUses(p: Project, id: string) {
+  const targets: { kind: ResourceKind; id: string; name: string }[] = [];
+  for (const kind of [
+    "sheets",
+    "palettes",
+    "actors",
+    "maps",
+    "scenes",
+  ] as const) {
+    for (const resource of p[kind]) {
+      const subset = {
+        ...p,
+        sheets: [],
+        palettes: [],
+        actors: [],
+        maps: [],
+        scenes: [],
+        [kind]: [resource],
+      } as Project;
+      if (uses(subset, id).length)
+        targets.push({ kind, id: resource.id, name: resource.name });
+    }
+  }
+  return targets;
+}
+export function removeTerrain(
+  p: Project,
+  mapId: string,
+  id: string,
+  replacement = "",
+) {
+  const m = p.maps.find((m) => m.id === mapId)!;
+  if (
+    replacement &&
+    (replacement === id || !m.terrains?.some((t) => t.id === replacement))
+  )
+    throw new Error(
+      "Terrain de remplacement invalide / Invalid replacement terrain",
+    );
+  for (const c of [...m.cells, ...m.stamps.flatMap((s) => s.cells)]) {
+    if (c.terrain === id) {
+      if (replacement) c.terrain = replacement;
+      else delete c.terrain;
+    }
+  }
+  m.terrains = m.terrains?.filter((t) => t.id !== id);
+}

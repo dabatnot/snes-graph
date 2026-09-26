@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   clone,
   makeCell,
@@ -11,14 +11,18 @@ import { renderMap, renderSheet } from "../core/render";
 import { Check, Field, NumberField, Preview, Select } from "./controls";
 import { tr } from "../i18n";
 import { connectTerrain } from "../core/terrain";
-import { makeLocalTile, tileUses } from "../core/resources";
+import { makeLocalTile, tileUses, removeTerrain } from "../core/resources";
 export function Maps({
   project,
   map,
   change,
+  onEditSheet,
+  onCreateTile,
 }: {
   project: Project;
   map: Tilemap;
+  onEditSheet: (tile: number) => void;
+  onCreateTile: () => number | undefined;
   change: (fn: (p: Project) => void) => void;
 }) {
   const [tile, setTile] = useState(0),
@@ -30,6 +34,7 @@ export function Maps({
     [collision, setCollision] = useState(0),
     [stamp, setStamp] = useState(""),
     [terrainId, setTerrainId] = useState(""),
+    [terrainReplacement, setTerrainReplacement] = useState(""),
     [directColor, setDirectColor] = useState(0),
     [draft, setDraft] = useState<Tilemap | null>(null),
     [brush, setBrush] = useState<"paint" | "fill" | "pick" | "select">("paint"),
@@ -50,6 +55,11 @@ export function Maps({
   const stroke = useRef<Tilemap | null>(null),
     start = useRef({ x: 0, y: 0 });
   const sheet = project.sheets.find((s) => s.id === map.sheetId)!;
+  useEffect(() => {
+    setTile((t) => Math.min(t, (sheet.width * sheet.height) / 64 - 1));
+    if (!map.stamps.some((s) => s.id === stamp)) setStamp("");
+    if (!map.terrains?.some((t) => t.id === terrainId)) setTerrainId("");
+  }, [sheet.width, sheet.height, map.stamps, map.terrains]);
   const edit = (fn: (m: Tilemap) => void) =>
     change((p) => fn(p.maps.find((m) => m.id === map.id)!));
   const paint = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -280,6 +290,30 @@ export function Maps({
           ))}
         </div>
         <h3>{tr("Pinceau", "Brush")}</h3>
+        <button
+          onClick={() => {
+            const next = onCreateTile();
+            if (next !== undefined) {
+              setTile(next);
+              setStamp("");
+              setTerrainId("");
+              setBrush("paint");
+            }
+          }}
+        >
+          + {tr("Créer une tile", "Create tile")}
+        </button>
+        <button
+          onClick={() =>
+            onEditSheet(
+              brush === "select"
+                ? map.cells[selection.y * map.width + selection.x].tile
+                : tile,
+            )
+          }
+        >
+          {tr("Modifier le dessin source", "Edit source drawing")}
+        </button>
         <div
           className="tiles-picker"
           onPointerDown={(e) => {
@@ -418,6 +452,63 @@ export function Maps({
           .map((t) => (
             <details key={t.id}>
               <summary>{tr("Règles de raccord", "Connection rules")}</summary>
+              <Field label={tr("Nom", "Name")}>
+                <input
+                  value={t.name}
+                  onChange={(e) =>
+                    edit((m) => {
+                      m.terrains!.find((v) => v.id === t.id)!.name =
+                        e.target.value;
+                    })
+                  }
+                />
+              </Field>
+              <button
+                onClick={() =>
+                  edit((m) => {
+                    const copy = clone(t);
+                    copy.id = uid();
+                    copy.name += tr(" copie", " copy");
+                    m.terrains!.push(copy);
+                    setTerrainId(copy.id);
+                  })
+                }
+              >
+                {tr("Dupliquer", "Duplicate")}
+              </button>
+              <Select
+                label={tr("Remplacer le terrain par", "Replace terrain with")}
+                value={terrainReplacement}
+                options={[
+                  {
+                    value: "",
+                    label: tr(
+                      "Conserver les tiles, retirer l’association",
+                      "Keep tiles, remove association",
+                    ),
+                  },
+                  ...(map.terrains ?? [])
+                    .filter((v) => v.id !== t.id)
+                    .map((v) => ({ value: v.id, label: v.name })),
+                ]}
+                onChange={setTerrainReplacement}
+              />
+              <button
+                onClick={() => {
+                  change((p) => {
+                    removeTerrain(p, map.id, t.id, terrainReplacement);
+                    if (terrainReplacement)
+                      connectTerrain(
+                        p.maps.find((m) => m.id === map.id)!,
+                        terrainReplacement,
+                      );
+                  });
+                  setTerrainId("");
+                  setTerrainReplacement("");
+                }}
+              >
+                {tr("Supprimer ce terrain", "Delete this terrain")}
+              </button>
               <p className="muted">N=1 · E=2 · S=4 · O/W=8</p>
               {t.tiles.map((value, mask) => (
                 <NumberField
@@ -470,9 +561,100 @@ export function Maps({
           {tr("Capturer la sélection", "Capture selection")} ({selection.width}{" "}
           × {selection.height})
         </button>
+        {map.stamps
+          .filter((v) => v.id === stamp)
+          .map((st) => (
+            <div key={st.id}>
+              <Field label={tr("Nom du tampon", "Stamp name")}>
+                <input
+                  value={st.name}
+                  onChange={(e) =>
+                    edit((m) => {
+                      m.stamps.find((v) => v.id === st.id)!.name =
+                        e.target.value;
+                    })
+                  }
+                />
+              </Field>
+              <button
+                onClick={() =>
+                  edit((m) => {
+                    const cp = clone(st);
+                    cp.id = uid();
+                    cp.name += tr(" copie", " copy");
+                    m.stamps.push(cp);
+                    setStamp(cp.id);
+                  })
+                }
+              >
+                {tr("Dupliquer le tampon", "Duplicate stamp")}
+              </button>
+              <button
+                onClick={() => {
+                  edit((m) => {
+                    m.stamps = m.stamps.filter((v) => v.id !== st.id);
+                  });
+                  setStamp("");
+                }}
+              >
+                {tr(
+                  "Supprimer le tampon (carte conservée)",
+                  "Delete stamp (keep painted cells)",
+                )}
+              </button>
+            </div>
+          ))}
         <h3>{tr("Tile animée", "Animated tile")}</h3>
         {map.animatedTiles.map((a, n) => (
           <div key={n}>
+            <Field label={tr("Nom", "Name")}>
+              <input
+                value={a.name ?? ""}
+                placeholder={
+                  tr("Animation de la tile ", "Tile animation ") + a.tile
+                }
+                onChange={(e) =>
+                  edit((m) => {
+                    m.animatedTiles[n].name = e.target.value;
+                  })
+                }
+              />
+            </Field>
+            <button
+              onClick={() =>
+                edit((m) => {
+                  if (m.animatedTiles.some((v) => v.tile === tile))
+                    throw new Error(
+                      tr(
+                        "Choisissez une tile de base non animée pour la copie.",
+                        "Choose an unanimated base tile for the copy.",
+                      ),
+                    );
+                  m.animatedTiles.push({
+                    ...clone(a),
+                    tile,
+                    name: (a.name ?? String(a.tile)) + tr(" copie", " copy"),
+                  });
+                })
+              }
+            >
+              {tr(
+                "Dupliquer sur la tile du pinceau",
+                "Duplicate onto brush tile",
+              )}
+            </button>
+            <button
+              onClick={() =>
+                edit((m) => {
+                  m.animatedTiles.splice(n, 1);
+                })
+              }
+            >
+              {tr(
+                "Supprimer l’animation (tile de base conservée)",
+                "Delete animation (keep base tile)",
+              )}
+            </button>
             <NumberField
               label={tr("Tile source", "Source tile")}
               value={a.tile}

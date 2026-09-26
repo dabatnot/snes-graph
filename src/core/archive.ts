@@ -193,6 +193,8 @@ export function validateProject(p: Project): void {
         throw new Error("Invalid metatile");
     }
     for (const a of m.animatedTiles) {
+      if (a.name !== undefined && typeof a.name !== "string")
+        throw new Error("Invalid animation name");
       integer(a.tile, 0, s.pixels.length / 64 - 1);
       integer(a.ticks, 1, 65535);
       a.frames.forEach((v) => integer(v, 0, s.pixels.length / 64 - 1));
