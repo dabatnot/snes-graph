@@ -30,6 +30,21 @@ export function AnimationTimeline({
     [cursor, setCursor] = useState(0);
   const ids = selected.filter((i) => i < animation.frames.length);
   const total = animation.frames.reduce((n, f) => n + f.ticks, 0);
+  const first = Math.min(from, animation.frames.length - 1);
+  const last = Math.max(first, Math.min(to, animation.frames.length - 1));
+  const rangeStart = animation.frames
+    .slice(0, first)
+    .reduce((n, f) => n + f.ticks, 0);
+  const rangeDuration = animation.frames
+    .slice(first, last + 1)
+    .reduce((n, f) => n + f.ticks, 0);
+  const playhead = playing
+    ? range
+      ? rangeStart + (tick % rangeDuration)
+      : animation.loop
+        ? tick % total
+        : Math.min(tick, total - 1)
+    : Math.min(cursor, total - 1);
   const seek = (t: number) => {
     setCursor(t);
     let remaining = t;
@@ -99,13 +114,13 @@ export function AnimationTimeline({
       </div>
       <label className="field">
         <span>
-          {tr("Curseur de lecture", "Playhead")} · {tick} / {total}
+          {tr("Curseur de lecture", "Playhead")} · {playhead} / {total}
         </span>
         <input
           type="range"
           min={0}
           max={Math.max(0, total - 1)}
-          value={playing ? tick % total : Math.min(cursor, total - 1)}
+          value={playhead}
           onChange={(e) => seek(Number(e.target.value))}
         />
       </label>
@@ -115,21 +130,14 @@ export function AnimationTimeline({
           value={range}
           onChange={(v) => {
             setRange(v);
-            onRange(
-              v
-                ? [
-                    Math.min(from, animation.frames.length - 1),
-                    Math.min(to, animation.frames.length - 1),
-                  ]
-                : null,
-            );
+            onRange(v ? [first, last] : null);
           }}
         />
         <NumberField
           label={tr("Première image", "First frame")}
           min={1}
           max={animation.frames.length}
-          value={from + 1}
+          value={first + 1}
           onChange={(v) => {
             setFrom(v - 1);
             if (range)
@@ -141,12 +149,12 @@ export function AnimationTimeline({
         />
         <NumberField
           label={tr("Dernière image", "Last frame")}
-          min={from + 1}
+          min={first + 1}
           max={animation.frames.length}
-          value={Math.min(to + 1, animation.frames.length)}
+          value={last + 1}
           onChange={(v) => {
             setTo(v - 1);
-            if (range) onRange([from, v - 1]);
+            if (range) onRange([first, v - 1]);
           }}
         />
       </div>

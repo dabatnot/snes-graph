@@ -13,7 +13,9 @@
     "tauri": "tauri",
     "desktop": "tauri dev",
     "export": "tsx scripts/export.ts",
-    "example": "tsx scripts/example.ts"
+    "example": "tsx scripts/example.ts",
+    "examples:integration": "tsx scripts/integration-examples.ts",
+    "benchmark": "tsx scripts/benchmark.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",

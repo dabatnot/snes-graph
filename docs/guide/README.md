@@ -198,3 +198,8 @@ Ouvrir une copie de Football, sélectionner Joueur, Réimporter le dessin, chois
 `examples/reimport-review.png`. Garder le tramage désactivé. Capturer le dialogue
 en FR puis EN : 64 pixels alpha ajustés, tile 5 modifiée, usage Joueur.
 Le fichier est une variante de l’exemple interne, sans ressource tierce.
+
+### Exemples d’intégration
+Section `integration-examples` dans les deux langues. Sources et recette Mesen dans
+`examples/integration/README.md`. Mesures et limites de validation dans
+`docs/evolution-validation.md`. Les captures d’émulateur restent des artefacts de test.

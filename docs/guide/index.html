@@ -84,8 +84,8 @@
           de fil conducteur, du dessin aux tenues Domicile et Extérieur.
         </p>
         <p class="meta">
-          Application 0.1.0 · Manuel révisé le 26 septembre 2026 · Captures
-          natives sous Linux, interface française
+          Application 0.1.0 · Manuel révisé le 27 septembre 2026 · Captures
+          bureau et navigateur sous Linux, interface française
         </p>
         <div class="steps">
           <a href="#football"
@@ -4144,6 +4144,10 @@ npm run dev</code></pre>
           /></a>
           <figcaption>Sélection et édition collective</figcaption>
         </figure>
+        <p>
+          Le curseur suit la plage bouclée sélectionnée ; sans boucle, il reste
+          sur la dernière image.
+        </p>
         <h3 id="sequence">Séquence d’animation</h3>
         <div class="table-wrap">
           <table>
@@ -7475,11 +7479,9 @@ npm run dev</code></pre>
         </ul>
         <p>
           Le réimport conserve la palette par défaut de la ressource existante.
-          Choisir une autre palette dans la conversion peut changer le sens des
-          indices sans réaffecter toutes les pièces : ce n’est pas un outil de
-          migration automatique de famille de palettes. Pour une nouvelle
-          organisation du dessin, importez-le comme nouvelle ressource et
-          adaptez explicitement ses usages.
+          La conversion utilise cette palette, sans sélecteur de remplacement.
+          Pour une nouvelle organisation du dessin, importez-le comme nouvelle
+          ressource et adaptez explicitement ses usages.
         </p>
         <h3 id="export-png">Exporter une image PNG</h3>
         <p>
@@ -8133,6 +8135,54 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
             n’augmente pas parce que vous ajoutez une tenue.
           </p>
         </div>
+        <h3 id="integration-examples">Trois exemples ca65 autonomes</h3>
+        <p>
+          Dans une copie du dépôt avec Node et cc65 installés, lancez
+          <code>npm run examples:integration</code>. Les dossiers
+          <code>artifacts/integration/background</code>,
+          <code>animated-sprite</code> et <code>palette-swap</code> contiennent
+          chacun un projet modifiable, ses exports, des sources ca65 et une ROM
+          <code>example.sfc</code>.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Exemple</th>
+              <th>À observer dans Mesen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>background</td>
+              <td>Mosaïque de cristaux sur le fond.</td>
+            </tr>
+            <tr>
+              <td>animated-sprite</td>
+              <td>Un cristal alterne deux positions toutes les 16 images.</td>
+            </tr>
+            <tr>
+              <td>palette-swap</td>
+              <td>
+                Chaque pression sur B change Azure en Amber ou inversement, sans
+                changer les pixels du sprite.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Ces petits programmes illustrent le chargement des exports et les
+          transferts de palette et d’OAM en VBlank. Ils ne constituent pas un
+          moteur de jeu général. Les détails et la commande de vérification
+          Mesen sont dans <code>examples/integration/README.md</code>. Une
+          exécution dans Mesen ne constitue pas une validation sur console.
+        </p>
+        <p>
+          <code>npm run benchmark</code> mesure sauvegarde, ouverture, rendu de
+          carte et calcul de charge OBJ sur des données reproductibles. Le
+          rapport JSON est écrit dans <code>artifacts/benchmark.json</code>. Il
+          mesure le cœur de l’application sous Node, pas la fluidité du
+          navigateur ni les dialogues natifs.
+        </p>
         <h3 id="controle-final">Contrôle avant d’intégrer dans un jeu</h3>
         <ul class="checklist">
           <li>
@@ -9001,8 +9051,9 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
         </p>
         <h3 id="provenance">Sources et illustrations</h3>
         <p>
-          Les captures ont été réalisées dans l’application native, interface
-          française, à partir des fichiers
+          Les captures 1–17 proviennent de l’application native ; les vues 18–24
+          du navigateur sous Linux, avec la même interface française, à partir
+          des fichiers
           <a href="../../examples/football.snesgraph" download
             >football.snesgraph</a
           >,
@@ -9060,7 +9111,7 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
       </section>
       <footer>
         <p>
-          SNES Graph · Manuel utilisateur 0.1.0 · Révision du 26 septembre 2026
+          SNES Graph · Manuel utilisateur 0.1.0 · Révision du 27 septembre 2026
         </p>
         <p>
           <a href="#accueil">Retour au début</a> ·

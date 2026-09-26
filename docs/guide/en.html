@@ -93,8 +93,8 @@
           your resources.
         </p>
         <p class="meta">
-          Application 0.1.0 · Manual revised September 27, 2026 · Native Linux
-          screenshots, English interface
+          Application 0.1.0 · Manual revised September 27, 2026 · Linux desktop
+          and browser screenshots, English interface
         </p>
         <div class="steps">
           <a href="#football"
@@ -4010,6 +4010,10 @@ npm run dev</code></pre>
           /></a>
           <figcaption>Selection and batch editing</figcaption>
         </figure>
+        <p>
+          The playhead follows the selected loop range; without looping it stops
+          on the final frame.
+        </p>
         <h3 id="sequence">Animation sequence</h3>
         <div class="table-wrap">
           <table>
@@ -7042,10 +7046,9 @@ npm run dev</code></pre>
                       width="413"
                   /></a>
                   <p>
-                    Compare colors, transparency and details. The two images may
-                    be displayed at different magnifications: the larger player
-                    on the right does not mean the imported dimensions have
-                    increased.
+                    Compare colors, transparency and details. Previews now use
+                    the same scale; the older detail capture above still shows
+                    different magnifications. See the updated full view below.
                   </p>
                 </td>
               </tr>
@@ -7275,11 +7278,9 @@ npm run dev</code></pre>
           </li>
         </ul>
         <p>
-          Reimport preserves the existing resource’s default palette. Choosing
-          another palette during conversion may change index meanings without
-          reassigning every piece: this is not an automatic palette-family
-          migration tool. For a new graphic layout, import it as a new resource
-          and explicitly adapt its uses.
+          Reimport preserves the existing resource’s default palette. Conversion
+          uses this palette without a replacement selector. For a new graphic
+          layout, import it as a new resource and explicitly adapt its uses.
         </p>
         <h3 id="export-png">Exporting a PNG image</h3>
         <p>
@@ -7902,6 +7903,55 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
             Adding a kit does not increase the player graphic’s tile count.
           </p>
         </div>
+        <h3 id="integration-examples">Three standalone ca65 examples</h3>
+        <p>
+          In a repository checkout with Node and cc65 installed, run
+          <code>npm run examples:integration</code>. Each directory under
+          <code>artifacts/integration</code> (background, animated-sprite,
+          palette-swap) contains an editable project, exports, ca65 sources and
+          an <code>example.sfc</code> ROM.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Example</th>
+              <th>Expected in Mesen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>background</td>
+              <td>A background mosaic of crystals.</td>
+            </tr>
+            <tr>
+              <td>animated-sprite</td>
+              <td>
+                A crystal alternates between two positions every 16 frames.
+              </td>
+            </tr>
+            <tr>
+              <td>palette-swap</td>
+              <td>
+                Each B press switches Azure to Amber or back, without changing
+                sprite pixels.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          These small programs demonstrate loading exported data and
+          transferring palettes and OAM during VBlank. They are not a general
+          game engine. See <code>examples/integration/README.md</code> for
+          details and the Mesen verification command. Running in Mesen is not
+          console validation.
+        </p>
+        <p>
+          <code>npm run benchmark</code> measures saving, loading, map rendering
+          and OBJ load computation using reproducible data. The JSON report is
+          saved to <code>artifacts/benchmark.json</code>. It measures the
+          application core under Node, not browser responsiveness or native
+          dialogs.
+        </p>
         <h3 id="controle-final">Checks before integrating into a game</h3>
         <ul class="checklist">
           <li>
@@ -8704,8 +8754,8 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
         </p>
         <h3 id="provenance">Sources and illustrations</h3>
         <p>
-          Screenshots were taken in the native application, with its English
-          interface, using the files
+          Screenshots 1–17 were taken in the native application; views 18–24 in
+          the Linux browser, with the same English interface, using the files
           <a download="" href="../../examples/football.snesgraph"
             >football.snesgraph</a
           >,

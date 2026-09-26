@@ -9,7 +9,8 @@ Plan accepté : huit lots utilisables, documentés en français et en anglais.
 - [x] 5. Régions de cartes, miroirs, rotations et raccords.
 - [x] 6. Diagnostics navigables, mémoire et analyse temporelle.
 - [x] 7. Aperçus des pertes d’import et des changements de réimport.
-- [ ] 8. Exemples ca65, parcours natifs et mesures de performances.
+- [x] 8. Exemples ca65, contrôle natif Linux et mesures de performances.
+      Validation native Windows restant à exécuter ; voir `evolution-validation.md`.
 
 Conserver le format version 1, avec un nom facultatif pour les animations de tiles.
 Aucune copie cachée pour résoudre un conflit : l’utilisateur remplace les références

@@ -87,3 +87,7 @@ Le rendu de travail est un aperçu. La ROM permet une vérification distincte da
 `src/core` contient les données, codecs, importateurs, rendus et exports sans dépendance à React ou Tauri. `src/ui` contient les ateliers. `src/App.tsx` gère le projet, l'historique et la navigation. `src/platform.ts` regroupe les entrées/sorties. Le petit hôte Rust de `src-tauri` gère les fichiers et les processus natifs.
 
 Les ressources de l'exemple football et l'icône ont été créées pour ce projet ; aucune ressource de jeu commercial n'est fournie.
+
+Exemples ca65 autonomes : `npm run examples:integration` (cc65 requis), voir
+[la recette bilingue](examples/integration/README.md). Mesures reproductibles :
+`npm run benchmark`, résultats dans `artifacts/benchmark.json`.
