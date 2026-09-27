@@ -1,7 +1,27 @@
-# Documentation des fonctionnalités
+# Engineering principles
 
-Après tout ajout, modification ou suppression d’une fonctionnalité ou d’une commande visible de SNES Graph, appliquer le skill [snes-graph-docs](/home/david/.codex/skills/snes-graph-docs/SKILL.md) et mettre à jour la documentation concernée dans la même tâche.
+Keep the simplest solution that meets the current need. Apply KISS and YAGNI.
+Avoid speculative abstractions, frameworks, wrappers and configuration layers.
+Use DRY only when a shared concept is established; small duplication is preferable
+to the wrong abstraction. Tests protect real behavior, not metrics.
+Design interfaces for users: include only information that helps them understand,
+decide or act. Do not fill empty space with developer details or decorative content.
 
-Maintenir les deux éditions du manuel utilisateur : `docs/guide/index.html` (FR) et `docs/guide/en.html` (EN), avec leurs captures respectives dans `assets/` et `assets/en/`. Conserver les mêmes ancres et le sélecteur de langue ; les consignes de maintenance et les recettes des captures sont dans `docs/guide/README.md`. Un changement purement interne sans effet utilisateur n’exige pas de modification documentaire.
+# Language and documentation
 
-Rester simple : mettre à jour les fichiers statiques existants et les captures concernées, sans ajouter de framework documentaire.
+English is the default for the product and all project-authored Markdown, working
+notes, commits, pull requests and releases. Preserve French UI/manual translations,
+user content and original third-party notices. Do not rewrite historical evidence.
+For every user-visible feature or command change, apply the repository-local
+[snes-graph-docs](.agents/skills/snes-graph-docs/SKILL.md) skill in the same task.
+Internal changes without user impact do not require manual edits.
+
+# Versions and delivery
+
+`package.json` owns the application version, independently of the project format.
+Use `npm run version:set -- VERSION` and `npm run version:check`.
+Use [snes-graph-release](.agents/skills/snes-graph-release/SKILL.md) for version
+preparation, packaging and releases. Develop on `develop`; release annotated
+stable tags from `main`. Preparing a release does not authorize merging or tagging.
+Run targeted checks, then the shared checks required by CI. Report unavailable
+platform checks explicitly; building does not prove graphical behavior.
