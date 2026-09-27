@@ -1,3 +1,4 @@
+import { licenseRomSources } from "./license";
 import { stampRomLogo } from "./rom-logo";
 import { strToU8 } from "fflate";
 import { defaultExport, exportProject, packSprites, buildTiles } from "./snes";
@@ -178,7 +179,7 @@ export function demoSources(
   out["README.txt"] = strToU8(
     `SNES Graph preview: ${ticks} frames at ${p.fps} Hz.\nca65 main.s -o main.o\nld65 -C lorom.cfg main.o -o demo.sfc\nThe generated ROM loops this preview. It is not a game runtime.\nHardware validation is separate from emulator validation.\n`,
   );
-  return out;
+  return licenseRomSources(out);
 }
 export function fixRomChecksum(rom: Uint8Array) {
   rom[0x7fdc] = 255;

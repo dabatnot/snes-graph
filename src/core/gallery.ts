@@ -1,3 +1,4 @@
+import { licenseRomSources } from "./license";
 import { strToU8 } from "fflate";
 import { validateProject } from "./archive";
 import {
@@ -723,5 +724,5 @@ export function gallerySources(
   files["README.txt"] = strToU8(
     `SNES Graph gallery (${language}, ${p.fps} Hz)\nca65 main.s -o main.o\nld65 -C lorom.cfg main.o -o gallery.sfc\nPort 1: D-pad / A select; L/R browse; Start information; B back.\nSprites: Up/Down animation, A pause, Left/Right step, X palette, Y backdrop.\nMaps: D-pad camera, hold A for speed. Scenes: A pause.\nScenes loop ${ticks} console frames. No game logic or audio.\nHardware validation is separate from emulator validation.\n`,
   );
-  return files;
+  return licenseRomSources(files);
 }

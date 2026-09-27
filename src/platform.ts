@@ -108,3 +108,38 @@ async function dbGet() {
     };
   });
 }
+
+let manualWindow: Window | null = null;
+export async function openManual(language: "fr" | "en") {
+  if (isTauri()) return invoke<void>("open_manual", { language });
+  const url = new URL(
+    `docs/guide/${language === "en" ? "en.html" : "index.html"}`,
+    document.baseURI,
+  );
+  if (manualWindow && !manualWindow.closed) {
+    try {
+      if (manualWindow.location.href.split("#")[0] !== url.href)
+        manualWindow.location.href = url.href;
+    } catch {
+      // The reader may have followed an external link in the web edition.
+      manualWindow.location.href = url.href;
+    }
+    manualWindow.focus();
+  } else {
+    manualWindow = window.open(url, "snes-graph-manual");
+    if (!manualWindow)
+      throw new Error(
+        language === "en"
+          ? "Allow the manual tab to open in your browser."
+          : "Autorisez l’ouverture de l’onglet du manuel dans votre navigateur.",
+      );
+  }
+}
+export async function openRepository() {
+  if (isTauri()) return invoke<void>("open_repository");
+  window.open(
+    "https://github.com/dabatnot/snes-graph",
+    "_blank",
+    "noopener,noreferrer",
+  );
+}

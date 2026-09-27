@@ -15,6 +15,7 @@ import {
 import { saveProject } from "../src/core/archive";
 import { sceneMemory } from "../src/core/scene-analysis";
 import { defaultExport, exportProject } from "../src/core/snes";
+import { MIT_LICENSE } from "../src/core/license";
 import { fixRomChecksum } from "../src/core/demo";
 const root = resolve(process.argv[2] ?? "artifacts/integration");
 for (const [mode, name] of [
@@ -140,6 +141,11 @@ for (const [mode, name] of [
   );
   for (const file of ["runtime.s", "lorom.cfg"])
     await copyFile(resolve("examples/integration", file), join(dir, file));
+  await writeFile(join(dir, "LICENSE.txt"), MIT_LICENSE);
+  await writeFile(
+    join(dir, "README.txt"),
+    "The supplied assembly program is MIT licensed; see LICENSE.txt. User graphics and project assets retain their own licensing.\n",
+  );
   for (const [exe, args] of [
     ["ca65", ["runtime.s", "-o", "main.o"]],
     ["ld65", ["-C", "lorom.cfg", "main.o", "-o", "example.sfc"]],

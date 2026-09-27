@@ -1,3 +1,5 @@
+import { HelpContent, type HelpPage } from "./ui/Help";
+import { openManual } from "./platform";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isTauri } from "@tauri-apps/api/core";
@@ -67,7 +69,8 @@ export default function App() {
     [modal, setModal] = useState<
       | null
       | "create"
-      | "help"
+      | HelpPage
+      | "rename"
       | "import"
       | "replace"
       | "close"
@@ -92,6 +95,7 @@ export default function App() {
     } | null>(null),
     [importPalette, setImportPalette] = useState(""),
     [dither, setDither] = useState(false);
+  const [helpMenu, setHelpMenu] = useState(false);
   const [replacement, setReplacement] = useState(""),
     [reimportId, setReimportId] = useState("");
   const [returnTo, setReturnTo] = useState<{
@@ -299,6 +303,12 @@ export default function App() {
   }, []);
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
+      if (
+        (["rename", "news", "about", "licenses"] as (string | null)[]).includes(
+          modal,
+        )
+      )
+        return;
       if (e.ctrlKey || e.metaKey) {
         const key = e.key.toLowerCase();
         if (key === "s") {
@@ -421,10 +431,18 @@ export default function App() {
           </span>
           SNES <strong>Graph</strong>
         </div>
-        <div className="project-name">
+        <button
+          className="project-name"
+          title={tr("Renommer le projet", "Rename project")}
+          aria-label={tr("Renommer le projet", "Rename project")}
+          onClick={() => {
+            setName(project.name);
+            setModal("rename");
+          }}
+        >
           {project.name}
           {dirty ? " •" : ""}
-        </div>
+        </button>
         <div className="top-actions">
           <button
             onClick={() => {
@@ -471,7 +489,60 @@ export default function App() {
             <option value="fr">FR</option>
             <option value="en">EN</option>
           </select>
-          <button onClick={() => setModal("help")}>?</button>
+          <div
+            className="help-menu"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node))
+                setHelpMenu(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setHelpMenu(false);
+                e.stopPropagation();
+              }
+            }}
+          >
+            <button
+              aria-expanded={helpMenu}
+              onClick={() => setHelpMenu((v) => !v)}
+            >
+              {tr("Aide", "Help")}
+            </button>
+            {helpMenu && (
+              <div className="help-menu-items">
+                <button
+                  onClick={() => {
+                    setHelpMenu(false);
+                    void openManual(i18n.language === "en" ? "en" : "fr").catch(
+                      (e) => report(String(e)),
+                    );
+                  }}
+                >
+                  {tr("Manuel utilisateur", "User manual")}
+                </button>
+                {(["news", "about", "licenses"] as const).map((page, i) => (
+                  <button
+                    key={page}
+                    onClick={() => {
+                      setHelpMenu(false);
+                      setModal(page);
+                    }}
+                  >
+                    {
+                      [
+                        tr("Nouveautés", "What’s new"),
+                        tr("À propos", "About"),
+                        tr(
+                          "Licence et composants tiers",
+                          "License and third-party components",
+                        ),
+                      ][i]
+                    }
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
       <nav className="tabs" aria-label={tr("Ateliers", "Workspaces")}>
@@ -916,9 +987,23 @@ export default function App() {
             className={modal === "import" ? "modal import-modal" : "modal"}
             role="dialog"
             aria-modal="true"
+            onKeyDown={(e) => {
+              if (
+                e.key === "Escape" &&
+                (["rename", "news", "about", "licenses"] as string[]).includes(
+                  modal,
+                )
+              ) {
+                e.stopPropagation();
+                setModal(null);
+              }
+            }}
           >
             <button
               className="close"
+              autoFocus={
+                modal === "news" || modal === "about" || modal === "licenses"
+              }
               aria-label={tr("Fermer", "Close")}
               onClick={() => setModal(null)}
             >
@@ -1086,40 +1171,42 @@ export default function App() {
                 </div>
               </>
             )}
-            {modal === "help" && (
-              <>
-                <h2>SNES Graph</h2>
-                <p>
-                  {tr(
-                    "Dessinez avec des indices de couleur, assemblez vos sprites, puis composez et exportez vos scènes.",
-                    "Draw with color indices, assemble sprites, then compose and export your scenes.",
-                  )}
-                </p>
-                <dl>
-                  <dt>Ctrl+S</dt>
-                  <dd>{tr("Enregistrer", "Save")}</dd>
-                  <dt>Ctrl+O</dt>
-                  <dd>{tr("Ouvrir", "Open")}</dd>
-                  <dt>Ctrl+Z / Ctrl+Shift+Z</dt>
-                  <dd>{tr("Annuler / rétablir", "Undo / redo")}</dd>
-                </dl>
-                <p>
-                  {tr(
-                    "Une palette de sprite contient 15 couleurs visibles et une entrée transparente. Les variantes partagent les pixels et changent la palette.",
-                    "A sprite palette contains 15 visible colors and a transparent entry. Variants share pixels and change the palette.",
-                  )}
-                </p>
+            {(["news", "about", "licenses"] as string[]).includes(modal) && (
+              <HelpContent
+                page={modal as HelpPage}
+                onPage={setModal}
+                report={report}
+              />
+            )}
+            {modal === "rename" && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const next = name.trim();
+                  if (next && next !== project.name)
+                    change((p) => {
+                      p.name = next;
+                    });
+                  if (next) setModal(null);
+                }}
+              >
+                <h2>{tr("Renommer le projet", "Rename project")}</h2>
                 <Field label={tr("Nom du projet", "Project name")}>
                   <input
-                    value={project.name}
-                    onChange={(e) =>
-                      change((p) => {
-                        p.name = e.target.value;
-                      })
-                    }
+                    autoFocus
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </Field>
-              </>
+                <div className="button-row">
+                  <button type="button" onClick={() => setModal(null)}>
+                    {tr("Annuler", "Cancel")}
+                  </button>
+                  <button className="primary" disabled={!name.trim()}>
+                    {tr("Renommer", "Rename")}
+                  </button>
+                </div>
+              </form>
             )}
             {modal === "import" && (
               <>

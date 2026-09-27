@@ -99,6 +99,58 @@ fn launch_emulator(executable: String, rom: Vec<u8>, app: tauri::AppHandle) -> R
         .map_err(|e| e.to_string())?;
     Ok(())
 }
+#[tauri::command]
+fn open_manual(app: tauri::AppHandle, language: String) -> Result<(), String> {
+    let page = match language.as_str() {
+        "fr" => "index.html",
+        "en" => "en.html",
+        _ => return Err("Unsupported manual language".into()),
+    };
+    let path = format!("docs/guide/{page}");
+    if let Some(window) = app.get_webview_window("manual") {
+        let current = window.url().map_err(|e| e.to_string())?;
+        if current.path() != format!("/{path}") {
+            let url = current
+                .join(&format!("/{path}"))
+                .map_err(|e| e.to_string())?;
+            window.navigate(url).map_err(|e| e.to_string())?;
+        }
+        window.show().map_err(|e| e.to_string())?;
+        window.unminimize().map_err(|e| e.to_string())?;
+        window.set_focus().map_err(|e| e.to_string())?;
+    } else {
+        tauri::WebviewWindowBuilder::new(&app, "manual", tauri::WebviewUrl::App(path.into()))
+            .title("SNES Graph — Manual / Manuel")
+            .inner_size(1100.0, 800.0)
+            .min_inner_size(600.0, 400.0)
+            .resizable(true)
+            .on_navigation(|url| {
+                // Keep this unprivileged window on bundled documentation only.
+                matches!(url.scheme(), "tauri" | "http" | "https")
+                    && matches!(
+                        url.host_str(),
+                        Some("tauri.localhost" | "localhost" | "127.0.0.1")
+                    )
+            })
+            .build()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+#[tauri::command]
+fn open_repository() -> Result<(), String> {
+    let url = "https://github.com/dabatnot/snes-graph";
+    #[cfg(target_os = "linux")]
+    let result = Command::new("xdg-open").arg(url).spawn();
+    #[cfg(target_os = "windows")]
+    let result = Command::new("rundll32")
+        .args(["url.dll,FileProtocolHandler", url])
+        .spawn();
+    #[cfg(target_os = "macos")]
+    let result = Command::new("open").arg(url).spawn();
+    result.map(|_| ()).map_err(|e| e.to_string())
+}
+
 #[cfg(target_os = "linux")]
 fn linux_webkit_setup() -> std::io::Result<Option<tempfile::NamedTempFile>> {
     // Set these before GTK/WebKit starts any threads. Explicit user settings win.
@@ -139,7 +191,9 @@ fn main() {
             save_recovery,
             load_recovery,
             build_demo,
-            launch_emulator
+            launch_emulator,
+            open_manual,
+            open_repository
         ])
         .run(tauri::generate_context!())
         .expect("Unable to start SNES Graph");

@@ -1,6 +1,6 @@
 {
   "name": "snes-graph",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,14 +8,17 @@
     "bundle:linux": "NO_STRIP=1 tauri build --bundles rpm,appimage",
     "bundle:windows": "tauri build --bundles nsis",
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run version:check && tsc --noEmit && vite build",
     "test": "vitest run",
     "tauri": "tauri",
     "desktop": "tauri dev",
     "export": "tsx scripts/export.ts",
     "example": "tsx scripts/example.ts",
     "examples:integration": "tsx scripts/integration-examples.ts",
-    "benchmark": "tsx scripts/benchmark.ts"
+    "benchmark": "tsx scripts/benchmark.ts",
+    "version:set": "node --import tsx scripts/version.ts",
+    "version:check": "node --import tsx scripts/version.ts --check",
+    "release:notes": "node --import tsx scripts/release-notes.ts"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",
@@ -39,5 +42,6 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.1",
     "vitest": "^5.0.2"
-  }
+  },
+  "license": "MIT"
 }

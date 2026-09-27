@@ -1,11 +1,21 @@
 {
   "identifier": "default",
   "description": "Local project editing",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "core:window:allow-destroy",
     "dialog:default",
-    "fs:allow-read-file"
+    "fs:allow-read-file",
+    "allow-atomic-write",
+    "allow-initial-project",
+    "allow-save-recovery",
+    "allow-load-recovery",
+    "allow-build-demo",
+    "allow-launch-emulator",
+    "allow-open-manual",
+    "allow-open-repository"
   ]
 }

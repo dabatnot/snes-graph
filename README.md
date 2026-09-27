@@ -93,3 +93,31 @@ Les ressources de l'exemple football et l'icône ont été créées pour ce proj
 Exemples ca65 autonomes : `npm run examples:integration` (cc65 requis), voir
 [la recette bilingue](examples/integration/README.md). Mesures reproductibles :
 `npm run benchmark`, résultats dans `artifacts/benchmark.json`.
+
+## Aide et versions
+
+**Aide / Help** donne accès au manuel FR/EN hors ligne dans une fenêtre indépendante,
+aux nouveautés, à À propos et aux licences. Le nom du projet dans la barre supérieure
+ouvre le dialogue de renommage (Entrée, Échap, puis annulation possible dans l’historique).
+
+La version de `package.json` est la référence, indépendante du format `.snesgraph`.
+Pour préparer une livraison :
+
+```sh
+npm run version:set -- 0.2.1
+npm run version:check
+npm run --silent release:notes -- fr > /tmp/snes-graph-notes-fr.md
+npm run --silent release:notes -- en > /tmp/snes-graph-notes-en.md
+```
+
+Ajouter les textes FR/EN à `src/help/releases.ts` avant la livraison. Les notes
+Markdown sont un export de cette source, sans seconde rédaction. Les entrées
+historiques reconstituées ne sont pas des versions publiées. Corrections : `0.2.x` ;
+prochain ensemble fonctionnel : `0.3.0`. La compilation et la CI contrôlent les
+versions npm, Rust, Tauri et leurs verrous.
+
+SNES Graph et les programmes assembleur fournis par les générateurs sont sous
+[licence MIT](LICENSE). Les créations de l’utilisateur conservent leur propre licence.
+Les [notices des composants tiers](licenses/README.md) sont embarquées avec les manuels.
+La publication des installateurs reste une étape distincte : leur contenu natif doit
+être contrôlé avant redistribution.

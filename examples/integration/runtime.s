@@ -1,3 +1,5 @@
+; Copyright (c) 2026 David Brugneaux and contributors
+; SPDX-License-Identifier: MIT
 ; Three deliberately small consumers of SNES Graph exports.
 ; MODE: 0 = background, 1 = two sprite poses, 2 = B toggles palette.
 .setcpu "65816"

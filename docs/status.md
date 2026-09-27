@@ -103,3 +103,37 @@ Après ces validations, le binaire natif `src-tauri/target/release/snes-graph` a
 Texte de galerie limité à A–Z/a–z/0–9, autres caractères remplacés par des espaces ; noms du projet inchangés. Icône SNES Graph de 16 × 16 pixels superposée dans les deux modes ROM, soumise aux effets de scène. Respect des allocations existantes, réutilisation des couleurs les plus proches si la CGRAM est entièrement occupée, diagnostics en cas de manque de VRAM/OBJ.
 
 54 tests réussis, cinq parcours Mesen répétés avec captures FR/EN renouvelées, Scène en boucle compilée et exécutée dans Mesen. Binaire natif release reconstruit avec succès ; installateurs non reconstruits et aucune validation sur console physique.
+
+## Aide, versions et licences — 0.2.0
+
+- Menu Aide/Help : manuel hors ligne indépendant, nouveautés bilingues, À propos
+  (version et copie), licence MIT et notices des composants tiers.
+- Renommage depuis le nom du projet : validation, abandon et annulation dans
+  l’historique. Ancienne aide courte remplacée ; raccourcis conservés dans le manuel.
+- Version npm de référence synchronisée vers Rust, Tauri et les fichiers de verrouillage ;
+  contrôle à la compilation et en CI. Historique reconstitué des commits des 26/27
+  septembre 2026, sans inventer d’anciennes versions publiées. Export Markdown FR/EN.
+- Deux éditions du manuel et tous leurs fichiers locaux liés embarqués. La fenêtre
+  du manuel n’a aucune permission pour écrire des projets ou compiler des ROMs.
+- Notice MIT dans les sources des deux ROMs et dans les exemples assembleur.
+  Les créations de l’utilisateur restent sous leur propre licence.
+
+Validation : 59 tests réussis (11 fichiers), puis contrôle ciblé des fins de ligne Windows ; compilation TypeScript/Vite et binaire release Linux réussis ; tests
+ciblés de versions, notes FR/EN, fichiers hors ligne, réutilisation d’onglet et licences
+réussis. Compilation ca65/ld65 des modes Scène en boucle, Galerie et des trois
+exemples d’intégration réussie. Contrôle des 108 ancres et 498 liens de chaque manuel
+compilé ; captures natives FR/EN renouvelées (menu, À propos, renommage, vue générale).
+
+Parcours natif : nouveautés, licence et notices chargées hors ligne, copie de version,
+manuel indépendant avec images, réutilisation conservant la lecture, changement FR/EN
+et fermeture indépendante. Le contrôleur natif de clavier a expiré : Entrée, Échap
+et annulation du renommage ont été observés dans la version web. La réutilisation
+de l’onglet web est couverte par un test ciblé ; le navigateur de test intégré n’a
+pas exposé l’onglet secondaire pour une observation réelle.
+
+Inventaire : dépendances npm de production, graphes Cargo Linux/Windows et notices
+natives identifiées ; outils de compilation séparés. Les bibliothèques système
+Fedora sont explicitement distinguées des composants embarqués. Cet inventaire
+ne certifie pas le contenu de futurs AppImage/RPM/installateurs Windows : audit
+du paquet réellement produit requis avant publication, qui reste hors de cette
+livraison. Aucun essai Windows ou console physique n’est revendiqué ici.

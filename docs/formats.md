@@ -119,3 +119,11 @@ Les entrées `allocations` de la mémoire de scène peuvent inclure `resource`, 
 Les deux générateurs ajoutent l’icône SNES Graph (16 × 16 pixels, issue de l’icône de l’application) aux snapshots PPU, dans les emplacements OBJ/VRAM libres. Les données d’export génériques et le projet restent inchangés. Le contrôle OBJ inclut le logo ; une mémoire insuffisante provoque un diagnostic. Une palette libre reçoit les couleurs du logo ; sans palette libre, les couleurs existantes les plus proches sont réutilisées. Les effets de scène continuent de s’appliquer.
 
 Le texte de galerie conserve uniquement les caractères ASCII A–Z, a–z et 0–9 ; chaque autre caractère Unicode, après normalisation NFC, devient un espace. Les noms sont tronqués à 28 caractères sans ellipse. Les libellés intégrés français sont écrits sans accents ; les noms du projet ne sont pas modifiés. Le repère de sélection du menu est X.
+
+## Notices des sources ROM — 0.2.0
+
+Les sources ca65 des modes Scène en boucle et Galerie interactive incluent
+`LICENSE.txt` (MIT), un en-tête SPDX dans les fichiers assembleur et une précision
+dans `README.txt`. Cette licence concerne le programme fourni par SNES Graph ;
+elle ne décide pas de la licence des graphismes et ressources de l’utilisateur.
+Le format `.snesgraph` ne change pas avec la version 0.2.0 du logiciel.

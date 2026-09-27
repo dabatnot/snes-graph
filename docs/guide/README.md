@@ -225,3 +225,35 @@ Manuels FR/EN ouverts dans le navigateur : rendu des nouvelles sections contrôl
 ### Logo et texte ASCII — 27 septembre 2026
 
 Captures 12/13 FR/EN renouvelées depuis les mêmes parcours Mesen : icône à quatre carrés en bas à droite, repère X et texte limité aux lettres ASCII/chiffres/espaces. Images inspectées, liens et ancres FR/EN contrôlés statiquement. Le HTML n’a pas été rouvert visuellement lors de cette passe : le navigateur intégré refuse les URL file. Mise en page inchangée.
+
+## Aide et version 0.2.0 — 27 septembre 2026
+
+Appliquer `snes-graph-docs` : passages sur l’aide et le renommage corrigés dans les
+deux éditions, même ancre `#aide`, raccourcis conservés sous `#raccourcis`.
+Les captures `01-dessins.png`, `26-help-menu.png`, `27-about.png` et
+`28-rename.png` (FR et EN) proviennent du **binaire natif 0.2.0 reconstruit**,
+fenêtre 1440 × 957, dont 37 pixels de barre de titre. Exemple Football intégré,
+aucune modification de ses fichiers. Recette : ouvrir l’exemple, choisir FR/EN,
+ouvrir Aide ; À propos ; puis cliquer sur le nom du projet. Images inspectées.
+
+Parcours natif observé : nouveautés (version actuelle ouverte, historique replié),
+À propos, copie de version avec confirmation, liste des notices embarquées ;
+manuel indépendant FR, lecture d’un chapitre avec images, passage à l’atelier
+Sprites pendant que le manuel reste ouvert, réouverture conservant le chapitre,
+changement EN réutilisant la même fenêtre et fermeture indépendante.
+Les entrées clavier du contrôleur natif ont expiré ; elles ne constituent pas une
+validation des raccourcis natifs. Le dialogue Annuler a été vérifié à la souris.
+
+Le manuel et ses liens locaux sont copiés dans la distribution par le build Vite ;
+les commandes de projets et de compilation restent réservées à la fenêtre principale.
+La version de format des projets est indépendante de la version de l’application.
+
+Complément : renommage avec Entrée, abandon par Échap et restauration par Annuler
+observés dans l’interface web. Réutilisation de l’onglet couverte par un test ciblé ;
+l’onglet secondaire n’était pas exposé par le navigateur intégré pour inspection.
+Les 108 ancres et 498 liens de chaque édition ont été contrôlés dans `dist/`, avec
+parité FR/EN. Les nouvelles captures sont incluses dans la reconstruction native.
+
+Les nouveaux passages FR/EN et leurs images ont ensuite été lus dans le manuel
+natif embarqué 0.2.0 ; agrandissement et fermeture de la capture du menu vérifiés.
+Preuve locale : `artifacts/help-validation/manual-fr.png` (non distribuée).

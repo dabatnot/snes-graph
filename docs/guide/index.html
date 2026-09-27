@@ -23,7 +23,7 @@
     </button>
     <aside class="sidebar" id="sidebar">
       <a class="logo" href="#accueil">SNES <span>Graph</span></a>
-      <p class="edition">Manuel utilisateur · version 0.1.0</p>
+      <p class="edition">Manuel utilisateur · version 0.2.0</p>
       <nav class="languages" aria-label="Langue du manuel">
         <a
           href="index.html"
@@ -84,7 +84,7 @@
           de fil conducteur, du dessin aux tenues Domicile et Extérieur.
         </p>
         <p class="meta">
-          Application 0.1.0 · Manuel révisé le 27 septembre 2026 · Captures
+          Application 0.2.0 · Manuel révisé le 27 septembre 2026 · Captures
           bureau et navigateur sous Linux, interface française
         </p>
         <div class="steps">
@@ -258,7 +258,7 @@ npm run dev</code></pre>
             ><img
               src="assets/01-dessins.png"
               width="1440"
-              height="920"
+              height="957"
               alt="Atelier Dessins : bibliothèque du projet Football à gauche, joueur au centre et propriétés à droite."
           /></a>
           <figcaption>
@@ -502,24 +502,10 @@ npm run dev</code></pre>
                 </td>
               </tr>
               <tr>
-                <td class="control-cell">
-                  <a
-                    class="control-shot"
-                    data-zoom
-                    href="assets/ui/global-aide.png"
-                    data-caption="? — extrait de l’interface native Linux."
-                    ><img
-                      src="assets/ui/global-aide.png"
-                      width="26"
-                      height="39"
-                      loading="eager"
-                      alt="Capture : ?" /></a
-                  ><strong>?</strong>
-                </td>
+                <td><strong>Aide</strong></td>
                 <td>
-                  Ouvre l’aide courte et le champ
-                  <strong>Nom du projet</strong>. C’est ici que vous renommez le
-                  projet.
+                  Manuel, nouveautés, À propos et licences :
+                  <a href="#aide">consulter l’aide</a>.
                 </td>
               </tr>
               <tr>
@@ -552,6 +538,95 @@ npm run dev</code></pre>
           appliquée, utilisez <strong>Annuler</strong>, pas simplement un
           changement d’onglet.
         </p>
+        <h3 id="aide">Aide, version et licences</h3>
+        <p>
+          Le menu <strong>Aide</strong> regroupe quatre commandes disponibles
+          hors connexion, dans la langue de l’interface.
+        </p>
+        <ul>
+          <li>
+            <strong>Manuel utilisateur</strong> ouvre ce guide dans une fenêtre
+            indépendante et redimensionnable. L’éditeur reste utilisable. Une
+            nouvelle ouverture réutilise la fenêtre et conserve la position de
+            lecture si la langue est identique. Après un changement FR/EN,
+            ouvrir le manuel charge l’édition demandée. La version web réutilise
+            un onglet nommé.
+          </li>
+          <li>
+            <strong>Nouveautés</strong> affiche la version courante en premier
+            et les entrées précédentes repliées. Les étapes des 26 et 27
+            septembre 2026 sont un historique reconstitué à partir des commits,
+            pas des versions publiées.
+          </li>
+          <li>
+            <strong>À propos</strong> présente le logo, l’auteur, la version et
+            le dépôt. <strong>Copier la version</strong> permet de préparer un
+            signalement de problème.
+          </li>
+          <li>
+            <strong>Licence et composants tiers</strong> présente la licence MIT
+            du logiciel et les notices originales des composants. Recherchez un
+            nom, puis dépliez son entrée. Les bibliothèques système sont
+            identifiées séparément. Vos créations restent sous votre
+            responsabilité et leur propre licence.
+          </li>
+        </ul>
+        <p>
+          Pour <strong>Renommer le projet</strong>, cliquez sur son nom dans la
+          barre supérieure. <strong>Entrée</strong> valide ;
+          <strong>Échap</strong> ou <strong>Annuler</strong> ferme le dialogue
+          sans changement. Après validation, <strong>Annuler</strong> dans
+          l’éditeur restaure le nom précédent. Les raccourcis sont détaillés
+          dans <a href="#raccourcis">Raccourcis et gestes</a>.
+        </p>
+        <p>
+          La version de l’application est indépendante de celle du format
+          <code>.snesgraph</code>. Dans les exports de sources ROM, la notice
+          MIT concerne le programme assembleur fourni, indépendamment de vos
+          graphismes.
+        </p>
+        <figure>
+          <a data-zoom href="assets/26-help-menu.png"
+            ><img
+              src="assets/26-help-menu.png"
+              width="1440"
+              height="957"
+              loading="lazy"
+              alt="Menu Aide : manuel, nouveautés, présentation et licences."
+          /></a>
+          <figcaption>
+            Menu Aide : manuel, nouveautés, présentation et licences. Capture
+            native Linux 0.2.0.
+          </figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/27-about.png"
+            ><img
+              src="assets/27-about.png"
+              width="1440"
+              height="957"
+              loading="lazy"
+              alt="À propos : version courante et copie pour un signalement."
+          /></a>
+          <figcaption>
+            À propos : version courante et copie pour un signalement. Capture
+            native Linux 0.2.0.
+          </figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/28-rename.png"
+            ><img
+              src="assets/28-rename.png"
+              width="1440"
+              height="957"
+              loading="lazy"
+              alt="Renommer le projet : Entrée valide, Échap annule."
+          /></a>
+          <figcaption>
+            Renommer le projet : Entrée valide, Échap annule. Capture native
+            Linux 0.2.0.
+          </figcaption>
+        </figure>
       </section>
 
       <section class="chapter" id="concepts">
@@ -795,8 +870,8 @@ npm run dev</code></pre>
         </p>
         <ol>
           <li>
-            Ouvrez <strong>?</strong> et remplissez
-            <strong>Nom du projet</strong>.
+            Cliquez sur le nom du projet dans la barre supérieure, saisissez le
+            nouveau nom et validez avec <strong>Entrée</strong>.
           </li>
           <li>
             Cliquez sur <strong>Enregistrer</strong>. Au premier enregistrement
@@ -8166,8 +8241,9 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
         <p>
           Ouvrez l’exemple football. Enregistrez-le sous
           <code>Mon-match.snesgraph</code> avec le bouton ⋯. Renommez le projet
-          en Mon match dans l’aide ?. Dans Dessins, examinez Joueur puis
-          Terrain. Retrouvez les dimensions 32 × 48 et 16 × 8.
+          en Mon match en cliquant sur son nom dans la barre supérieure. Dans
+          Dessins, examinez Joueur puis Terrain. Retrouvez les dimensions 32 ×
+          48 et 16 × 8.
         </p>
         <h3 id="football-etape2">2. Essayer la tenue extérieure</h3>
         <p>
@@ -8934,7 +9010,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       <section class="chapter" id="limites">
         <h2>19 · Limites de cette version</h2>
         <p>
-          Le guide couvre les commandes présentes en version 0.1.0. La vision de
+          Le guide couvre les commandes présentes en version 0.2.0. La vision de
           l’éditeur ultime décrite dans les spécifications va plus loin que
           cette livraison. Voici les limites qui influencent votre travail
           actuel.
@@ -9209,7 +9285,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       </section>
       <footer>
         <p>
-          SNES Graph · Manuel utilisateur 0.1.0 · Révision du 27 septembre 2026
+          SNES Graph · Manuel utilisateur 0.2.0 · Révision du 27 septembre 2026
         </p>
         <p>
           <a href="#accueil">Retour au début</a> ·

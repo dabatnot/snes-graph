@@ -824,3 +824,61 @@ dd {
 .import-preview figure {
   margin: 0;
 }
+
+button.project-name {
+  text-align: left;
+  border-radius: 0;
+  background: transparent;
+  min-width: 0;
+}
+.help-menu {
+  position: relative;
+}
+.help-menu-items {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  min-width: 240px;
+  padding: 6px;
+  background: #202630;
+  border: 1px solid #465063;
+  border-radius: 6px;
+  box-shadow: 0 5px 20px #0008;
+}
+.help-menu-items button {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+.help-content details {
+  padding: 12px 0;
+  border-bottom: 1px solid #465063;
+}
+.help-content summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.help-content li {
+  margin: 7px 0;
+}
+.help-content pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.help-content .source-url {
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.help-content label {
+  display: grid;
+  gap: 6px;
+}
+.about-logo {
+  width: 64px;
+  height: 64px;
+}
+.text-link {
+  color: #a4baff;
+}
