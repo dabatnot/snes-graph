@@ -113,3 +113,9 @@ Les entrées `animatedTiles` peuvent contenir un `name` facultatif (chaîne).
 Les projets sans ce champ restent valides ; l’interface affiche leur numéro de tile.
 
 Les entrées `allocations` de la mémoire de scène peuvent inclure `resource`, identifiant du dessin ou de la carte propriétaire. Les allocations globales (OBJ, données Mode 7) n’ont pas nécessairement de propriétaire unique. Les adresses VRAM sont en octets ; les adresses de `palettes` restent des indices CGRAM (2 octets par entrée).
+
+### Marquage des ROMs de prévisualisation
+
+Les deux générateurs ajoutent l’icône SNES Graph (16 × 16 pixels, issue de l’icône de l’application) aux snapshots PPU, dans les emplacements OBJ/VRAM libres. Les données d’export génériques et le projet restent inchangés. Le contrôle OBJ inclut le logo ; une mémoire insuffisante provoque un diagnostic. Une palette libre reçoit les couleurs du logo ; sans palette libre, les couleurs existantes les plus proches sont réutilisées. Les effets de scène continuent de s’appliquer.
+
+Le texte de galerie conserve uniquement les caractères ASCII A–Z, a–z et 0–9 ; chaque autre caractère Unicode, après normalisation NFC, devient un espace. Les noms sont tronqués à 28 caractères sans ellipse. Les libellés intégrés français sont écrits sans accents ; les noms du projet ne sont pas modifiés. Le repère de sélection du menu est X.

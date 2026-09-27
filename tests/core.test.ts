@@ -40,10 +40,17 @@ describe("SNES data and editing contract", () => {
       };
     const exported = exportProject(p, opt),
       demo = demoSources(p, s, 2, opt);
-    expect(demo["vram0.bin"]).toEqual(
-      exported["scene/vram.bin"].slice(0, 32768),
-    );
-    expect(demo["vram1.bin"]).toEqual(exported["scene/vram.bin"].slice(32768));
+    const preview = new Uint8Array([
+      ...demo["vram0.bin"],
+      ...demo["vram1.bin"],
+    ]);
+    const allocations = JSON.parse(strFromU8(exported["manifest.json"])).memory
+      .allocations;
+    for (const { address, bytes } of allocations) {
+      expect(preview.slice(address, address + bytes)).toEqual(
+        exported["scene/vram.bin"].slice(address, address + bytes),
+      );
+    }
   });
   it("keeps cyclic and static palettes in stable separate slots", () => {
     const p = footballProject(),

@@ -8002,9 +8002,10 @@ npm run dev</code></pre>
           <strong>Start</strong> ouvre un panneau séparé avec le nom, la
           position dans la liste et les commandes. La lecture est suspendue.
           Start ou B ferme ce panneau en restituant l’état précédent. Les noms
-          trop longs sont abrégés à l’écran ; les caractères absents de la
-          petite police intégrée deviennent « ? », sans modifier le projet. Les
-          menus suivent la langue de l’application lors de la génération.
+          sont limités à 28 caractères à l’écran, sans ellipse. Seuls A–Z, a–z
+          et 0–9 sont conservés ; les autres caractères, y compris les lettres
+          accentuées, deviennent des espaces sans modifier le projet. Les menus
+          suivent la langue de l’application lors de la génération.
         </p>
         <div class="table-wrap">
           <table>
@@ -8108,6 +8109,14 @@ npm run dev</code></pre>
             bureau, les boutons génèrent ou lancent directement la ROM.
           </figcaption>
         </figure>
+        <p>
+          L’icône SNES Graph à quatre carrés est superposée en bas à droite sur
+          l’accueil, les panneaux et les aperçus, y compris en Scène en boucle.
+          Elle reste soumise aux effets et fenêtres de la scène. Elle utilise
+          des places OBJ et des tiles libres ; un manque de place bloque
+          l’export. Si toutes les palettes sont occupées, ses couleurs sont
+          rapprochées de celles disponibles sans recolorer les ressources.
+        </p>
         <h3 id="rom-web">Sources ca65 dans le navigateur</h3>
         <p>
           <strong>Exporter le projet ca65</strong> télécharge

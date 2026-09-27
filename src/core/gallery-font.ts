@@ -37,26 +37,6 @@ const patterns: Record<string, string> = {
   "7": "1f010204080808",
   "8": "0e11110e11110e",
   "9": "0e11110f01010e",
-  "?": "0e110102040004",
-  "!": "04040404040004",
-  ".": "00000000000c0c",
-  ",": "00000000000c08",
-  ":": "000c0c000c0c00",
-  ";": "000c0c000c0800",
-  "-": "0000001f000000",
-  "+": "0004041f040400",
-  "/": "01010204081010",
-  "'": "04040800000000",
-  "(": "02040808080402",
-  ")": "08040202020408",
-  "[": "0e08080808080e",
-  "]": "0e02020202020e",
-  "<": "01020408040201",
-  ">": "10080402040810",
-  "=": "00001f001f0000",
-  _: "0000000000001f",
-  "×": "0000110a040a11",
-  "…": "00000000001500",
   " ": "00000000000000",
 };
 export function galleryFont() {
@@ -65,26 +45,12 @@ export function galleryFont() {
     Object.keys(patterns)
       .filter((c) => c !== " ")
       .join("") +
-    "abcdefghijklmnopqrstuvwxyzàâäéèêëîïôöùûüçÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ";
+    "abcdefghijklmnopqrstuvwxyz";
   const pixels = new Uint8Array(chars.length * 64);
   [...chars].forEach((char, tile) => {
-    const base = char.normalize("NFD")[0].toUpperCase();
-    const rows = (patterns[base] ?? patterns[char] ?? patterns["?"])
+    const rows = patterns[char.toUpperCase()]
       .match(/../g)!
       .map((v) => parseInt(v, 16));
-    const accent = char.normalize("NFD").slice(1);
-    if (accent) {
-      rows.pop();
-      rows.unshift(
-        accent === "\u0301"
-          ? 2
-          : accent === "\u0300"
-            ? 8
-            : accent === "\u0308"
-              ? 10
-              : 4,
-      );
-    }
     rows.forEach((bits, y) => {
       for (let x = 0; x < 5; x++)
         pixels[tile * 64 + y * 8 + x + 1] = (bits >> (4 - x)) & 1;
@@ -93,12 +59,11 @@ export function galleryFont() {
   return { chars, data: encodeTiles(pixels, 2) };
 }
 export function galleryText(text: string, chars: string, width = 28) {
-  let letters = [...text.normalize("NFC")];
-  if (letters.length > width) letters = [...letters.slice(0, width - 1), "…"];
+  const letters = [...text.normalize("NFC")]
+    .map((char) => (/^[A-Za-z0-9]$/.test(char) ? char : " "))
+    .slice(0, width);
   return Uint8Array.from([
-    ...letters.map((c) =>
-      Math.max(0, chars.indexOf(c) < 0 ? chars.indexOf("?") : chars.indexOf(c)),
-    ),
+    ...letters.map((char) => Math.max(0, chars.indexOf(char))),
     255,
   ]);
 }

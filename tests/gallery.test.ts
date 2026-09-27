@@ -5,8 +5,16 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { gallerySelection, gallerySources } from "../src/core/gallery";
 import { galleryFont, galleryText } from "../src/core/gallery-font";
+import { stampRomLogo, ROM_LOGO } from "../src/core/rom-logo";
+import { compileScene } from "../src/core/scene-export";
 import { defaultExport } from "../src/core/snes";
-import { footballProject, makeMap, newProject } from "../src/core/model";
+import {
+  footballProject,
+  makeMap,
+  newProject,
+  makeScene,
+  makePalette,
+} from "../src/core/model";
 import { loadProject, saveProject } from "../src/core/archive";
 import {
   duplicateResource,
@@ -90,13 +98,23 @@ describe("interactive gallery", () => {
     );
     const font = galleryFont();
     expect(galleryText("A B", font.chars)[1]).toBe(0);
-    expect(galleryText("😊", font.chars)[0]).toBe(font.chars.indexOf("?"));
-    expect(galleryText("é", font.chars)[0]).not.toBe(font.chars.indexOf("?"));
+    expect(galleryText("éÉàçœ!?😊_-/", font.chars)).toEqual(
+      Uint8Array.from([...Array(11).fill(0), 255]),
+    );
+    expect(galleryText("e\u0301 A9", font.chars)).toEqual(
+      Uint8Array.from([
+        0,
+        0,
+        font.chars.indexOf("A"),
+        font.chars.indexOf("9"),
+        255,
+      ]),
+    );
     expect(galleryText("abcdef", font.chars, 3)).toEqual(
       Uint8Array.from([
         font.chars.indexOf("a"),
         font.chars.indexOf("b"),
-        font.chars.indexOf("…"),
+        font.chars.indexOf("c"),
         255,
       ]),
     );
@@ -150,4 +168,45 @@ describe("interactive gallery", () => {
       assemble(gallerySources(small));
     },
   );
+});
+
+it("keeps scene memory and full 8bpp palettes intact when adding the ROM logo", () => {
+  const p = newProject();
+  const palette = makePalette("Full BG", 256);
+  p.palettes.push(palette);
+  for (const objSize of [0, 1, 2, 3, 4, 5]) {
+    const m = compileScene(
+      p,
+      { ...makeScene(), objSize },
+      {},
+      { data: new Uint8Array(), starts: {} },
+      new Map(),
+    );
+    m.vram.fill(77, 0, 32768);
+    m.allocations.push({ name: "Mode 7", address: 0, bytes: 32768 });
+    m.palettes.push({ id: palette.id, layer: 0, slot: 0, address: 0 });
+    m.cgram.set(Uint8Array.from({ length: 512 }, (_, i) => i & 127));
+    const before = m.cgram.slice();
+    stampRomLogo(m, p, 224);
+    expect(m.cgram).toEqual(before);
+    expect(m.vram.slice(0, 32768)).toEqual(new Uint8Array(32768).fill(77));
+    const logo = m.allocations.find((a) => a.name === ROM_LOGO)!;
+    expect(logo.address).toBeGreaterThanOrEqual(32768);
+    expect(
+      m.vram
+        .slice(logo.address, logo.address + logo.bytes)
+        .some((v) => v !== 0),
+    ).toBe(true);
+    expect(m.oam[0]).toBe(236);
+    expect(m.oam[1]).toBe(203);
+  }
+  const m = compileScene(
+    p,
+    makeScene(),
+    {},
+    { data: new Uint8Array(), starts: {} },
+    new Map(),
+  );
+  m.allocations.push({ name: "Full VRAM", address: 0, bytes: 65536 });
+  expect(() => stampRomLogo(m, p, 224)).toThrow(/SNES Graph logo.*memory/);
 });

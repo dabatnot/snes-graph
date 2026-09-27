@@ -18,6 +18,7 @@ import {
   type ExportSet,
   type Scene,
 } from "./model";
+import { stampRomLogo, ROM_LOGO } from "./rom-logo";
 import { galleryRuntime } from "./gallery-runtime";
 import { galleryFont, galleryText } from "./gallery-font";
 
@@ -208,9 +209,37 @@ export function gallerySources(
     const label = blob(galleryText(value, font.chars));
     return `  lda #.loword(${label})\n  sta PTR\n  sep #$20\n  .a8\n  lda #^${label}\n  sta PTR+2\n  rep #$20\n  .a16\n  ldx #${row * 64 + 4}\n  jsr Print\n`;
   };
-  const tr = (fr: string, en: string) => (language === "fr" ? fr : en);
+  const logoTiles = (m: SceneMemory) => {
+    const a = m.allocations.find((a) => a.name === ROM_LOGO)!;
+    return (
+      wr(0x2115, 0x80) +
+      `  ldx #${a.address / 2}\n  stx $2116\n` +
+      dma(blob(m.vram.slice(a.address, a.address + a.bytes)), a.bytes)
+    );
+  };
+  const textMemory = compileScene(
+    p,
+    makeScene(),
+    {},
+    { data: new Uint8Array(), starts: {} },
+    new Map(),
+  );
+  textMemory.allocations.push({ name: "Text", address: 0, bytes: 10240 });
+  stampRomLogo(textMemory, p, 224);
+  const textLogo =
+    logoTiles(textMemory) +
+    wr(0x2101, 0) +
+    wr(0x2102, 0) +
+    wr(0x2103, 0) +
+    dma(blob(textMemory.oam), 544, 4, 0) +
+    wr(0x2121, 128) +
+    dma(blob(textMemory.cgram.slice(256, 288)), 32, 0x22, 0);
+  const tr = (fr: string, en: string) =>
+    (language === "fr" ? fr : en)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
   let shell = galleryRuntime;
-  shell += `TextScreen:\n  jsr ResetPPU\n  lda #0\n  ldx #2046\n: sta $7e2000,x\n  dex\n  dex\n  bpl :-\n  sep #$20\n  .a8\n  ldx #0\n  stx $2116\n${dma(fontLabel, font.data.length)}${wr(0x2121, 0)}${dma(fontPal, 8, 0x22, 0)}${wr(0x2107, 0x10)}${wr(0x212c, 1)}${wr(0x210e, 255)}${wr(0x210e, 255)}  rep #$20\n  .a16\n  rts\n`;
+  shell += `TextScreen:\n  jsr ResetPPU\n  lda #0\n  ldx #2046\n: sta $7e2000,x\n  dex\n  dex\n  bpl :-\n  sep #$20\n  .a8\n  ldx #0\n  stx $2116\n${dma(fontLabel, font.data.length)}${wr(0x2121, 0)}${dma(fontPal, 8, 0x22, 0)}${textLogo}${wr(0x2107, 0x10)}${wr(0x212c, 17)}${wr(0x210e, 255)}${wr(0x210e, 255)}  rep #$20\n  .a16\n  rts\n`;
   const categories = [
     selection.actors.length ? tr("Sprites", "Sprites") : "",
     selection.maps.length ? tr("Cartes", "Maps") : "",
@@ -231,7 +260,7 @@ export function gallerySources(
     routine(
       text(p.name, 3) +
         categories
-          .map((c, i) => text((selected === i ? "> " : "  ") + c, 9 + i * 3))
+          .map((c, i) => text((selected === i ? "X " : "  ") + c, 9 + i * 3))
           .join("") +
         text(
           tr("Croix : choisir   A : ouvrir", "D-pad: select     A: open"),
@@ -292,7 +321,11 @@ export function gallerySources(
         load.rows.some((r) => r.sprites > 32 || r.slivers > 34)
       )
         throw new Error("OBJ limit exceeded (total or scanline)");
-      return compileScene(project, scene, assets, packed, built, tick);
+      return stampRomLogo(
+        compileScene(project, scene, assets, packed, built, tick),
+        project,
+        scene.height,
+      );
     };
   };
   const infoBase = (name: string, index: number, count: number) =>
@@ -361,6 +394,7 @@ export function gallerySources(
           states.map((m) =>
             routine(
               "  sep #$20\n  .a8\n" +
+                logoTiles(m) +
                 wr(0x2102, 0) +
                 wr(0x2103, 0) +
                 dma(blob(m.oam), 544, 4, 0) +
@@ -484,12 +518,16 @@ export function gallerySources(
           (_, i) => paletteCells[i % paletteCells.length],
         ),
       };
-      const m = compileScene(
-        { ...p, maps: p.maps.map((v) => (v.id === map.id ? preview : v)) },
-        scene,
-        { [`tiles/${sheet.id}.chr`]: tileBytes },
-        { data: new Uint8Array(), starts: {} },
-        new Map([[sheet.id, { ...built, pixels: Uint8Array.from(pixels) }]]),
+      const m = stampRomLogo(
+        compileScene(
+          { ...p, maps: p.maps.map((v) => (v.id === map.id ? preview : v)) },
+          scene,
+          { [`tiles/${sheet.id}.chr`]: tileBytes },
+          { data: new Uint8Array(), starts: {} },
+          new Map([[sheet.id, { ...built, pixels: Uint8Array.from(pixels) }]]),
+        ),
+        p,
+        224,
       );
       const base =
         m.allocations.find((a) => a.resource === map.id)!.address / 2;

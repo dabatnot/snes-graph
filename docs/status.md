@@ -97,3 +97,9 @@ Interface web : choix des deux modes, sélection de la scène de référence et 
 Validation finale : 53 tests réussis, compilation TypeScript/Vite réussie ; l’export CLI Scène en boucle de Football a aussi été recompilé et observé dans Mesen (terrain et deux joueurs). Une carte de 32 × 24 pixels a été observée centrée avec sa bordure vide.
 
 Après ces validations, le binaire natif `src-tauri/target/release/snes-graph` a été reconstruit avec succès via `tauri build --no-bundle` pour les essais locaux. Les installateurs RPM/AppImage n’ont pas été régénérés.
+
+### Logo et texte des ROMs
+
+Texte de galerie limité à A–Z/a–z/0–9, autres caractères remplacés par des espaces ; noms du projet inchangés. Icône SNES Graph de 16 × 16 pixels superposée dans les deux modes ROM, soumise aux effets de scène. Respect des allocations existantes, réutilisation des couleurs les plus proches si la CGRAM est entièrement occupée, diagnostics en cas de manque de VRAM/OBJ.
+
+54 tests réussis, cinq parcours Mesen répétés avec captures FR/EN renouvelées, Scène en boucle compilée et exécutée dans Mesen. Binaire natif release reconstruit avec succès ; installateurs non reconstruits et aucune validation sur console physique.

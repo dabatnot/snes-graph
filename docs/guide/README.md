@@ -221,3 +221,7 @@ Recette : ouvrir l’exemple Football depuis Dessins, puis Exporter. Pour 09, ga
 Vérifications de l’interface : l’export par worker a atteint « Export enregistré » ; le mode Scène en boucle est indisponible sans scène de référence et disponible avec Match. Les paramètres natifs de compilation restent inchangés ; aucune nouvelle capture du binaire natif n’est revendiquée.
 
 Manuels FR/EN ouverts dans le navigateur : rendu des nouvelles sections contrôlé, agrandissement des captures et changement de langue conservant l’ancre ROM vérifiés. Ancres et chemins des images contrôlés dans les deux éditions.
+
+### Logo et texte ASCII — 27 septembre 2026
+
+Captures 12/13 FR/EN renouvelées depuis les mêmes parcours Mesen : icône à quatre carrés en bas à droite, repère X et texte limité aux lettres ASCII/chiffres/espaces. Images inspectées, liens et ancres FR/EN contrôlés statiquement. Le HTML n’a pas été rouvert visuellement lors de cette passe : le navigateur intégré refuse les URL file. Mise en page inchangée.

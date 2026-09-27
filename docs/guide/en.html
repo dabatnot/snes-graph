@@ -7780,8 +7780,9 @@ npm run dev</code></pre>
           <strong>Start</strong> opens a separate information panel with the
           name, list position and controls. Playback is suspended. Start or B
           closes the panel and restores the previous state. Long names are
-          shortened on screen; characters unavailable in the built-in font
-          become “?” without changing project data. Menu language follows the
+          limited to 28 characters without an ellipsis. Only A–Z, a–z and 0–9
+          are retained; all other characters, including accented letters, become
+          spaces without changing project data. Menu language follows the
           application language at generation time.
         </p>
         <div class="table-wrap">
@@ -7882,6 +7883,14 @@ npm run dev</code></pre>
             buttons generate or launch the ROM directly.
           </figcaption>
         </figure>
+        <p>
+          The four-square SNES Graph icon is overlaid at the bottom right on the
+          home screen, panels and previews, including Looping scene mode. Scene
+          effects and windows also affect the icon. It uses free OBJ entries and
+          tiles; insufficient space blocks export. When all palettes are
+          occupied, its colors use the closest available colors without
+          recoloring project resources.
+        </p>
         <h3 id="rom-web">ca65 sources in the browser</h3>
         <p>
           <strong>Export ca65 project</strong> downloads

@@ -1,3 +1,4 @@
+import { stampRomLogo } from "./rom-logo";
 import { strToU8 } from "fflate";
 import { defaultExport, exportProject, packSprites, buildTiles } from "./snes";
 import { compileScene, type SceneMemory } from "./scene-export";
@@ -100,7 +101,9 @@ export function demoSources(
     files = exportProject(p, opt),
     packed = packSprites(p, opt.actorIds),
     built = new Map(opt.sheetIds.map((id) => [id, buildTiles(p, id, opt)]));
-  const first = compileScene(p, s, files, packed, built),
+  const memory = (tick = 0) =>
+    stampRomLogo(compileScene(p, s, files, packed, built, tick), p, s.height);
+  const first = memory(),
     out: Record<string, Uint8Array> = {};
   out["vram0.bin"] = first.vram.slice(0, 32768);
   out["vram1.bin"] = first.vram.slice(32768);
@@ -108,17 +111,9 @@ export function demoSources(
   let bank = 3,
     bankBytes = 0;
   const frames: string[] = [];
-  let previous: SceneMemory = compileScene(
-    p,
-    s,
-    files,
-    packed,
-    built,
-    ticks - 1,
-  );
+  let previous: SceneMemory = memory(ticks - 1);
   for (let tick = 0; tick < ticks; tick++) {
-    const m =
-        tick === 0 ? first : compileScene(p, s, files, packed, built, tick),
+    const m = tick === 0 ? first : memory(tick),
       label = "Frame" + tick;
     const { code, chunks } = sceneFrame(m, previous, label, s.height, p.fps);
     // Conservative code size bound keeps every incbin and DMA source within one LoROM bank.
