@@ -1,10 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 i18n.use(initReactI18next).init({
-  lng:
-    localStorage.getItem("snes-graph-language") ??
-    (navigator.language.startsWith("fr") ? "fr" : "en"),
-  fallbackLng: "fr",
+  lng: localStorage.getItem("snes-graph-language") === "fr" ? "fr" : "en",
+  fallbackLng: "en",
   resources: { fr: { translation: {} }, en: { translation: {} } },
   interpolation: { escapeValue: false },
   returnEmptyString: false,

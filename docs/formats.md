@@ -1,129 +1,124 @@
-# Formats SNES Graph, version 1
+# SNES Graph formats, version 1
 
-## Projet `.snesgraph`
+## `.snesgraph` project
 
-Archive ZIP autonome, sans chemin source requis pour rouvrir le projet :
+Standalone ZIP archive; reopening requires no source path:
 
 ```text
 project.json
 pixels/<sheet-id>.bin
-layers/<sheet-id>/<layer-id>.bin  # si le dessin possède des calques
+layers/<sheet-id>/<layer-id>.bin  # when the drawing has layers
 ```
 
-`project.json` porte `format: "snes-graph"`, `version: 1`, le nom, la fréquence 50/60 Hz et les listes de palettes, dessins, personnages, cartes, scènes et ensembles d'export. Les références utilisent les identifiants. Une version inconnue est refusée.
+`project.json` carries `format: "snes-graph"`, `version: 1`, name, 50/60 Hz rate and lists of palettes, drawings, actors, maps, scenes and export sets. References use IDs. Unknown versions are rejected.
 
-Les pixels sont des indices d'un octet, rangés ligne par ligne, sans compression planaire à l'intérieur des fichiers `.bin`. Le dessin conserve une image aplatie et, éventuellement, ses calques artistiques. L'ordre des calques va du fond vers l'avant ; l'indice 0 laisse apparaître le calque inférieur. Leurs pixels et leur visibilité sont conservés dans l'archive.
+Pixels are byte indices in row-major order, without planar compression inside `.bin` files. Drawings retain a flattened image and optional artistic layers. Layers run back to front; index 0 reveals the layer underneath. Their pixels and visibility are preserved in the archive.
 
-Une palette contient 4, 16 ou 256 mots RGB555 `rrrrr | ggggg << 5 | bbbbb << 10`, des noms d'entrées et des verrous. Ces verrous protègent l'édition ; ils ne sont pas une affectation fixe à CGRAM. Les variantes associent des identifiants de palettes de base à des identifiants de remplacement.
+Palettes contain 4, 16 or 256 RGB555 words `rrrrr | ggggg << 5 | bbbbb << 10`, entry names and locks. Locks protect editing, not fixed CGRAM assignments. Variants map base palette IDs to replacement IDs.
 
-Les fichiers importés sont vérifiés avant leur ouverture. La limite est de 128 Mio décompressés et 10 000 entrées. Les sauvegardes natives passent par un fichier temporaire sur le même volume, synchronisé puis renommé. La récupération automatique utilise le répertoire de données de l'application, ou IndexedDB dans le navigateur.
+Imported files are checked before opening: at most 128 MiB uncompressed and 10,000 entries. Native saves use a temporary file on the same volume, synchronized then renamed. Recovery uses the application data directory, or IndexedDB in the browser.
 
-Les ensembles d’export acceptent désormais `gallerySceneIds?: string[]`, indépendant de `sceneId`. Champ absent : toutes les scènes, pour compatibilité avec les anciens projets. Liste vide : aucune scène. Les nouveaux ensembles enregistrent toutes les scènes existantes par défaut. Suppression et remplacement d’une scène actualisent ces références. Le format reste en version 1.
+Export sets accept `gallerySceneIds?: string[]`, independently of `sceneId`. An absent field means all scenes for backward compatibility; an empty list means none. New sets select every existing scene by default. Scene deletion/replacement updates these references. The format remains version 1.
 
-## Export générique
+## Generic export
 
-Tous les nombres multioctets binaires sont en **little-endian**. Les noms et les identifiants sont disponibles dans `manifest.json`. Les adresses de l'API de placement sont précisées ci-dessous pour éviter une confusion octets/mots.
+All multibyte binary numbers are **little-endian**. Names and IDs are available in `manifest.json`. Allocation API addresses are specified below to avoid byte/word confusion.
 
-Les dépendances des ressources sélectionnées doivent être cochées dans l'ensemble d'export, y compris les palettes des variantes. Une dépendance absente produit une erreur qui la nomme. L'ordre des palettes dans le manifeste correspond à l'ordre des indices logiques dans les métasprites. Le placement CGRAM tient compte des cycles complets de palettes et des cellules de carte hors caméra pour rester stable pendant la lecture.
+Selected resources' dependencies must be checked in the export set, including variant palettes. Missing dependencies produce a named error. Manifest palette order matches logical palette indices in metasprites. CGRAM allocation considers complete palette cycles and off-camera map cells to remain stable during playback.
 
-| Fichier                           | Contenu                                                                                                                      |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `palettes/<id>.pal`               | Mots RGB555, entrée 0 comprise.                                                                                              |
-| `tiles/<id>.chr`                  | Tiles 8 × 8 en format planaire SNES, 16/32/64 octets par tile en 2/4/8 bpp.                                                  |
-| `maps/<id>.map`                   | Mots de tilemap en blocs de 32 × 32, blocs rangés de gauche à droite puis de haut en bas.                                    |
-| `maps/<id>.collision`             | Un octet par cellule, ordre linéaire ligne par ligne. Interprétation libre pour le jeu.                                      |
-| `sprites.chr`                     | Tiles OBJ 4 bpp placées sur deux pages de 16 × 16 tiles ; une pièce multituile utilise un pas de 16 tiles entre ses rangées. |
-| `actors/<actor>/<pose>.meta`      | Pièces du métasprite, coordonnées relatives à l'origine.                                                                     |
-| `actors/<actor>/<animation>.anim` | Séquence et durées en images console.                                                                                        |
-| `assets.inc`                      | Constantes ca65 de taille et slots de palettes de la scène.                                                                  |
-| `manifest.json`                   | Noms, références, poses, variantes, animations, événements, boîtes, attaches, réglages et affectations.                      |
+| File                              | Contents                                                                                              |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `palettes/<id>.pal`               | RGB555 words, including entry 0.                                                                      |
+| `tiles/<id>.chr`                  | SNES planar 8 × 8 tiles, 16/32/64 bytes per tile at 2/4/8 bpp.                                        |
+| `maps/<id>.map`                   | Tilemap words in 32 × 32 blocks, ordered left to right then top to bottom.                            |
+| `maps/<id>.collision`             | One byte per cell, row-major order; game-defined interpretation.                                      |
+| `sprites.chr`                     | OBJ 4 bpp tiles on two 16 × 16-tile pages; multitile pieces have a 16-tile row stride.                |
+| `actors/<actor>/<pose>.meta`      | Metasprite pieces relative to the origin.                                                             |
+| `actors/<actor>/<animation>.anim` | Sequence and durations in console frames.                                                             |
+| `assets.inc`                      | ca65 size constants and scene palette slots.                                                          |
+| `manifest.json`                   | Names, references, poses, variants, animations, events, boxes, attachments, settings and assignments. |
 
-Un mot de tilemap contient : index de tile sur 10 bits, palette sur 3 bits, priorité sur 1 bit et miroirs horizontal/vertical sur les bits 14/15. Les cartes génériques ont leur propre liste de palettes dans le manifeste. **Le placement commun des palettes entre plusieurs BG est celui de `scene/vram.bin`, pas celui des cartes exportées séparément.**
+Tilemap words contain a 10-bit tile index, 3-bit palette, 1-bit priority and horizontal/vertical flips at bits 14/15. Generic maps have their own manifest palette lists. **Shared palette allocation across BG layers belongs to `scene/vram.bin`, not separately exported maps.**
 
-Pour une grande carte, les blocs génériques sont les unités disponibles pour le chargement. La mémoire initiale de la scène contient une fenêtre de 32 ou 64 cellules par axe. Le jeu reste responsable du défilement et du chargement progressif.
+For large maps, generic blocks are the available loading units. Initial scene memory contains a 32- or 64-cell window per axis. The game handles scrolling and streaming.
 
-La déduplication transforme uniquement les fichiers exportés et leurs références. Elle ne fusionne pas les dessins éditables. En haute résolution, les tiles vont par paires consécutives : la déduplication est refusée afin de préserver cette relation.
+Deduplication changes only exported files and references, not editable drawings. High-resolution tiles use consecutive pairs; deduplication is rejected to preserve that relationship.
 
-### Correspondance des tiles après optimisation
+### Tile correspondence after optimization
 
-`manifest.sheets[*].refs` contient une entrée par tile du dessin source, dans l’ordre ligne par ligne. `refs[sourceTile]` donne `{tile, flipX, flipY}` : l’index dans `tiles/<sheet-id>.chr` et les miroirs nécessaires pour retrouver les pixels source. Cette correspondance inclut les tiles réservées et la déduplication. Pour une cellule de tampon, combiner ses miroirs avec ceux de la référence par XOR.
+`manifest.sheets[*].refs` has one entry per source drawing tile in row-major order. `refs[sourceTile]` gives `{tile, flipX, flipY}`: the index in `tiles/<sheet-id>.chr` and flips needed to recover source pixels. This includes reserved tiles and deduplication. For stamp cells, combine their flips with reference flips using XOR.
 
-Les `stamps[*].cells[*].tile`, `animatedTiles[*].tile` et `animatedTiles[*].frames` du manifeste restent des **indices source**. Chaque animation fournit aussi `cellIndices`, les positions des cellules de la carte qui utilisaient sa tile source, calculées par `y * largeur + x` avant optimisation. Cela distingue une occurrence animée d’une tile statique identique fusionnée dans le CHR. Ces positions sont celles de la carte source, pas des offsets dans les blocs binaires de 32 × 32.
+Manifest `stamps[*].cells[*].tile`, `animatedTiles[*].tile` and `animatedTiles[*].frames` remain **source indices**. Each animation also provides `cellIndices`, positions of map cells using its source tile, calculated as `y * width + x` before optimization. This distinguishes animated occurrences from identical static tiles merged in CHR. Positions refer to the source map, not offsets inside 32 × 32 binary blocks.
 
-La mémoire de scène applique les animations de tiles au tick demandé, y compris en Mode 7. Une frame Mode 7 nécessitant un miroir de tile est refusée : désactiver la réutilisation des miroirs pour ce mode.
+Scene memory applies tile animations at the requested tick, including Mode 7. Mode 7 frames requiring tile flips are rejected: disable flip reuse for that mode.
 
-### Métasprite `.meta`
+### Metasprite `.meta`
 
-En-tête : `u16 nombreDePièces`. Puis **10 octets par pièce**, dans l'ordre OAM :
+Header: `u16 pieceCount`. Then **10 bytes per piece**, in OAM order:
 
-| Position | Type | Donnée                                                      |
-| -------- | ---- | ----------------------------------------------------------- |
-| 0        | i16  | X relatif à l'origine                                       |
-| 2        | i16  | Y relatif à l'origine                                       |
-| 4        | u16  | Index de tile OBJ 0…511                                     |
-| 6        | u16  | Index logique de palette dans la liste du manifeste         |
-| 8        | u8   | Priorité aux bits 4–5, miroir X au bit 6, miroir Y au bit 7 |
-| 9        | u8   | Taille carrée en pixels : 8, 16, 32 ou 64                   |
+| Offset | Type | Data                                          |
+| ------ | ---- | --------------------------------------------- |
+| 0      | i16  | X relative to origin                          |
+| 2      | i16  | Y relative to origin                          |
+| 4      | u16  | OBJ tile index 0…511                          |
+| 6      | u16  | Logical palette index in the manifest list    |
+| 8      | u8   | Priority bits 4–5, X flip bit 6, Y flip bit 7 |
+| 9      | u8   | Square size in pixels: 8, 16, 32 or 64        |
 
-Le numéro de palette logique n'est pas un slot matériel. Le jeu applique d'abord la correspondance de la variante, puis le slot OBJ attribué dans la scène. Le bit haut de l'index de tile rejoint le bit 0 de l'attribut OAM. Le slot de palette rejoint les bits 1–3. La taille rejoint la table haute OAM selon le couple global choisi.
+Logical palette numbers are not hardware slots. The game first applies variant mapping, then the scene-assigned OBJ slot. The tile index high bit becomes OAM attribute bit 0; the palette slot becomes bits 1–3. Size goes into high OAM according to the globally selected size pair.
 
 ### Animation `.anim`
 
-En-tête de 4 octets : flags `u8` (bit 0 boucle, bit 1 aller-retour), réservé `u8=0`, nombre d'images `u16`. Chaque image utilise un index de pose `u16` dans la liste de poses du personnage, puis une durée `u16` en images console. Événements, noms, collisions et attaches restent dans le manifeste. L'aller-retour n'insère pas les extrémités deux fois.
+Four-byte header: flags `u8` (bit 0 loop, bit 1 ping-pong), reserved `u8=0`, frame count `u16`. Each frame stores a `u16` pose index in the actor's pose list, then a `u16` duration in console frames. Events, names, collisions and attachments stay in the manifest. Ping-pong does not repeat endpoints twice.
 
-## Mémoire de scène
+## Scene memory
 
-| Fichier                  | Utilisation                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| `scene/vram.bin`         | Image complète de 65 536 octets, à transférer à VRAM depuis l'adresse mot `$0000` pendant le forced blank. |
-| `scene/cgram.bin`        | 512 octets de CGRAM.                                                                                       |
-| `scene/oam.bin`          | 544 octets : 512 de table basse et 32 de table haute.                                                      |
-| `scene/layout.json`      | Placements, palettes, écritures de registres dans l'ordre et paramètres HDMA.                              |
-| `scene/hdma-<canal>.bin` | Table HDMA directe terminée par zéro.                                                                      |
-| `mode7.vram`             | 32 Kio de carte et pixels Mode 7 entrelacés sur les octets bas/haut des mots VRAM.                         |
+| File                       | Usage                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| `scene/vram.bin`           | Complete 65,536-byte image, transfer to VRAM word address `$0000` during forced blank. |
+| `scene/cgram.bin`          | 512 CGRAM bytes.                                                                       |
+| `scene/oam.bin`            | 544 bytes: 512 low-table and 32 high-table bytes.                                      |
+| `scene/layout.json`        | Allocations, palettes, ordered register writes and HDMA settings.                      |
+| `scene/hdma-<channel>.bin` | Zero-terminated direct HDMA table.                                                     |
+| `mode7.vram`               | 32 KiB of Mode 7 map/pixels interleaved in VRAM words' low/high bytes.                 |
 
-`allocations[].address` est une **adresse en octets** dans l'image VRAM ; la diviser par deux pour `$2116`. `palettes[].address` est un index de couleur CGRAM ; `slot` est le numéro à utiliser dans les attributs BG/OBJ. `layer=4` signifie OBJ ; les valeurs 0…3 désignent BG1…BG4.
+`allocations[].address` is a **byte address** in the VRAM image; divide by two for `$2116`. `palettes[].address` is a CGRAM color index; `slot` is the BG/OBJ attribute slot. `layer=4` means OBJ; 0…3 mean BG1…BG4.
 
-`registers` contient des couples `[adresseCpu, octet]`. Les registres à double écriture apparaissent deux fois, octet bas puis haut. Les tailles de sprites, les bases des données, la mosaïque, les écrans principal/secondaire et les mélanges sont communs à la scène. Les conflits de CGRAM, de VRAM ou de canaux HDMA bloquent cet export avec un message.
+`registers` contains `[cpuAddress, byte]` pairs. Double-write registers appear twice, low byte then high. Sprite sizes, data bases, mosaic, main/subscreens and color math are scene-wide. CGRAM, VRAM or HDMA-channel conflicts block export with a message.
 
-Le dégradé de ciel utilise trois canaux vers COLDATA et le mélange sur le fond. Il ne se combine pas avec un autre mélange de couleurs dans ce compilateur. La vague utilise deux écritures sur le défilement horizontal d'un BG. L'iris utilise les limites gauche/droite de la fenêtre 1. La perspective Mode 7 réserve deux canaux pour les coefficients de matrice. Les déplacements par tiles utilisent BG3 comme table d'offsets pour BG1 ; le premier segment à gauche suit le comportement matériel sans offset. En mode 4, chaque colonne choisit un décalage horizontal ou vertical.
+Sky gradients use three channels targeting COLDATA and backdrop color math; this compiler does not combine them with other color math. Waves write BG horizontal scrolling twice. Iris effects use window 1 left/right limits. Mode 7 perspective reserves two channels for matrix coefficients. Offset-per-tile uses BG3 as BG1's offset table; the first left segment follows hardware behavior without an offset. In mode 4, each column selects a horizontal or vertical offset.
 
-## ROM de démonstration
+## Demo ROM
 
-Le générateur produit des sources ca65 autonomes et une configuration LoROM. Il prépare une boucle de 1 à 600 images : OAM, CGRAM, registres, HDMA et différences de VRAM sont mis à jour pendant la période verticale disponible. Un plafond de **4096 octets DMA par image** et une estimation conservatrice du coût des instructions/transferts sont appliqués, avec une fenêtre réduite en 239 lignes. Une transition trop coûteuse est refusée avec son numéro d'image. Le temps d'exécution complet du jeu n'est pas modélisé. L'activation initiale du HDMA attend le vblank.
+The generator produces standalone ca65 sources and a LoROM configuration. A 1–600-frame loop updates OAM, CGRAM, registers, HDMA and VRAM differences within the available vertical period. It enforces **4096 DMA bytes per frame** and a conservative instruction/transfer cost estimate, with a shorter window at 239 lines. Excessive transitions are rejected with their frame number. Complete game execution time is not modeled. Initial HDMA activation waits for vblank.
 
-Le projet de démonstration inclut ses instructions de compilation. Le CLI et l'hôte natif corrigent le checksum après l'assemblage. Les sources fonctionnent sans bibliothèque de moteur. Leur intégration dans un jeu demande de choisir sa propre stratégie de chargement.
+The demo includes build instructions. CLI and native host fix the checksum after assembly. Sources need no engine library; game integration requires a loading strategy of its own.
 
-## Galerie interactive
+## Interactive gallery
 
-`gallerySources(project, options, ticks, language)` produit des sources ca65 autonomes : `main.s`, `lorom.cfg`, des blocs binaires internes et `README.txt`. Ces blocs sont propres au programme de galerie ; pour intégrer des ressources dans un jeu, conserver l’export générique documenté ci-dessus. Le worker utilise un choix explicite `assets | scene | gallery` et transfère chaque ArrayBuffer une seule fois, même si plusieurs fichiers partagent un tampon.
+`gallerySources(project, options, ticks, language)` produces standalone ca65 sources: `main.s`, `lorom.cfg`, internal binary blocks and `README.txt`. Language defaults to English; pass `fr` explicitly for French. Blocks are specific to the gallery program; use generic export for game integration. The worker selects `assets | scene | gallery` explicitly and transfers each ArrayBuffer once even when files share a buffer.
 
-La galerie ferme automatiquement les dépendances par entrée, sans ajouter de vues pour ces dépendances. Les ressources sont rechargées séparément sous écran éteint. Les sprites utilisent des tables de poses/durées ; les cartes une fenêtre circulaire de 64 × 32 cellules, avec transfert des lignes/colonnes entrantes. Les animations de tiles ont des slots distincts des tiles statiques, même avec déduplication. Les scènes partagent le compilateur de transferts de la prévisualisation, avec une séquence de 1–600 images. Le panneau Start suspend la lecture et recharge l’état précédent à sa fermeture ; le HDMA est réactivé seulement au vblank.
+The gallery automatically closes dependencies per entry without adding views for those dependencies. Resources reload separately during forced blank. Sprites use pose/duration tables; maps use a 64 × 32 circular cell window, transferring incoming rows/columns. Animated tiles have separate slots from static tiles even after deduplication. Scenes share the preview transfer compiler with 1–600-frame sequences. The Start panel pauses playback and restores previous state on closing; HDMA resumes only at vblank.
 
-Limite : 4 Mio LoROM, avec blocs et sources DMA ne franchissant pas une banque. Les banques ROM finales utilisent leurs adresses hautes pour éviter les banques WRAM $7E/$7F. Les scènes gardent le plafond de 4096 octets DMA et le contrôle de coût ; les cartes réservent un budget conservateur de transferts animés. Les rythmes 50/60 Hz déterminent la région et le budget vertical. Le checksum est corrigé par le CLI et l’application native après l’assemblage.
+Limit: 4 MiB LoROM, with blocks and DMA sources not crossing banks. Final ROM banks use high addresses to avoid WRAM banks $7E/$7F. Scenes retain the 4096-byte DMA limit and cost checks; maps reserve a conservative animated-transfer budget. 50/60 Hz controls region and vertical budget. CLI and native app fix the checksum after assembly.
 
-## Références de formats
+## Format references
 
-- [Format officiel Aseprite](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md) : structure des frames, cels, palettes et tags.
-- [Registres PPU dans bsnes](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/io.cpp) : tailles OBJ, adresses VRAM, fenêtres, mélange et ordre des priorités.
-- [Rendu des BG dans bsnes](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/background.cpp) : paires haute résolution et offsets par tiles.
-- [API Lua Mesen](https://github.com/SourMesen/Mesen2/blob/master/Core/Debugger/LuaApi.cpp) : capture du résultat émulé pour la vérification de la ROM.
+- [Official Aseprite format](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md): frames, cels, palettes and tags.
+- [bsnes PPU registers](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/io.cpp): OBJ sizes, VRAM addresses, windows, color math and priority order.
+- [bsnes BG rendering](https://github.com/bsnes-emu/bsnes/blob/master/bsnes/sfc/ppu/background.cpp): high-resolution pairs and offset-per-tile.
+- [Mesen Lua API](https://github.com/SourMesen/Mesen2/blob/master/Core/Debugger/LuaApi.cpp): capturing emulated ROM output.
 
-Les entrées `animatedTiles` peuvent contenir un `name` facultatif (chaîne).
-Les projets sans ce champ restent valides ; l’interface affiche leur numéro de tile.
+`animatedTiles` entries may contain an optional string `name`. Projects without it remain valid; the UI displays the tile number.
 
-Les entrées `allocations` de la mémoire de scène peuvent inclure `resource`, identifiant du dessin ou de la carte propriétaire. Les allocations globales (OBJ, données Mode 7) n’ont pas nécessairement de propriétaire unique. Les adresses VRAM sont en octets ; les adresses de `palettes` restent des indices CGRAM (2 octets par entrée).
+Scene-memory `allocations` may include `resource`, the owning drawing/map ID. Global allocations (OBJ, Mode 7 data) need not have one owner. VRAM addresses are bytes; `palettes` addresses remain CGRAM indices (2 bytes per entry).
 
-### Marquage des ROMs de prévisualisation
+### Preview ROM branding
 
-Les deux générateurs ajoutent l’icône SNES Graph (16 × 16 pixels, issue de l’icône de l’application) aux snapshots PPU, dans les emplacements OBJ/VRAM libres. Les données d’export génériques et le projet restent inchangés. Le contrôle OBJ inclut le logo ; une mémoire insuffisante provoque un diagnostic. Une palette libre reçoit les couleurs du logo ; sans palette libre, les couleurs existantes les plus proches sont réutilisées. Les effets de scène continuent de s’appliquer.
+Both generators add the 16 × 16 SNES Graph icon, derived from the application icon, to PPU snapshots using free OBJ/VRAM slots. Generic exports and projects are unchanged. OBJ checks include the logo; insufficient memory produces diagnostics. A free palette receives logo colors; otherwise the nearest existing colors are reused. Scene effects still apply.
 
-Le texte de galerie conserve uniquement les caractères ASCII A–Z, a–z et 0–9 ; chaque autre caractère Unicode, après normalisation NFC, devient un espace. Les noms sont tronqués à 28 caractères sans ellipse. Les libellés intégrés français sont écrits sans accents ; les noms du projet ne sont pas modifiés. Le repère de sélection du menu est X.
+Gallery text retains only ASCII A–Z, a–z and 0–9. Every other Unicode character becomes a space after NFC normalization. Names truncate at 28 characters without ellipsis. Built-in French labels omit accents; project names remain unchanged. The menu selection marker is X.
 
-## Notices des sources ROM — 0.2.0
+## ROM source notices — 0.2.0
 
-Les sources ca65 des modes Scène en boucle et Galerie interactive incluent
-`LICENSE.txt` (MIT), un en-tête SPDX dans les fichiers assembleur et une précision
-dans `README.txt`. Cette licence concerne le programme fourni par SNES Graph ;
-elle ne décide pas de la licence des graphismes et ressources de l’utilisateur.
-Le format `.snesgraph` ne change pas avec la version 0.2.0 du logiciel.
+Looping Scene and Interactive Gallery ca65 sources include `LICENSE.txt` (MIT), SPDX headers in assembly files and a scope statement in `README.txt`. This licenses the program supplied by SNES Graph, not user graphics or assets. Application version 0.2.0 did not change the `.snesgraph` format.

@@ -1,259 +1,222 @@
-# Maintenir le manuel utilisateur
+# Maintaining the user manual
 
-Ouvrir le manuel [français](index.html) ou [anglais](en.html) dans un navigateur. Aucun serveur, compilation ou téléchargement de dépendance n’est nécessaire. Conserver `index.html`, `en.html`, `style.css`, `guide.js` et `assets/` ensemble. Le sélecteur Français / English conserve l’ancre du chapitre avec JavaScript et reste un lien normal sans JavaScript.
+Open the [English](en.html) or [French](index.html) manual in a browser. No server, build or dependency download is required. Keep `index.html`, `en.html`, `style.css`, `guide.js` and `assets/` together. The language selector preserves the chapter anchor with JavaScript and remains a normal link without it.
 
-## Modifier le contenu
+## Editing content
 
-1. Modifier directement le chapitre concerné dans **les deux éditions**, `index.html` (FR) et `en.html` (EN). Chaque chapitre est un `<section class="chapter" id="…">` ; conserver ses identifiants pour ne pas casser les liens partagés.
-2. Décrire le comportement réellement présent, avec le libellé exact des commandes dans la langue de chaque édition, l’unité des champs, le résultat attendu et les limites locales. Ne pas déduire une fonction de la seule vision de `../specs.md`.
-3. Ajouter le lien au sommaire `#toc` si un chapitre est créé. La recherche indexe automatiquement le texte des chapitres au chargement.
-4. Mettre à jour la version/date dans l’en-tête, le pied et les informations de provenance si nécessaire.
-5. Ouvrir le fichier localement et contrôler la section modifiée, les liens, les images et une recherche pertinente. Vérifier aussi la vue étroite et l’aperçu d’impression si la mise en page change.
+1. Edit affected chapters directly in **both editions**, `index.html` (FR) and `en.html` (EN). Chapters are `<section class="chapter" id="…">`; preserve IDs to keep shared links working.
+2. Describe actual behavior, exact command labels in each language, field units, expected results and local limits. Do not infer features solely from the vision in `../specs.md`.
+3. Add new chapter links to `#toc`. Search indexes chapter text automatically at load time.
+4. Update version/date in headers, footers and provenance where appropriate.
+5. Open the local file and check changed sections, links, images and relevant searches. Check narrow layout and print preview when layout changes.
 
-Les fichiers CSS et JS ajoutent seulement la présentation, le filtrage des chapitres et l’agrandissement des captures. Le contenu reste lisible sans JavaScript. Pas de bibliothèque externe ni de générateur documentaire à maintenir.
+CSS/JS provide presentation, chapter filtering and image magnification only. Content stays readable without JavaScript. Maintain no external library or documentation generator.
 
-## Correspondance avec l’application
+## Application source mapping
 
-| Source à examiner quand elle change                                                      | Chapitres à relire                                           |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `src/App.tsx`                                                                            | Démarrer, interface, projets, ressources, import, raccourcis |
-| `src/platform.ts`, `src-tauri/src/main.rs`                                               | Bureau/web, fichiers, récupération, lancement, ROM           |
-| `src/ui/Drawing.tsx`, `src/core/pixels.ts`                                               | Dessins, calques, sélections, transformations                |
-| `src/ui/Palettes.tsx`                                                                    | Palettes, verrous, permutation, cycles                       |
-| `src/ui/Sprites.tsx`, `src/core/model.ts`                                                | Pièces, variantes, poses, animations, boîtes, attaches       |
-| `src/ui/Maps.tsx`, `src/core/terrain.ts`                                                 | Cartes, tampons, terrains, tiles animées                     |
-| `src/ui/Scenes.tsx`, `src/core/render.ts`                                                | Scènes, effets, portée et limites de l’aperçu                |
-| `src/ui/Exports.tsx`, `src/core/snes.ts`, `src/core/scene-export.ts`, `src/core/demo.ts` | Exports, optimisation, placement, ROM, diagnostics           |
-| `src/core/import.ts`, `src/core/aseprite.ts`                                             | PNG, Aseprite, conversion, tramage                           |
-| `src/core/archive.ts`, `src/core/resources.ts`                                           | Format projet, validation, duplication, usages, remplacement |
-| `scripts/export.ts`, `docs/formats.md`, `docs/status.md`                                 | CLI, formats, limites et validation                          |
+| Changed source                                                                           | Chapters to review                                                 |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `src/App.tsx`                                                                            | Getting started, interface, projects, resources, import, shortcuts |
+| `src/platform.ts`, `src-tauri/src/main.rs`                                               | Desktop/web, files, recovery, launch, ROM                          |
+| `src/ui/Drawing.tsx`, `src/core/pixels.ts`                                               | Drawings, layers, selections, transforms                           |
+| `src/ui/Palettes.tsx`                                                                    | Palettes, locks, permutation, cycles                               |
+| `src/ui/Sprites.tsx`, `src/core/model.ts`                                                | Pieces, variants, poses, animations, boxes, attachments            |
+| `src/ui/Maps.tsx`, `src/core/terrain.ts`                                                 | Maps, stamps, terrain, animated tiles                              |
+| `src/ui/Scenes.tsx`, `src/core/render.ts`                                                | Scenes, effects, preview scope/limits                              |
+| `src/ui/Exports.tsx`, `src/core/snes.ts`, `src/core/scene-export.ts`, `src/core/demo.ts` | Exports, optimization, allocation, ROM, diagnostics                |
+| `src/core/import.ts`, `src/core/aseprite.ts`                                             | PNG, Aseprite, conversion, dithering                               |
+| `src/core/archive.ts`, `src/core/resources.ts`                                           | Project format, validation, duplication, usages, replacement       |
+| `scripts/export.ts`, `docs/formats.md`, `docs/status.md`                                 | CLI, formats, validation limits                                    |
 
-Tous les chemins de cette table sont relatifs à la racine du dépôt.
+Paths in this table are relative to the repository root.
 
-## Renouveler les captures
+## Refreshing screenshots
 
-- Utiliser une copie du projet d’exemple, fenêtre 1440 × 920, interface FR pour `assets/` et EN pour `assets/en/`. Les captures FR datent du 26 septembre 2026, les EN du 27 septembre 2026, sous Fedora/Wayland, application native 0.1.0.
-- Capturer la véritable interface. Ne pas reconstruire une fausse fenêtre avec du HTML ni présenter le canevas de l’éditeur comme une capture d’émulateur.
-- Fermer les fenêtres de dialogue parasites. Arrêter la lecture pour une capture reproductible ; préciser toute modification de l’exemple dans la légende.
-- Garder le nom du fichier si le rôle de la capture reste le même. Mettre à jour les attributs `width`, `height`, `alt` et la légende si le contenu ou la taille change.
-- Conserver les captures originales en PNG ; les annotations pédagogiques se font dans la légende ou dans des schémas distincts.
-- Réouvrir les PNG et le HTML pour contrôler lisibilité, absence de données privées et bon cadrage.
+- Use an example-project copy, ideally a 1440 × 920 window, French UI for `assets/` and English UI for `assets/en/`. Initial French captures date from September 26, 2026, English from September 27, under native Fedora/Wayland 0.1.0; later replacements are recorded below.
+- Capture the real interface. Do not recreate windows in HTML or present the editor canvas as emulator output.
+- Close unrelated dialogs and stop playback for reproducibility. State example changes in captions.
+- Keep filenames when image roles remain unchanged. Update `width`, `height`, `alt` and captions when content or dimensions change.
+- Keep original PNGs. Put educational annotations in captions or separate diagrams.
+- Reopen PNGs/HTML to check readability, framing and absence of private data.
 
-### Inventaire des captures
+### Capture inventory
 
-| Fichier                    | Projet et parcours                                   | État                                                                                                    |
-| -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `01-dessins.png`           | Football → Dessins → Joueur                          | Palette Domicile, grille, zoom 1000 %                                                                   |
-| `02-palettes.png`          | Football → Palettes → Domicile                       | Entrée 1 sélectionnée                                                                                   |
-| `03-palette-exterieur.png` | Football → Palettes → Extérieur                      | Entrée 1 sélectionnée                                                                                   |
-| `04-sprites.png`           | Football → Sprites → Joueur                          | Pose initiale, Marche, lecture arrêtée                                                                  |
-| `05-variantes.png`         | Même atelier → Comparer                              | Original, Domicile, Extérieur                                                                           |
-| `06-cartes.png`            | Football → Cartes → Terrain                          | Inspecteur en haut, zoom 200 %                                                                          |
-| `07-metatiles.png`         | Même atelier                                         | Inspecteur en bas, aucune ressource ajoutée                                                             |
-| `08-scenes.png`            | Football → Scènes → Match                            | Image 0, zoom 200 %                                                                                     |
-| `09-export.png`            | Football → Exporter                                  | Toutes les ressources ; scène Aucune                                                                    |
-| `10-rom.png`               | Football → Exporter → scène Match                    | Ensemble créé pour la capture, outils dépliés ; modification ensuite annulée sans enregistrer l’exemple |
-| `11-creation.png`          | Football → Cartes → +                                | Dialogue seulement ; création non validée                                                               |
-| `12-usages.png`            | Football → Cartes → Terrain → Usages et remplacement | Dialogue seulement ; aucun remplacement                                                                 |
-| `13-mode7.png`             | `examples/mode7.snesgraph` → Scènes                  | Image 0, inspecteur en haut                                                                             |
-| `14-hdma.png`              | `examples/hdma.snesgraph` → Scènes                   | Image 0, inspecteur en haut                                                                             |
-| `15-effets-reglages.png`   | Même projet HDMA                                     | Inspecteur en bas, paramètres wave/iris                                                                 |
-| `16-mode7-reglages.png`    | Projet Mode 7 → Scènes                               | Inspecteur en bas, angle/scale/perspective/horizon                                                      |
+Stored resource names remain unchanged in English instructions.
 
-Les quatre schémas SVG sont intégrés au HTML : dépendances des ressources, coût de 100 tiles, chronologie de Marche, allocation des canaux HDMA. Leurs valeurs sont des explications calculées, pas des mesures.
+| File                       | Project and route                                | State                                                                  |
+| -------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| `01-dessins.png`           | Football → Drawings → Joueur                     | Domicile palette, grid, 1000% zoom                                     |
+| `02-palettes.png`          | Football → Palettes → Domicile                   | Entry 1 selected                                                       |
+| `03-palette-exterieur.png` | Football → Palettes → Extérieur                  | Entry 1 selected                                                       |
+| `04-sprites.png`           | Football → Sprites → Joueur                      | Initial pose, Marche, stopped                                          |
+| `05-variantes.png`         | Same workspace → Compare                         | Original, Domicile, Extérieur                                          |
+| `06-cartes.png`            | Football → Maps → Terrain                        | Inspector at top, 200% zoom                                            |
+| `07-metatiles.png`         | Same workspace                                   | Inspector at bottom, no added resources                                |
+| `08-scenes.png`            | Football → Scenes → Match                        | Frame 0, 200% zoom                                                     |
+| `09-export.png`            | Football → Export                                | All resources; no scene                                                |
+| `10-rom.png`               | Football → Export → Match scene                  | Temporary export set, tools expanded; then undo without saving example |
+| `11-creation.png`          | Football → Maps → +                              | Dialog only, creation not confirmed                                    |
+| `12-usages.png`            | Football → Maps → Terrain → Uses and replacement | Dialog only, no replacement                                            |
+| `13-mode7.png`             | `examples/mode7.snesgraph` → Scenes              | Frame 0, inspector at top                                              |
+| `14-hdma.png`              | `examples/hdma.snesgraph` → Scenes               | Frame 0, inspector at top                                              |
+| `15-effets-reglages.png`   | Same HDMA project                                | Inspector at bottom, wave/iris parameters                              |
+| `16-mode7-reglages.png`    | Mode 7 → Scenes                                  | Inspector at bottom, angle/scale/perspective/horizon                   |
+
+Four inline SVG diagrams explain resource dependencies, the cost of 100 tiles, Marche timing and HDMA channel allocation. Values are calculated explanations, not measurements.
 
 ## Publication
 
-Le manuel se consulte directement depuis le disque. Pour un site hébergé, servir des fichiers statiques suffit. Aucun compte, cookie, service distant ou recherche côté serveur n’est utilisé. La recherche est faite dans le texte déjà chargé.
+The manual opens directly from disk. Hosting requires only static files. It uses no account, cookies, remote service or server-side search; search operates on already-loaded text.
 
-Les liens complémentaires vers le README racine, `docs/formats.md`, `docs/status.md` et `examples/` supposent l’arborescence actuelle. Pour publier uniquement le dossier guide, adapter ces liens ou fournir les documents liés à côté ; le texte, les captures, les tableaux et les schémas du manuel lui-même restent autonomes.
+Links to the root README, `docs/formats.md`, `docs/status.md` and `examples/` assume the existing tree. When publishing the guide alone, adapt links or supply linked documents alongside it. Manual text, screenshots, tables and diagrams are otherwise self-contained.
 
-La commande « Imprimer / PDF » utilise le dialogue du navigateur : elle ne produit pas un PDF versionné dans le dépôt. Si un PDF est distribué plus tard, noter sa date séparément et contrôler ses pages après chaque mise à jour.
+Print / PDF uses the browser dialog, not a versioned repository PDF. If a PDF is later distributed, record its date separately and inspect pages after updates.
 
-## Contrôles de l’édition initiale
+## Initial-edition checks
 
-Le 26 septembre 2026 :
+September 26, 2026:
 
-- 20 chapitres, 33 tableaux, 16 captures natives et 4 schémas SVG ; environ 13 000 mots.
-- Structure HTML, unicité des identifiants, ancres internes, fichiers locaux liés et présence des textes alternatifs contrôlés ; aucun lien local manquant.
-- JavaScript vérifié avec `node --check` ; fichiers mis en forme avec le Prettier du projet.
-- Lecture réelle dans Chrome depuis `file://` : page d’accueil, section Palettes, schéma des ressources et tableau, recherche « CGRAM » (6 chapitres), remise à zéro, agrandissement d’une capture puis fermeture.
-- Mise en page compacte observée à 150 % dans une fenêtre de 921 pixels, avec ouverture du sommaire ; cela vérifie le point de rupture CSS, pas un appareil mobile physique.
-- Dialogue d’impression ouvert après filtrage : le manuel complet est repris (52 pages avec les réglages de cette session), page de couverture inspectée. Aucun PDF distribué ni audit visuel de chaque page imprimée n’est revendiqué.
+- 20 chapters, 33 tables, 16 native screenshots and four SVG diagrams; about 13,000 words.
+- HTML structure, unique IDs, internal anchors, local linked files and alt text checked; no missing local links.
+- JavaScript checked with `node --check`; documents formatted with project Prettier.
+- Chrome `file://` reading: welcome, Palettes, resource diagram/table, “CGRAM” search (six chapters), reset, screenshot magnification/closure.
+- Compact layout observed at 150% in a 921-pixel window with contents opened: CSS breakpoint verification, not physical-mobile testing.
+- Print dialog opened after filtering: complete manual restored (52 pages with that session's settings), cover inspected. No distributed PDF or exhaustive printed-page visual audit claimed.
 
-Les commandes ont été décrites par lecture des fichiers de l’application, complétée par les captures et manipulations indiquées. Ce travail documentaire n’est pas une nouvelle validation exhaustive de toutes les combinaisons graphiques, exports et plateformes.
+Commands were described from application source, supplemented by the recorded captures/actions. This documentation work is not exhaustive validation of all graphics, exports or platforms.
 
-## Mise à jour : agrandir un dessin
+## Update: expanding a drawing
 
-La capture `17-ajouter-tiles.png` montre `examples/football.snesgraph` dans Dessins → Terrain, après un clic sur **+ Ligne de tiles** (16 × 16 pixels). Capture de la version native Linux ; modifications annulées sans enregistrer l’exemple. Le bouton de bibliothèque affiche désormais **+ Nouveau** ; les captures plus anciennes peuvent encore montrer l’ancienne icône.
+`17-ajouter-tiles.png` shows `examples/football.snesgraph`, Drawings → Terrain, after **+ Tile row** (16 × 16 pixels). Native Linux capture; changes undone without saving. The library button now says **+ New**; older images may show the previous icon.
 
-Vérification native : ajout d’une ligne, ajout d’une colonne (24 × 16), deux annulations ramenant à 16 × 8, puis ouverture du dialogue par + Nouveau. Compilation web/native et 18 tests réussis.
+Native check: add row, add column (24 × 16), undo twice to 16 × 8, then open the + New dialog. Web/native builds and 18 tests passed.
 
-## Passe détaillée de l’interface — 26 septembre 2026
+## Detailed interface pass — September 26, 2026
 
-Le manuel comprend désormais 20 chapitres, 55 tableaux, 17 vues générales, 197 captures ciblées et 4 schémas SVG. Les dix outils de dessin et les commandes des six ateliers sont illustrés, avec leur effet, leur portée et des exemples football. Les dialogues de création et d’import PNG sont également détaillés.
+The manual then contained 20 chapters, 55 tables, 17 overviews, 197 focused captures and four SVG diagrams. Ten drawing tools and commands from six workspaces are illustrated with effects, scope and football examples. Creation/PNG import dialogs are also detailed.
 
-Les extraits sont dans `assets/ui/`. `capture-regions.json` associe chaque nom d’extrait à sa capture source et à un rectangle `[gauche, haut, droite, bas]` en pixels. Les sources supplémentaires portent le préfixe `source-` ; les autres sources sont les vues générales de `assets/`. Pour renouveler un extrait :
+Crops live in `assets/ui/`. `capture-regions.json` maps crop names to source images and `[left, top, right, bottom]` pixel rectangles. Additional sources use `source-`; other sources are overviews in `assets/`.
 
-1. Reproduire l’état sur une copie du projet football dans une fenêtre native de 1440 × 920, dans chaque langue concernée.
-2. Enregistrer la vraie capture source puis contrôler son contenu. Si les contrôles ont changé de position, adapter le rectangle dans le manifeste.
-3. Recadrer sans redessiner les boutons ; avec Pillow : `Image.open(source).crop(box).save(destination)`.
-4. Actualiser les dimensions et le texte alternatif du `<img>`, ainsi que la légende `data-caption` du lien `data-zoom`.
-5. Contrôler le tableau et son agrandissement dans le navigateur. Les images sont chargées dès l’ouverture pour être disponibles à l’impression, même dans un chapitre masqué par la recherche.
+1. Reproduce the state on a football-project copy, native 1440 × 920 window, in each affected language.
+2. Save and inspect the actual source screenshot. Adjust manifest rectangles if controls moved.
+3. Crop without redrawing buttons, e.g. Pillow `Image.open(source).crop(box).save(destination)`.
+4. Update `<img>` dimensions/alt text and `data-zoom` link `data-caption`.
+5. Check the table and enlargement in a browser. Images load immediately for printing even in search-hidden chapters.
 
-### États des nouvelles captures sources
+### Additional source-capture states
 
-Tous les parcours suivants partent d’une copie de Football ; les ajouts temporaires ont été annulés et les dialogues fermés sans validation.
+All routes used a Football copy; temporary additions were undone and dialogs closed without applying.
 
-| Source dans `assets/ui/`                                                                 | État à reproduire                                                                                                     |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `source-dessin-terrain.png`, `source-dessin-selection.png`                               | Dessins → Terrain, inspecteur en haut puis en bas ; zoom 1000 %.                                                      |
-| `source-calques.png`                                                                     | Terrain → + Calque ; Base et Calque 2, second calque sélectionné.                                                     |
-| `source-cycle.png`                                                                       | Palettes → Domicile → entrée 1 ; cycle activé de 1 à 15, 8 ticks ; bas de l’inspecteur.                               |
-| `source-variante-piece.png`, `source-piece.png`                                          | Sprites → Joueur → variante Extérieur ; première pièce de la tête sélectionnée ; inspecteur en haut puis au centre.   |
-| `source-collision.png`, `source-attache.png`                                             | Ajouter une collision par défaut (0, 0, 16, 16), puis une attache (0, 0) ; inspecteur en bas.                         |
-| `source-tile-animee.png`                                                                 | Cartes → Terrain → Animer la tile 0 ; séquence 0, 8 ticks.                                                            |
-| `source-carte-remplir.png`, `source-carte-prelever.png`, `source-carte-selectionner.png` | Cartes → Terrain ; choisir successivement ces outils sans peindre.                                                    |
-| `source-bg.png`                                                                          | Scènes → Match ; inspecteur dans la section BG1.                                                                      |
-| `source-instance.png`                                                                    | Match → première instance dépliée ; position 88, 130 et vitesses nulles.                                              |
-| `source-melange.png`                                                                     | Match → bas de l’inspecteur ; mélange Aucun.                                                                          |
-| `source-cgram.png`                                                                       | Match → ajouter une réservation Domicile, OBJ, emplacement 0.                                                         |
-| `source-gradient.png`                                                                    | Match → ajouter un dégradé avec ses réglages par défaut, canal 0.                                                     |
-| `source-import.png`                                                                      | Importer un PNG issu du rendu du dessin Joueur ; nouvelle palette, sans tramage, aucun pixel ajusté ; ne pas valider. |
-| `source-creation-dessin.png`                                                             | Dessins → + Nouveau ; nom vide, 32 × 32, 4 bpp ; ne pas valider.                                                      |
+| Source in `assets/ui/`                                                                   | State to reproduce                                                                         |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `source-dessin-terrain.png`, `source-dessin-selection.png`                               | Drawings → Terrain, inspector top then bottom; 1000% zoom                                  |
+| `source-calques.png`                                                                     | Terrain → + Layer; Base and layer 2, second selected                                       |
+| `source-cycle.png`                                                                       | Palettes → Domicile → entry 1; enabled cycle 1–15, 8 ticks; inspector bottom               |
+| `source-variante-piece.png`, `source-piece.png`                                          | Sprites → Joueur → Extérieur variant; first head piece selected; inspector top then center |
+| `source-collision.png`, `source-attache.png`                                             | Add default collision (0, 0, 16, 16), then attachment (0, 0); inspector bottom             |
+| `source-tile-animee.png`                                                                 | Maps → Terrain → Animate tile 0; sequence 0, 8 ticks                                       |
+| `source-carte-remplir.png`, `source-carte-prelever.png`, `source-carte-selectionner.png` | Maps → Terrain; select fill, sample and selection tools without painting                   |
+| `source-bg.png`                                                                          | Scenes → Match; BG1 inspector section                                                      |
+| `source-instance.png`                                                                    | Match → first instance expanded; position 88, 130, zero speeds                             |
+| `source-melange.png`                                                                     | Match → inspector bottom; no color math                                                    |
+| `source-cgram.png`                                                                       | Match → add Domicile reservation, OBJ, slot 0                                              |
+| `source-gradient.png`                                                                    | Match → add default gradient, channel 0                                                    |
+| `source-import.png`                                                                      | Import PNG rendered from Joueur; new palette, no dithering/adjusted pixels; do not apply   |
+| `source-creation-dessin.png`                                                             | Drawings → + New; empty name, 32 × 32, 4 bpp; do not apply                                 |
 
-Les vues générales 01, 02, 04, 06, 07, 08 et 09 ont été renouvelées avec **+ Nouveau**. Les réglages ROM, wave/iris et Mode 7 utilisent les captures antérieures de champs inchangés. Les rectangles exacts font foi dans le manifeste.
+Overviews 01, 02, 04, 06, 07, 08 and 09 were refreshed with **+ New**. ROM, wave/iris and Mode 7 settings reuse older images of unchanged fields. Manifest rectangles are authoritative.
 
-### Vérification de cette passe
+### Checks for that pass
 
-- Contrôle des fichiers liés, ancres, identifiants, textes alternatifs, dimensions et correspondance des recadrages avec leurs sources ; syntaxe JavaScript et formatage des fichiers documentaires.
-- Lecture dans Chrome depuis le disque : outils de dessin, inspecteur, palettes et découpage ; ouverture/fermeture de l’agrandissement d’un bouton.
-- Affichage compact à 300 % dans une fenêtre de 1878 pixels, avec ouverture du sommaire ; recherche « tramage » donnant les deux chapitres concernés.
-- Aperçu d’impression : couverture et page de tableau illustré contrôlées. Il ne s’agit pas d’un audit de toutes les pages ni d’un PDF distribué.
+- Linked files, anchors, IDs, alt text, dimensions, crop/source correspondence, JavaScript syntax and document formatting checked.
+- Chrome disk reading: drawing tools, inspector, palettes and slicing; button enlargement opened/closed.
+- Compact view at 300% in a 1878-pixel window with contents open; French “tramage” search returned two chapters.
+- Print preview: cover and illustrated table page checked, not every page or a distributed PDF.
 
-Cette passe ne modifie pas l’application et n’ajoute aucune dépendance à la documentation.
+That pass did not change the application or add documentation dependencies.
 
-## Corrections issues de la revue initiale — 26 septembre 2026
+## Initial review corrections — September 26, 2026
 
-Mise à jour ciblée des passages sur la sauvegarde/récupération, les raccourcis avec Majuscule, le bornage des sélections de carte, le changement de tileset, les poses affichées après annulation, la permutation des palettes, les PNG indexés/niveaux de gris et la transparence par couleur. Le chapitre Exporter renvoie aux nouvelles correspondances de tiles décrites dans `../formats.md`. Les commandes et leurs libellés restent identiques : les captures existantes sont conservées.
+Targeted edits covered save/recovery, Shift shortcuts, map-selection bounds, tileset changes, poses after undo, palette permutation, indexed/grayscale PNG and color-key transparency. Export links to tile mappings in `../formats.md`. Commands/labels stayed unchanged, so existing screenshots were retained.
 
-Validation applicative : 32 tests automatisés réussis, compilation TypeScript/Vite réussie. Parcours web dans Chrome : Ctrl+Maj+Z, Ctrl+Maj+S, récupération puis modification/annulation avec avertissement de sauvegarde, création/annulation d’animation suivie d’un renommage, duplication/annulation de pose suivie d’un découpage, réduction d’une carte de 32 à 16 colonnes après sélection en colonne 20 puis capture du tampon et sauvegarde. Les entrelacements de sauvegarde ont aussi été vérifiés avec des écritures différées contrôlées ; ce contrôle ne constitue pas un essai de panne disque réelle.
+Validation: 32 automated tests and TypeScript/Vite build passed. Chrome workflows: Ctrl+Shift+Z, Ctrl+Shift+S, recovery then edit/undo with save warning, animation creation/undo then rename, pose duplication/undo then slicing, map reduction from 32 to 16 columns after selecting column 20 followed by stamp capture/save. Save interleavings also checked with controlled deferred writes; this was not real disk-failure testing.
 
-## Édition anglaise — 27 septembre 2026
+## English edition — September 27, 2026
 
-`en.html` reprend les 20 chapitres, 55 tableaux, 4 schémas SVG et 214 illustrations du manuel français. Les légendes, textes alternatifs, commandes du manuel et résultats de recherche sont traduits. Les noms enregistrés dans les projets restent inchangés (Joueur, Domicile, Extérieur, Terrain, etc.) et sont expliqués à l’accueil anglais.
+`en.html` reproduced 20 chapters, 55 tables, four SVG diagrams and 214 illustrations. Captions, alt text, manual commands and search results were translated. Stored project names (Joueur, Domicile, Extérieur, Terrain, etc.) remain unchanged and are explained in the English welcome.
 
-Les 17 vues générales et les sources des 197 extraits ont été **recapturées dans l’application native en anglais**, reconstruite depuis les sources courantes. Les manipulations utilisent des copies des exemples football, Mode 7 et HDMA, sans enregistrer les changements dans les exemples du dépôt. Les sources supplémentaires sont dans `assets/en/ui/source-*.png`. Le manifeste `capture-regions-en.json` donne leurs rectangles propres : ne pas recopier aveuglément les rectangles FR, car les libellés EN déplacent certains contrôles. `bg-ajouter` utilise notamment `source-melange.png`, où ce bouton est entièrement visible. Les valeurs et parcours restent ceux de l’inventaire FR ; la pièce sélectionnée pour les champs de sprite est la moitié droite de la tête (source X = 16).
+The 17 overviews and sources of 197 crops were **recaptured in the rebuilt native English application**. Routes used copies of football, Mode 7 and HDMA without saving changes to repository examples. Additional sources are `assets/en/ui/source-*.png`. `capture-regions-en.json` has language-specific rectangles: English labels move controls, so do not blindly copy French rectangles. `bg-ajouter` uses `source-melange.png`, where the button is fully visible. Values/routes match the French inventory; sprite fields use the right half of the head (source X = 16).
 
-Pour chaque évolution utilisateur, mettre à jour les deux textes et renouveler les images concernées dans chaque langue. Conserver les mêmes identifiants de chapitres et sous-sections pour que le sélecteur garde le passage consulté. Les deux HTML sont édités directement ; aucun générateur ni dictionnaire de traduction intermédiaire n’est nécessaire. CSS et JavaScript sont partagés. Les documents techniques liés (`formats.md`, `status.md`, README) conservent leur langue propre.
+Update both texts and affected images for each user-visible change. Preserve matching chapter/subsection IDs so language switching retains position. Edit both HTML files directly; no generator or intermediate translation dictionary. CSS/JS are shared. Linked technical documents are now maintained in English; they retained their previous languages at this historical checkpoint.
 
-Contrôles de cette édition : intégrité des ancres et fichiers locaux, parité des chapitres/tableaux/schémas/illustrations, textes alternatifs, dimensions des images, syntaxe JavaScript et formatage. Les 197 extraits EN ont été inspectés sur des planches de contrôle, et leurs sources natives observées pendant la capture. Lecture réelle dans Firefox depuis `file://` : accueil, palettes, tableau des outils, passage FR → EN et EN → FR conservant le chapitre, recherche EN « HDMA » (5 chapitres), remise à zéro et agrandissement d’un bouton avec légende EN. L’aperçu d’impression après filtrage reprend le document complet ; sa couverture a été inspectée, sans impression physique ni contrôle de chaque page.
+Checks: anchor/local-file integrity, chapter/table/diagram/illustration parity, alt text, dimensions, JS syntax and formatting. All 197 English crops inspected on contact sheets; native sources observed during capture. Firefox `file://`: welcome, palettes, tool table, FR↔EN switching preserving chapters, English “HDMA” search (five chapters), reset and button enlargement with English caption. Print preview after filtering restored the complete document; cover inspected, without physical printing or exhaustive page checking.
 
-La recherche FR « CGRAM » a également été vérifiée (6 chapitres). Le menu compact et son sélecteur de langue ont été ouverts à 260 % dans la fenêtre Firefox de 1878 pixels (environ 722 pixels CSS), puis le zoom a été rétabli à 100 %. Cela vérifie le point de rupture, pas un appareil mobile physique.
+French “CGRAM” search also verified (six chapters). Compact menu/language selector opened at 260% in a 1878-pixel Firefox window (about 722 CSS pixels), then restored to 100%. This checks a breakpoint, not a physical mobile device.
 
-## Évolution : parcours et ressources
+## Improvement: workflows and resources
 
-`18-resource-workflow.png` (FR et EN) : application web sous Chrome, capture
-1878 × 867. Exemple intégré → Cartes → Créer une tile → Revenir à la carte.
-Le dessin Terrain passe de 16 × 8 à 16 × 16 ; le pinceau sélectionne la tile 2.
-Parcours observé avec le contrôle du navigateur, captures examinées dans les deux langues.
-Tests ciblés de gestion des ressources et compilation web réussis.
+`18-resource-workflow.png` FR/EN: Chrome web, 1878 × 867. Built-in example → Maps → Create a tile → Back to map. Terrain grows from 16 × 8 to 16 × 16; brush selects tile 2. Browser-controlled route observed and both images inspected. Resource-management tests and web build passed.
 
-## Évolution : dimensions
+## Improvement: dimensions
 
-`19-sheet-layout.png` (FR/EN) : web Chrome, 1878 × 867 ; exemple intégré,
-Joueur → Dimensions et organisation → 5 colonnes, 6 lignes, ancrage bas droite.
-Réduction à une colonne refusée (pièce fragmentée), agrandissement appliqué puis
-annulé en une étape, observés dans l’interface. Tests de remappage et build réussis.
+`19-sheet-layout.png` FR/EN: Chrome web, 1878 × 867; built-in example, Joueur → Dimensions and layout → five columns, six rows, bottom-right anchor. Reducing to one column rejected (fragmented piece); expansion applied then undone in one step, observed in UI. Remapping tests/build passed.
 
-## Évolution : palettes et variantes
+## Improvement: palettes and variants
 
-`20-palette-compare.png` FR/EN : Chrome 1878 × 867, Palettes → Comparer et
-remapper → seconde palette de l’exemple → aperçu du dessin, panneau central
-défilé pour montrer les rendus et le début du tableau. Les noms de ressources
-restent ceux du projet. Captures examinées ; test des pixels/calques et verrous
-et compilation web réussis.
+`20-palette-compare.png` FR/EN: Chrome 1878 × 867, Palettes → Compare and remap → second example palette → drawing preview; center scrolled to show rendering and table start. Resource names unchanged. Captures inspected; pixel/layer/lock test and web build passed.
 
-## Évolution : assemblage et animation
+## Improvement: assembly and animation
 
-`21-animation-edit.png` FR/EN : Chrome, exemple → Sprites → séquence visible.
-Duplication de la seconde image : durée 8 et événement `step` conservés ;
-annulation observée. Captures examinées. Tests ciblés : déplacement d’une sélection
-de séquence et validation de tous les groupes de destination avant modification.
+`21-animation-edit.png` FR/EN: Chrome, example → Sprites → visible sequence. Duplicate second frame: duration 8 and `step` event retained; undo observed. Images inspected. Targeted tests: moving a sequence selection and validating all destination groups before mutation.
 
-## Évolution : régions de carte
+## Improvement: map regions
 
-`22-map-region.png` FR/EN : Chrome 1878 × 867, Carte, sélection initiale 2 × 2,
-Copier et transformer → Copier → Rotation 90° → Prévisualiser. Ce motif dispose
-déjà d’une équivalence par miroir (zéro nouvelle tile). Captures examinées.
-Tests : rotation rectangulaire pixel par pixel, animation indépendante,
-refus sans mutation et déplacement avec chevauchement.
+`22-map-region.png` FR/EN: Chrome 1878 × 867, Map, initial 2 × 2 selection, Copy and transform → Copy → Rotate 90° → Preview. Pattern already has a flipped equivalent (zero new tiles). Images inspected. Tests: rectangular pixel-exact rotation, independent animation, rejection without mutation and overlapping movement.
 
-## Lot 6 — diagnostic mémoire
+## Batch 6 — memory diagnostics
 
-`23-scene-analysis.png`, FR/EN : Chrome web, Football → Scènes → Mémoire et analyse temporelle → Calculer la mémoire à cette image. Analyse de 2 images observée : 12 OBJ, 4 par ligne, 8 portions, étendue VRAM 17280 octets. Captures 1878 × 867. Comparaison au compilateur d’export et attribution des instances en surcharge couvertes par deux tests ciblés ; compilation réussie.
+`23-scene-analysis.png` FR/EN: Chrome web, Football → Scenes → Memory and temporal analysis → Calculate memory at this frame. Two-frame analysis observed: 12 OBJ, four per line, eight slivers, VRAM extent 17,280 bytes. Captures 1878 × 867. Export-compiler comparison and overloaded-instance attribution covered by two targeted tests; build passed.
 
-### 24 — Import review / Comparaison du réimport
+### 24 — Reimport review
 
-Ouvrir une copie de Football, sélectionner Joueur, Réimporter le dessin, choisir
-`examples/reimport-review.png`. Garder le tramage désactivé. Capturer le dialogue
-en FR puis EN : 64 pixels alpha ajustés, tile 5 modifiée, usage Joueur.
-Le fichier est une variante de l’exemple interne, sans ressource tierce.
+Open a Football copy, select Joueur, reimport drawing using `examples/reimport-review.png`; keep dithering disabled. Capture FR then EN dialog: 64 adjusted alpha pixels, changed tile 5, Joueur usage. Input is an internal-example variant, no third-party resource.
 
-### Exemples d’intégration
+### Integration examples
 
-Section `integration-examples` dans les deux langues. Sources et recette Mesen dans
-`examples/integration/README.md`. Mesures et limites de validation dans
-`docs/evolution-validation.md`. Les captures d’émulateur restent des artefacts de test.
+`integration-examples` section exists in both languages. Sources/Mesen recipe: `examples/integration/README.md`. Measurements and validation limits: `docs/evolution-validation.md`. Emulator captures remain test artifacts.
 
-### Capture 25 — poignées de collision (FR et EN)
+### Capture 25 — collision handles (FR and EN)
 
-Exemple Football, Sprites, première pose : ajouter une collision 16 × 16 en (0, 0), puis sélectionner la pièce 1 sous le rectangle. Activer la plage de lecture et ajouter une troisième image. Capturer les poignées jaunes, le contour et les propriétés de la pièce, dans chaque langue (`25-collision-handles.png`). Capture Chrome locale 1878 × 867, revue du 27 septembre 2026.
+Football, Sprites, first pose: add 16 × 16 collision at (0, 0), select piece 1 underneath. Enable playback range and add a third frame. Capture yellow handles, outline and piece properties in each language (`25-collision-handles.png`). Local Chrome 1878 × 867, September 27, 2026 review.
 
-## Galerie interactive — captures du 27 septembre 2026
+## Interactive gallery — September 27, 2026 captures
 
-Le parcours courant est documenté dans `#rom` et `#galerie-manette`, avec les mêmes ancres FR/EN. `09-export.png`, `10-rom.png` et `11-gallery-export.png` (ainsi que leurs équivalents `assets/en/`) proviennent de la version **web courante**, viewport 1440 × 920. Les autres anciennes captures natives ne prouvent pas la disponibilité de la nouvelle galerie dans un binaire installé.
+Current workflow is documented under `#rom` and `#galerie-manette`, identical FR/EN anchors. `09-export.png`, `10-rom.png`, `11-gallery-export.png` and English equivalents came from the **then-current web version**, viewport 1440 × 920. Older native images do not prove gallery availability in an installed binary.
 
-Recette : ouvrir l’exemple Football depuis Dessins, puis Exporter. Pour 09, garder toutes les ressources et Galerie interactive et montrer le haut de l’atelier. Pour 11, descendre jusqu’aux commandes ROM, garder Match coché dans Scènes de la galerie et la durée à 120. Pour 10, passer en Scène en boucle et choisir Match comme scène de référence ; le bouton web devient disponible. Cette action crée un ensemble temporaire (nom « Main export » lors du parcours anglais). Annuler cette modification après la capture. Aucun fichier d’exemple n’a été modifié.
+Recipe: open Football from Drawings, then Export. For 09, retain all resources and Interactive Gallery and show workspace top. For 11, scroll to ROM commands, keep Match checked in gallery scenes and duration 120. For 10, select Looping Scene with Match as reference; the web button becomes available. This creates a temporary export set (“Main export” in the English route). Undo afterward; no example file changed.
 
-`12-gallery-rom.png` et `13-gallery-info.png` sont des captures réelles Mesen (256 × 224), respectivement de l’accueil et du panneau Start du personnage. Les versions anglaises proviennent d’une ROM générée en anglais, sans retouche. Reproduction : `node --import tsx scripts/verify-gallery.ts /chemin/vers/Mesen`, puis captures `home.png` / `sprite-info.png` des dossiers `football` et `football-en` sous `artifacts/gallery-validation/`.
+`12-gallery-rom.png` and `13-gallery-info.png` are real Mesen 256 × 224 captures of the home menu and actor Start panel. English images come from an English-generated ROM without retouching. Reproduce with `node --import tsx scripts/verify-gallery.ts /path/to/Mesen`; use `home.png` / `sprite-info.png` from `football` and `football-en` under `artifacts/gallery-validation/`.
 
-Vérifications de l’interface : l’export par worker a atteint « Export enregistré » ; le mode Scène en boucle est indisponible sans scène de référence et disponible avec Match. Les paramètres natifs de compilation restent inchangés ; aucune nouvelle capture du binaire natif n’est revendiquée.
+UI checks: worker export reached “Export saved”; Looping Scene unavailable without a reference and available with Match. Native compilation settings were unchanged; no new native-binary screenshot was claimed.
 
-Manuels FR/EN ouverts dans le navigateur : rendu des nouvelles sections contrôlé, agrandissement des captures et changement de langue conservant l’ancre ROM vérifiés. Ancres et chemins des images contrôlés dans les deux éditions.
+Both manuals opened in a browser: new sections, enlargement and language switching preserving ROM anchor checked. Anchors/image paths checked in both editions.
 
-### Logo et texte ASCII — 27 septembre 2026
+### Logo and ASCII text — September 27, 2026
 
-Captures 12/13 FR/EN renouvelées depuis les mêmes parcours Mesen : icône à quatre carrés en bas à droite, repère X et texte limité aux lettres ASCII/chiffres/espaces. Images inspectées, liens et ancres FR/EN contrôlés statiquement. Le HTML n’a pas été rouvert visuellement lors de cette passe : le navigateur intégré refuse les URL file. Mise en page inchangée.
+12/13 FR/EN refreshed from the same Mesen routes: four-square icon at bottom right, X marker and ASCII letters/digits/spaces. Images inspected; FR/EN links/anchors checked statically. HTML not visually reopened in that pass because the embedded browser rejected file URLs. Layout unchanged.
 
-## Aide et version 0.2.0 — 27 septembre 2026
+## Help and version 0.2.0 — September 27, 2026
 
-Appliquer `snes-graph-docs` : passages sur l’aide et le renommage corrigés dans les
-deux éditions, même ancre `#aide`, raccourcis conservés sous `#raccourcis`.
-Les captures `01-dessins.png`, `26-help-menu.png`, `27-about.png` et
-`28-rename.png` (FR et EN) proviennent du **binaire natif 0.2.0 reconstruit**,
-fenêtre 1440 × 957, dont 37 pixels de barre de titre. Exemple Football intégré,
-aucune modification de ses fichiers. Recette : ouvrir l’exemple, choisir FR/EN,
-ouvrir Aide ; À propos ; puis cliquer sur le nom du projet. Images inspectées.
+Help/rename passages corrected in both editions, retaining `#aide` and `#raccourcis`. `01-dessins.png`, `26-help-menu.png`, `27-about.png` and `28-rename.png` FR/EN came from the **rebuilt native 0.2.0 binary**, window 1440 × 957 including a 37-pixel title bar. Built-in Football, no example-file changes. Recipe: open example, choose FR/EN, open Help, About, then click project title. Images inspected.
 
-Parcours natif observé : nouveautés (version actuelle ouverte, historique replié),
-À propos, copie de version avec confirmation, liste des notices embarquées ;
-manuel indépendant FR, lecture d’un chapitre avec images, passage à l’atelier
-Sprites pendant que le manuel reste ouvert, réouverture conservant le chapitre,
-changement EN réutilisant la même fenêtre et fermeture indépendante.
-Les entrées clavier du contrôleur natif ont expiré ; elles ne constituent pas une
-validation des raccourcis natifs. Le dialogue Annuler a été vérifié à la souris.
+Observed native route: release notes (current expanded, history collapsed), About, version-copy confirmation, bundled notices; independent French manual with illustrated chapter, switch to Sprites while manual stays open, reopen preserving chapter, switch to English reusing the window, close independently. Native keyboard controller timed out; this did not validate native shortcuts. Dialog Cancel checked by mouse.
 
-Le manuel et ses liens locaux sont copiés dans la distribution par le build Vite ;
-les commandes de projets et de compilation restent réservées à la fenêtre principale.
-La version de format des projets est indépendante de la version de l’application.
+Vite copies manuals and local links into distribution. Project/compilation commands remain main-window-only. Project format version is independent of application version.
 
-Complément : renommage avec Entrée, abandon par Échap et restauration par Annuler
-observés dans l’interface web. Réutilisation de l’onglet couverte par un test ciblé ;
-l’onglet secondaire n’était pas exposé par le navigateur intégré pour inspection.
-Les 108 ancres et 498 liens de chaque édition ont été contrôlés dans `dist/`, avec
-parité FR/EN. Les nouvelles captures sont incluses dans la reconstruction native.
+Additional checks: rename with Enter, cancel with Escape and undo observed in web UI. Tab reuse covered by targeted test; secondary tab unavailable for embedded-browser inspection. Both built manuals' 108 anchors and 498 links checked with FR/EN parity. New captures included in native rebuild.
 
-Les nouveaux passages FR/EN et leurs images ont ensuite été lus dans le manuel
-natif embarqué 0.2.0 ; agrandissement et fermeture de la capture du menu vérifiés.
-Preuve locale : `artifacts/help-validation/manual-fr.png` (non distribuée).
+New passages/images subsequently read in the bundled native 0.2.0 manual; Help screenshot enlargement/closure checked. Local evidence: `artifacts/help-validation/manual-fr.png` (not distributed).
+
+## English defaults and delivery — 0.2.1
+
+English is now the default on first launch; saved French preferences remain valid. Both manual URLs, anchors and screenshot directories remain unchanged. Installation/download and CLI-default instructions are updated in both editions. Historical screenshots above retain their recorded version and provenance; they do not prove 0.2.1 package validation. Release checks are recorded in `../releasing.md`.

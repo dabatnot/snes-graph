@@ -1,4 +1,4 @@
-# Licences et composants / Licenses and components
+# Licenses and components
 
 SNES Graph is MIT licensed (see ../LICENSE). User projects and artwork retain their own ownership and licensing. Generated assembly templates are MIT licensed; generated source archives contain LICENSE.txt and a scope notice.
 
@@ -32,11 +32,3 @@ hyphen v2.8.8 (github.com/hunspell/hyphen), libX11 1.8.13
 (dri.freedesktop.org/libdrm), and libglvnd v1.7.0 (github.com/NVIDIA/libglvnd).
 For libdrm and libglvnd, the notice files also collect the original copyright/license
 comment blocks from source files because those releases lack a single top-level license file.
-
-En français : la licence MIT concerne SNES Graph et ses modèles assembleur, pas les
-créations de l’utilisateur. Chaque composant tiers conserve sa licence et ses notices
-originales. Les bibliothèques Linux listées comme système sont fournies par Fedora,
-non embarquées dans le binaire local. L’inventaire des outils de compilation est séparé.
-Avant publication d’un installateur, vérifier ses fichiers réellement embarqués et les
-obligations de redistribution correspondantes ; cet inventaire ne certifie pas un paquet
-qui n’a pas encore été construit.

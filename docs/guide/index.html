@@ -23,7 +23,7 @@
     </button>
     <aside class="sidebar" id="sidebar">
       <a class="logo" href="#accueil">SNES <span>Graph</span></a>
-      <p class="edition">Manuel utilisateur · version 0.2.0</p>
+      <p class="edition">Manuel utilisateur · version 0.2.1</p>
       <nav class="languages" aria-label="Langue du manuel">
         <a
           href="index.html"
@@ -84,7 +84,7 @@
           de fil conducteur, du dessin aux tenues Domicile et Extérieur.
         </p>
         <p class="meta">
-          Application 0.2.0 · Manuel révisé le 27 septembre 2026 · Captures
+          Application 0.2.1 · Manuel révisé le 27 septembre 2026 · Captures
           bureau et navigateur sous Linux, interface française
         </p>
         <div class="steps">
@@ -120,19 +120,37 @@
         </p>
         <h3 id="lancement">Lancer l’application</h3>
         <p>
+          Téléchargez l’installateur x86-64 depuis
+          <a href="https://github.com/dabatnot/snes-graph/releases"
+            >GitHub Releases</a
+          >
+          : NSIS pour Windows 11, DEB pour Ubuntu 24.04, RPM pour Fedora 44, ou
+          AppImage avec Ubuntu 24.04 comme base. Vérifiez le fichier avec
+          <code>SHA256SUMS</code>. Installez le DEB avec
+          <code>sudo apt install ./&lt;paquet&gt;.deb</code> ou le RPM avec
+          <code>sudo dnf install ./&lt;paquet&gt;.rpm</code> ; sous Windows,
+          lancez l’installateur.
+        </p>
+        <p>
+          L’anglais est sélectionné au premier démarrage, quelle que soit la
+          langue du système. Un choix français déjà enregistré est conservé. Le
+          sélecteur de langue permet de changer à tout moment. Les deux manuels
+          restent disponibles hors ligne.
+        </p>
+        <p>
           Sous Linux, après compilation ou avec le binaire déjà fourni dans ce
           projet :
         </p>
-        <pre><code>cd "/home/david/Développements/snes-graph"
+        <pre><code>cd /path/to/snes-graph
 ./src-tauri/target/release/snes-graph</code></pre>
         <p>Pour ouvrir directement l’exemple depuis le terminal :</p>
         <pre><code>./src-tauri/target/release/snes-graph examples/football.snesgraph</code></pre>
         <p>
           Le dossier <code>src-tauri/target/release/bundle</code> contient les
-          paquets RPM et AppImage produits sous Linux. Avec l’AppImage, rendez
-          le fichier exécutable dans ses propriétés, puis ouvrez-le. Un paquet
-          installé peut fournir une entrée dans le menu des applications et une
-          association aux fichiers <code>.snesgraph</code> ; ces parcours
+          paquets DEB, RPM et AppImage produits sous Linux. Avec l’AppImage,
+          rendez le fichier exécutable dans ses propriétés, puis ouvrez-le. Un
+          paquet installé peut fournir une entrée dans le menu des applications
+          et une association aux fichiers <code>.snesgraph</code> ; ces parcours
           d’installation ne sont pas validés par les captures de ce manuel.
         </p>
         <p>
@@ -8217,7 +8235,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
           <code>--gallery</code> produit les sources de galerie ; avec
           <code>--rom</code>, il compile <code>gallery.sfc</code> dans le
           dossier de sortie. <code>--language fr|en</code> choisit les menus
-          (français par défaut). <code>--gallery</code> et
+          (anglais par défaut). <code>--gallery</code> et
           <code>--scene</code> sont incompatibles. <code>--set</code> applique
           la sélection enregistrée.
         </p>
@@ -9011,7 +9029,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       <section class="chapter" id="limites">
         <h2>19 · Limites de cette version</h2>
         <p>
-          Le guide couvre les commandes présentes en version 0.2.0. La vision de
+          Le guide couvre les commandes présentes en version 0.2.1. La vision de
           l’éditeur ultime décrite dans les spécifications va plus loin que
           cette livraison. Voici les limites qui influencent votre travail
           actuel.
@@ -9286,7 +9304,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       </section>
       <footer>
         <p>
-          SNES Graph · Manuel utilisateur 0.2.0 · Révision du 27 septembre 2026
+          SNES Graph · Manuel utilisateur 0.2.1 · Révision du 27 septembre 2026
         </p>
         <p>
           <a href="#accueil">Retour au début</a> ·

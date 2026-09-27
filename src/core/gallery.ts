@@ -146,7 +146,7 @@ export function gallerySources(
   p: Project,
   opt = defaultExport(p),
   ticks = p.fps * 2,
-  language: GalleryLanguage = "fr",
+  language: GalleryLanguage = "en",
 ): Record<string, Uint8Array> {
   const selectedProject = p;
   p = staticPoseProject(p);

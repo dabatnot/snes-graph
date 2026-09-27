@@ -6,7 +6,7 @@ export function runExport(
   signal?: AbortSignal,
   kind: ExportKind = "assets",
   ticks?: number,
-  language: GalleryLanguage = "fr",
+  language: GalleryLanguage = "en",
 ): Promise<Record<string, Uint8Array>> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./export.worker.ts", import.meta.url), {

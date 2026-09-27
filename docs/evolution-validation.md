@@ -1,26 +1,25 @@
-# Validation des évolutions
+# Improvement validation
 
-Mesures du 27 septembre 2026, Linux, Node v24.14.0, AMD Ryzen 5 2600 Six-Core Processor.
-Une chauffe puis dix mesures ; p95 = maximum de ces dix mesures.
-Carte de 128 × 128 cellules, dessin de 256 × 256 pixels / 1024 tiles ; archive de 50835 octets.
+Measurements from September 27, 2026, Linux, Node v24.14.0, AMD Ryzen 5 2600 Six-Core Processor.
+One warm-up followed by ten measurements; p95 is the maximum of those ten.
+128 × 128-cell map, 256 × 256-pixel drawing / 1024 tiles; 50,835-byte archive.
 
-| Opération               | Médiane (ms) | p95 (ms) |
-| ----------------------- | -----------: | -------: |
-| save 16,384 cells       |        60.07 |    65.97 |
-| load 16,384 cells       |        24.07 |    33.01 |
-| render 1024x1024 pixels |       210.36 |   220.32 |
-| object load 120 frames  |         3.11 |     4.09 |
+| Operation               | Median (ms) | p95 (ms) |
+| ----------------------- | ----------: | -------: |
+| save 16,384 cells       |       60.07 |    65.97 |
+| load 16,384 cells       |       24.07 |    33.01 |
+| render 1024x1024 pixels |      210.36 |   220.32 |
+| object load 120 frames  |        3.11 |     4.09 |
 
-Mesures du cœur sous Node, pas de latence de saisie ni de rendu React. Le rendu intégral d’une grande carte coûte environ 210 ms ; ce chiffre ne permet pas de promettre 60 images/s. Aucun cache spéculatif ajouté. Relancer `npm run benchmark` pour comparer sur une autre machine.
+These measure the core under Node, not input latency or React rendering. Full large-map rendering takes about 210 ms; this does not support a 60 fps claim. No speculative cache was added. Run `npm run benchmark` to compare on another machine.
 
-## Parcours vérifiés
+## Verified workflows
 
-- Navigateur Chrome Linux : nouvelles interfaces des lots 1 à 7 parcourues et captures FR/EN 18–24 réalisées. Réimport de la tile 5, validation puis Undo : retour à l’état sans modification.
-- Build web TypeScript/Vite réussi ; 46 tests passent.
-- Exemples ca65 assemblés. Mesen 2.2.1 : décor observé, deux positions d’animation distinctes, palette modifiée à la pression de B, maintenue au relâchement, restaurée à la seconde pression. Captures dans artifacts/integration.
+- Linux Chrome: new interfaces for batches 1–7 exercised; FR/EN captures 18–24 taken. Reimport tile 5, apply, then Undo restored the unchanged state.
+- TypeScript/Vite build succeeded; 46 tests passed.
+- ca65 examples assembled. Mesen 2.2.1: background observed, two distinct animation positions, palette changed on B press, retained on release and restored on the second press. Captures in `artifacts/integration`.
+- Native Linux: release build succeeded, Football opened, field expanded from 16 × 8 to 24 × 8 by adding a column, then Undo restored 16 × 8. Capture: `artifacts/native-linux.png`. This workflow did not validate save/reopen dialogs.
 
-- Application native Linux : build release réussi, ouverture de Football, terrain 16 × 8 → 24 × 8 par ajout de colonne, Undo → 16 × 8. Capture `artifacts/native-linux.png`. Les dialogues d’enregistrement/réouverture ne sont pas validés par ce parcours.
+## Native workflows to reproduce
 
-## Parcours natifs à reproduire
-
-Sous Linux et Windows : ouvrir une copie d’un projet, modifier une tile, enregistrer sous un nouveau nom, fermer/rouvrir et comparer ; redimensionner puis Undo ; réimporter et vérifier les usages ; exporter et ouvrir la ROM dans Mesen. Sous Windows, vérifier également les chemins avec espaces et caractères accentués. Aucun poste Windows n’est accessible dans cette session : validation Windows non réalisée.
+On Linux and Windows: open a project copy, edit a tile, save under a new name, close/reopen and compare; resize then Undo; reimport and check uses; export and open the ROM in Mesen. On Windows, also check paths with spaces and accented characters. No Windows machine was accessible in that session; Windows validation was not performed.

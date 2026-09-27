@@ -18,7 +18,7 @@ try {
     throw new Error("--gallery and --scene cannot be combined");
   const language = args.includes("--language")
     ? args[args.indexOf("--language") + 1]
-    : "fr";
+    : "en";
   if (language !== "fr" && language !== "en")
     throw new Error("--language must be fr or en");
   const p = loadProject(new Uint8Array(await readFile(input))),

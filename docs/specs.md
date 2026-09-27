@@ -1,414 +1,309 @@
-# Spécifications fonctionnelles — Éditeur graphique SNES
+# Functional specifications — SNES graphics editor
 
-Ce document rassemble la vision fonctionnelle de l’éditeur et la gestion des variantes par palettes nommées discutées le 26 septembre 2026. Il décrit le produit envisagé ; il ne constitue pas un état des fonctionnalités implémentées.
+This document records the editor vision and named-palette variants discussed on September 26, 2026. It describes the intended product, not the current implementation status.
 
-## 1. Vision et principes
+## 1. Vision and principles
 
-La promesse de l’éditeur est de **créer les graphismes d’un jeu SNES, les assembler, les animer et obtenir des données exploitables dans le jeu, en comprenant immédiatement les conséquences de chaque choix**.
+The editor promises to **create SNES game graphics, assemble and animate them, and produce usable game data while making the consequences of each choice immediately understandable**.
 
-Le caractère « ultime » vient de la continuité entre les outils :
+Its strength comes from continuity between tools:
 
-- Changer une couleur et voir les personnages et décors concernés.
-- Retoucher une tile et voir ses utilisations se mettre à jour.
-- Affecter une autre palette nommée à un personnage et voir immédiatement sa nouvelle apparence dans toutes ses animations.
-- Ajouter des ennemis dans une scène et voir où l’affichage devient problématique.
-- Exporter les ressources avec des formats documentés et un résultat prévisible.
+- Change a color and see the affected characters and backgrounds.
+- Edit a tile and see its uses update.
+- Assign another named palette to a character and immediately see its appearance across all animations.
+- Add enemies to a scene and see where display limits become problematic.
+- Export resources with documented formats and predictable results.
 
-La priorité est la chaîne **palette → tiles → métasprite → animation → scène → export**. Chaque outil supplémentaire doit enrichir un environnement déjà utilisable.
+The priority is **palette → tiles → metasprite → animation → scene → export**. Additional tools must enrich an already usable environment.
 
-La conception suit les principes KISS et YAGNI : répondre aux usages présents avec la solution la plus simple, éviter les abstractions prématurées et les composants sans valeur immédiate. La vision complète ne doit pas imposer de réaliser toutes les fonctions dès la première version.
+Follow KISS and YAGNI: meet current needs with the simplest solution, avoiding premature abstractions and components without immediate value. The full vision does not require implementing everything in the first version.
 
-L’interface présente ce qui aide l’utilisateur à comprendre, décider et agir. Les détails matériels apparaissent lorsqu’ils expliquent un choix ou un problème.
+The interface presents what helps users understand, decide and act. Hardware details appear when they explain a choice or problem.
 
-## 2. Usages et ressources du projet
+## 2. Workflows and project resources
 
-L’éditeur répond à trois usages complémentaires : dessiner, composer les graphismes du jeu et préparer leur intégration technique. Une même personne doit pouvoir passer facilement de l’un à l’autre.
+The editor supports three complementary activities: drawing, composing game graphics and preparing technical integration. Users should move easily between them.
 
-| Ressource | Rôle |
-|---|---|
-| Palette | Associer des couleurs aux indices utilisés par les pixels. |
-| Tileset | Regrouper les tiles graphiques réutilisables. |
-| Métatile | Assembler plusieurs tiles en un motif de décor : sol, mur, porte… |
-| Tilemap | Placer les tiles ou métatiles pour construire un décor. |
-| Métasprite | Assembler plusieurs sprites matériels pour représenter un personnage ou un objet. |
-| Animation | Définir une succession de poses et leur durée. |
-| Variante par palette | Associer des graphismes et animations partagés à une autre palette nommée. |
-| Scène | Réunir décors, personnages, palettes et réglages d’affichage. |
-| Ensemble d’export | Définir les ressources à fournir au jeu et leur organisation. |
+| Resource        | Role                                                                 |
+| --------------- | -------------------------------------------------------------------- |
+| Palette         | Associate colors with pixel indices.                                 |
+| Tileset         | Group reusable graphic tiles.                                        |
+| Metatile        | Assemble tiles into scenery motifs: floor, wall, door, etc.          |
+| Tilemap         | Place tiles or metatiles to build a background.                      |
+| Metasprite      | Assemble hardware sprites into a character or object.                |
+| Animation       | Define poses and their durations.                                    |
+| Palette variant | Associate shared graphics and animations with another named palette. |
+| Scene           | Combine backgrounds, characters, palettes and display settings.      |
+| Export set      | Define resources supplied to the game and their organization.        |
 
-La scène représente ce qui doit fonctionner ensemble à un instant donné. Le projet peut contenir des centaines de palettes ou de personnages ; les contraintes sont évaluées sur les ressources effectivement utilisées ensemble, plutôt que sur toute la bibliothèque.
+A scene represents what must work together at one moment. Projects may contain hundreds of palettes or characters; constraints apply to resources actually used together, not the entire library.
 
-## 3. Palettes nommées et variantes d’apparence
+## 3. Named palettes and appearance variants
 
-### 3.1. Édition des palettes
+### 3.1. Palette editing
 
-Les palettes sont des ressources nommées, partagées et réutilisables. Leur affectation à un personnage est indépendante de son dessin et de ses animations.
+Palettes are named, shared, reusable resources. Their assignment to a character is independent of its graphics and animations.
 
-L’édition comprend :
+Editing includes:
 
-- Sélection de couleur, saisie numérique et pipette.
-- Dégradés et rampes d’ombre et de lumière.
-- Copie de groupes de couleurs.
-- Verrouillage de certaines entrées.
-- Noms de palettes et noms de couleurs : « peau », « contour », « métal clair »…
-- Visualisation de toutes les ressources utilisant une palette.
-- Comparaison de plusieurs palettes sur une même ressource.
-- Préparation de variantes jour, nuit, poison, gel ou changement de costume.
-- Identification des couleurs inutilisées ou presque identiques.
-- Réservation d’emplacements pour le HUD, les personnages ou certains effets.
-- Prévisualisation des animations de palette.
+- Color selection, numeric input and eyedropper.
+- Gradients and shadow/highlight ramps.
+- Copying color groups.
+- Locking entries.
+- Palette and color names such as skin, outline and light metal.
+- Viewing every resource using a palette.
+- Comparing palettes on one resource.
+- Preparing day, night, poison, ice and costume variants.
+- Identifying unused or nearly identical colors.
+- Reserving slots for HUD, characters or effects.
+- Previewing palette animations.
 
-L’utilisateur travaille avec les couleurs représentables par la SNES : composantes sur 5 bits, soit 32 768 valeurs possibles. La mémoire de palette contient 256 entrées ; leur utilisation dépend des couches et du mode graphique. Voir la [référence matérielle Fullsnes](https://problemkaputt.de/fullsnes.htm#snesppucolorpalettememorycgramanddirectcolors).
+Users work with SNES-representable colors: 5-bit components, or 32,768 possible values. Palette memory holds 256 entries; usage depends on layers and graphics mode. See the [Fullsnes hardware reference](https://problemkaputt.de/fullsnes.htm#snesppucolorpalettememorycgramanddirectcolors).
 
-### 3.2. Réordonner, recolorer et gérer la transparence
+### 3.2. Reordering, recoloring and transparency
 
-Réordonner une palette et recolorer un dessin sont deux opérations distinctes :
+Reordering and recoloring are distinct:
 
-- **Réordonner en conservant l’apparence** : remapper les indices des ressources concernées pour conserver exactement le rendu.
-- **Recolorer** : conserver les indices et changer les couleurs associées.
+- **Reorder while preserving appearance:** remap affected pixel indices to preserve rendering exactly.
+- **Recolor:** retain indices and change their associated colors.
 
-La transparence et la couleur de fond sont clairement distinguées. Dessiner du noir ne doit jamais devenir transparent par accident.
+Transparency and background color are clearly distinguished. Drawing black must never accidentally become transparent.
 
-L’affectation des palettes à la mémoire de la console se fait à l’échelle de la scène, avec détection des conflits entre ressources.
+Palette allocation to console memory happens at scene level, with resource conflict detection.
 
-### 3.3. Changer de palette, créer une variante ou dupliquer une palette
+### 3.3. Switching palettes, creating variants and duplicating palettes
 
-Trois actions complémentaires sont proposées :
+1. **Switch palette:** select another named palette and immediately see the character and all animations update.
+2. **Create variant:** create a named character variant sharing graphics and animations, with its own palette assignment.
+3. **Duplicate palette:** create a palette from an existing one and edit colors without changing the original.
 
-1. **Changer de palette** : sélectionner une autre palette nommée dans une liste et voir immédiatement le résultat sur le personnage et toutes ses animations.
-2. **Créer une variante** : créer une variante nommée du personnage qui partage ses graphismes et animations, avec sa propre affectation de palette.
-3. **Dupliquer une palette** : créer une nouvelle palette à partir d’une palette existante, puis modifier ses couleurs sans toucher à l’originale.
+Palette variants do not unnecessarily duplicate pixels. Drawing or animation corrections benefit all variants sharing those resources.
 
-Créer une variante par palette ne duplique pas inutilement les pixels. Une correction du dessin ou de l’animation peut bénéficier à toutes les variantes qui partagent ces ressources.
+Editing a palette updates its users. Assigning a different palette to one variant or instance does not change others. The action's scope must be clear: shared palette editing, variant assignment or scene-instance assignment.
 
-Modifier une palette actualise les personnages qui l’utilisent. Affecter une autre palette à une variante ou à une instance ne modifie pas les autres variantes ou instances.
+### 3.4. Example: football players
 
-La portée de l’action doit être claire : édition de la palette partagée, choix de la palette d’une variante ou changement d’affectation d’une instance dans la scène.
+| Variant     | Graphics and animations | Palette                     |
+| ----------- | ----------------------- | --------------------------- |
+| Home player | Football player         | `Équipe France — Domicile`  |
+| Away player | The same                | `Équipe France — Extérieur` |
+| Goalkeeper  | Goalkeeper graphics     | `Équipe France — Gardien`   |
 
-### 3.4. Exemple : joueurs de football
+Home and away players can coexist within the scene's hardware limits. Compatible palettes keep the same role at each index:
 
-| Variante | Graphismes et animations | Palette utilisée |
-|---|---|---|
-| Joueur domicile | Joueur de football | `Équipe France — Domicile` |
-| Joueur extérieur | Les mêmes | `Équipe France — Extérieur` |
-| Gardien | Graphismes du gardien | `Équipe France — Gardien` |
+| Named slot    | Home        | Away      |
+| ------------- | ----------- | --------- |
+| Main shirt    | Blue        | White     |
+| Shirt shadow  | Dark blue   | Gray      |
+| Shirt details | White       | Blue      |
+| Skin          | Chosen tone | Same tone |
+| Outline       | Black       | Black     |
 
-Les joueurs domicile et extérieur peuvent être présents ensemble dans une scène, dans les limites matérielles de cette scène.
+Changing outfits therefore does not accidentally recolor the face. Names aid understanding; index correspondence determines rendering. Users can compare variants side by side with the same animation.
 
-Pour obtenir un changement cohérent, les palettes compatibles conservent la même fonction pour chaque emplacement de couleur :
+## 4. Drawing and tile editing
 
-| Emplacement nommé | Domicile | Extérieur |
-|---|---|---|
-| Maillot principal | Bleu | Blanc |
-| Ombre du maillot | Bleu foncé | Gris |
-| Détails du maillot | Blanc | Bleu |
-| Peau | Teinte choisie | Même teinte |
-| Contour | Noir | Noir |
+### 4.1. Drawing tools
 
-Ainsi, changer de tenue ne recolore pas accidentellement le visage. Les noms facilitent la compréhension ; la correspondance des indices reste déterminante pour le rendu.
+The foundation includes familiar pixel-art tools:
 
-L’éditeur permet de comparer plusieurs variantes côte à côte et de les prévisualiser avec la même animation.
+- Pencil, eraser, fill, eyedropper, lines and basic shapes.
+- Rectangular and freehand selections.
+- Move, flip, rotate and copy.
+- Symmetric drawing.
+- Configurable grid, crisp zoom and actual-size preview.
+- Color or index replacement.
+- Repeated preview for checking background seams.
 
-## 4. Dessin et édition des tiles
+Users can draw an entire character without working tile by tile; a grid exposes the division when needed.
 
-### 4.1. Outils de dessin
+Standard SNES tiles support 2, 4 and 8 bits per pixel according to their destination. Mode 7 requires special handling. See [graphics memory organization](https://problemkaputt.de/fullsnes.htm#snesppuvideomemoryvram).
 
-Le socle comprend les outils usuels du pixel art :
+### 4.2. Shared resources
 
-- Crayon, gomme, remplissage, pipette, lignes et formes simples.
-- Sélections rectangulaires et libres.
-- Déplacement, retournement, rotation et copie.
-- Dessin symétrique.
-- Grille réglable, zoom net et aperçu à taille réelle.
-- Remplacement d’une couleur ou d’un indice.
-- Prévisualisation répétée pour vérifier les raccords d’un décor.
+When a tile appears in several places, users can **edit the shared tile** and update every use, or **create a local variant** and change only that occurrence. They can locate uses before editing.
 
-L’utilisateur peut dessiner un personnage entier sans travailler obligatoirement tile par tile. Une grille montre le découpage lorsqu’il en a besoin.
+Drawing layers may aid creation. Conversion to exportable resources remains explicit: an artistic layer does not necessarily correspond to a SNES hardware layer.
 
-Les formats de tiles SNES classiques sont pris en charge : 2, 4 et 8 bits par pixel, selon leur destination. Le Mode 7 demande un traitement spécifique. Voir l’[organisation des données graphiques](https://problemkaputt.de/fullsnes.htm#snesppuvideomemoryvram).
+## 5. Sprite assembly
 
-### 4.2. Ressources partagées
+### 5.1. Metasprite composition
 
-Lorsqu’une tile apparaît à plusieurs endroits, deux actions sont disponibles :
+A character is a coherent assembly of pieces. Users can:
 
-- **Modifier la tile partagée** et mettre à jour tous ses usages.
-- **Créer une variante locale**, puis modifier uniquement cette occurrence.
+- Drag tiles or graphic blocks into an assembly area.
+- Position pieces precisely or with snapping.
+- Assign each piece a palette.
+- Set flips and priorities.
+- Define the character origin, for example at its feet.
+- Group pieces to move a head, arm or weapon together.
+- Create attachment points for swords, projectiles or effects.
 
-L’utilisateur peut retrouver les usages d’une tile avant de la modifier.
+Hardware sprite decomposition is available on demand. Sizes depend on a shared setting and cannot be chosen independently for every piece. See the [sprite-size register](https://wiki.superfamicom.org/registers#obsel---object-size-and-character-address).
 
-Des calques de dessin peuvent faciliter la création. Leur transformation en ressources exportables reste explicite : un calque artistique ne correspond pas nécessairement à une couche matérielle de la SNES.
+A 32 × 48 character could use six 16 × 16 sprites. Users see the complete character and can show its six constituent rectangles.
 
-## 5. Assemblage des sprites
+### 5.2. Slicing assistance
 
-### 5.1. Composition des métasprites
+Assistance presents alternatives and their costs:
 
-Un personnage est manipulé comme un ensemble cohérent, composé de différentes pièces.
+| Criterion          | Question                                         |
+| ------------------ | ------------------------------------------------ |
+| Sprite count       | How many hardware entries are required?          |
+| Graphics footprint | How many tiles must be stored?                   |
+| Reuse              | Which pieces are shared with other poses?        |
+| Scanline load      | Where does the character contribute to overflow? |
+| Animation          | How much data changes between poses?             |
 
-L’utilisateur peut :
-
-- Glisser des tiles ou des blocs graphiques dans une zone d’assemblage.
-- Positionner les pièces au pixel près ou avec un accrochage.
-- Affecter une palette à chaque pièce.
-- Régler les retournements et les priorités.
-- Définir l’origine du personnage, par exemple au niveau des pieds.
-- Grouper des pièces pour déplacer ensemble une tête, un bras ou une arme.
-- Créer des points d’attache pour une épée, un projectile ou un effet.
-
-L’éditeur montre à la demande la décomposition en sprites matériels. Les tailles disponibles dépendent d’un réglage commun ; elles ne peuvent pas être choisies librement pour chaque pièce. Voir le [registre de taille des sprites](https://wiki.superfamicom.org/registers#obsel---object-size-and-character-address).
-
-Pour un personnage de 32 × 48 pixels, une décomposition possible est six sprites de 16 × 16. L’utilisateur voit le personnage complet et peut afficher les six rectangles qui le constituent.
-
-### 5.2. Assistance au découpage
-
-L’assistance propose plusieurs solutions en présentant leurs coûts :
-
-| Critère | Question posée |
-|---|---|
-| Nombre de sprites | Combien d’entrées matérielles faut-il ? |
-| Occupation graphique | Combien de tiles faut-il stocker ? |
-| Réutilisation | Quelles pièces sont communes aux autres poses ? |
-| Charge par ligne | Où le personnage contribue-t-il aux dépassements ? |
-| Animation | Quelle quantité de données change entre deux poses ? |
-
-Une solution ne doit pas être annoncée comme « optimale » selon un seul critère : réduire le nombre de sprites peut augmenter la quantité de graphismes à transférer.
+Do not call a solution optimal based on one criterion: fewer sprites may require transferring more graphics.
 
 ## 6. Animations
 
-La timeline permet de créer des animations nommées : attente, marche, course, attaque, dégâts…
+The timeline supports named animations such as idle, walk, run, attack and damage:
 
-Les fonctions comprennent :
+- Adjustable frame duration.
+- Looping, ping-pong and frame stepping.
+- Onion skinning.
+- Pose duplication and linking.
+- Origin synchronization.
+- Direction and variant comparison.
+- Coordinated palette animation.
 
-- Durée réglable pour chaque image.
-- Lecture en boucle, aller-retour et image par image.
-- Pelure d’oignon.
-- Duplication et liaison de poses.
-- Synchronisation des points d’origine.
-- Comparaison de directions et variantes.
-- Animation coordonnée des palettes.
+A pose can change pieces, positions and attributes while preserving shared elements. A palette variant applies to the entire animation without copying or recoloring every pose.
 
-Une pose peut changer les pièces utilisées, leur position et leurs attributs. L’éditeur conserve les éléments partagés entre les poses.
+Collision boxes and event markers such as impact, projectile spawn or footstep aid integration. They are exported; the game defines their meaning.
 
-Le choix d’une variante par palette s’applique à l’ensemble de l’animation sans nécessiter de recopier ou recolorer chaque pose.
+Durations can use console frames, with 50/60 Hz previews. Conversion preserving elapsed time is explicit.
 
-Des boîtes de collision et des marqueurs temporels facilitent l’intégration : « impact », « apparition du projectile », « pied au sol ». Ces données sont exportées ; leur interprétation appartient au jeu.
+## 7. Backgrounds, metatiles and tilemaps
 
-La durée peut être exprimée en images console, avec un aperçu du résultat en 50 et 60 Hz. Une conversion destinée à conserver la même durée est une opération explicite.
+The tilemap editor provides painting, stamps, selections, fill and global replacement. Metatiles represent recognizable elements such as platform sections, wall corners, windows and stairs.
 
-## 7. Décors, métatiles et tilemaps
+Advanced functions include automatic terrain connections, pattern variants to reduce repetition, animated water/lava/vegetation tiles, palette and priority settings per placement, scrolling multilayer previews, optional collision data and map-edge seam previews.
 
-L’éditeur de tilemaps propose la peinture de tiles, les tampons, les sélections, le remplissage et le remplacement global.
+The complete level map is distinct from the portion loaded for display. Users can create large backgrounds; the editor shows resources needed as the camera moves and prepares loading data for the chosen format. The game remains responsible for actual loading.
 
-Les métatiles permettent de travailler avec des éléments reconnaissables : morceau de plateforme, angle de mur, fenêtre, escalier…
+## 8. Scene composition
 
-Les fonctions avancées comprennent :
+Scenes combine backgrounds and layers, character/object instances with variants and palettes, HUD elements, active palettes, animations, simple preview trajectories and display settings.
 
-- Raccordement automatique de terrains.
-- Variantes de motifs pour limiter les répétitions.
-- Animation des tiles d’eau, de lave ou de végétation.
-- Réglage des palettes et priorités par placement.
-- Aperçu de plusieurs couches avec leur défilement.
-- Informations de collision facultatives.
-- Aperçu des raccords aux limites des cartes.
+Users can move a camera, scroll backgrounds and duplicate enemies to inspect the result.
 
-La carte complète du niveau est distinguée de la portion chargée pour l’affichage.
+Changing graphics mode explains compatible resources, layer reassignment, required conversion and information loss. Graphics are not silently modified.
 
-L’utilisateur peut créer un grand décor. L’éditeur montre ensuite les ressources nécessaires lorsque la caméra se déplace et prépare les données de chargement adaptées au format choisi. Le programme du jeu reste responsable de leur chargement effectif.
+Pixel-accurate previews and target-display-aspect previews complement each other. Television effects remain optional and explicitly simulated.
 
-## 8. Composition des scènes
+## 9. Graphics modes and advanced effects
 
-La scène réunit les ressources destinées à apparaître ensemble :
+The full vision covers modes 0–7: high resolution, direct color, offset-per-tile, Mode 7 transforms, windows and color math. See [PPU documentation](https://problemkaputt.de/fullsnes.htm#snespictureprocessingunitppu).
 
-- Décors et couches de fond.
-- Instances de personnages et d’objets, avec leurs variantes et palettes.
-- HUD et éléments d’interface.
-- Palettes actives.
-- Animations et trajectoires simples de prévisualisation.
-- Réglages d’affichage.
+| Desired effect   | Proposed controls                     |
+| ---------------- | ------------------------------------- |
+| Gradient sky     | Colors and vertical positions.        |
+| Rippling water   | Distortion amplitude and speed.       |
+| Parallax         | Relative layer motion.                |
+| Iris opening     | Draw and animate a visibility window. |
+| Fog or lighting  | Supported color operations.           |
+| Mode 7 map       | Center, angle and scale.              |
+| Perspective road | Horizon and per-line transformation.  |
 
-L’utilisateur peut déplacer une caméra, faire défiler un décor et multiplier les instances d’un ennemi pour observer le résultat.
+Controls produce a preview, required data and integration conditions, especially for HDMA effects. The editor shows shared resources, incompatible settings and occupied channels. Impossible combinations are reported during composition.
 
-Un changement de mode graphique produit une explication de ses conséquences : ressources compatibles, couches à réaffecter, conversion nécessaire ou information perdue. Les graphismes ne sont pas modifiés silencieusement.
+## 10. Diagnostics and hardware constraints
 
-Deux vues sont complémentaires : un aperçu net au pixel près et un aperçu du format d’affichage visé. Les effets de téléviseur restent facultatifs et clairement présentés comme une simulation.
+Design constraints include 64 KiB VRAM, 128 hardware sprites and two separate per-line limits: 32 sprites and 34 eight-pixel sprite slivers. See [Fullsnes](https://problemkaputt.de/fullsnes.htm) and [overflow flags](https://wiki.superfamicom.org/registers#stat77---ppu-status-flag-and-version).
 
-## 9. Modes graphiques et effets avancés
+| Problem                      | Expected response                            |
+| ---------------------------- | -------------------------------------------- |
+| Incompatible palette         | Select affected pixels or pieces.            |
+| Too many sprites on a line   | Highlight the line and contributing objects. |
+| Excessive resource size      | Show allocation and largest consumers.       |
+| Palette conflict             | Show competing scene resources.              |
+| Excessive animation transfer | Identify the transition and changed data.    |
+| Missing reference            | Navigate directly to the item to repair.     |
 
-La vision complète couvre les modes 0 à 7 et leurs particularités : haute résolution, couleurs directes, décalages par tiles, transformation du Mode 7, fenêtres de masquage et opérations de couleur. Voir la [documentation PPU](https://problemkaputt.de/fullsnes.htm#snespictureprocessingunitppu).
+Three statuses suffice: **definite error**, **game-dependent risk**, **optimization suggestion**.
 
-Les outils présentent ces possibilités sous forme d’effets compréhensibles :
+Transfer estimates state their assumptions. The editor calculates known resource costs; available time also depends on the game. Editing and saving remain possible with errors; console exports explain remaining incompatibilities precisely.
 
-| Effet recherché | Manipulation proposée |
-|---|---|
-| Ciel en dégradé | Définir des couleurs et leur position verticale. |
-| Eau ondulante | Régler l’amplitude et la vitesse d’une déformation. |
-| Parallaxe | Définir le déplacement relatif des couches. |
-| Ouverture en iris | Dessiner et animer une fenêtre de visibilité. |
-| Brume ou éclairage | Régler les opérations de couleur autorisées. |
-| Carte Mode 7 | Manipuler le centre, l’angle et l’échelle. |
-| Route en perspective | Régler l’horizon et la transformation selon les lignes. |
+## 11. Import and reimport
 
-Ces commandes produisent un aperçu, les données nécessaires et les conditions d’intégration, notamment pour les effets utilisant le HDMA.
+### 11.1. Formats and conversion
 
-L’éditeur montre les interactions entre effets : ressources communes, réglages incompatibles ou canaux de transfert déjà utilisés. Une combinaison impossible est signalée au moment de sa composition.
+PNG is the first import format, preserving indices for indexed images. Sprite sheets allow grid slicing and animation assignment.
 
-## 10. Diagnostics et contraintes matérielles
+Aseprite integration could preserve frames, durations and animation names using its [documented format](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
 
-Quelques limites matérielles sont intégrées dès la conception : 64 Kio de VRAM, 128 sprites matériels et deux limites distinctes par ligne, 32 sprites et 34 portions de sprites de huit pixels. Voir [Fullsnes](https://problemkaputt.de/fullsnes.htm) et les [indicateurs de dépassement](https://wiki.superfamicom.org/registers#stat77---ppu-status-flag-and-version).
+For incompatible images, import offers destination palette, colors to preserve, color reduction, optional dithering, slicing and before/after comparison. Color reduction is never silent. Import stays predictable and reversible.
 
-Le logiciel traduit les contraintes en informations exploitables :
+### 11.2. Updating sources
 
-| Problème | Réponse attendue |
-|---|---|
-| Palette incompatible | Sélectionner les pixels ou pièces concernés. |
-| Trop de sprites sur une ligne | Surligner cette ligne et les objets qui contribuent au dépassement. |
-| Ressources trop volumineuses | Montrer leur répartition et les principaux consommateurs. |
-| Conflit de palette | Montrer les ressources concurrentes dans la scène. |
-| Transfert d’animation trop important | Identifier la transition concernée et les données modifiées. |
-| Référence manquante | Aller directement à l’élément à réparer. |
+Reimport replaces source drawings while retaining names, origins and assemblies where possible. Uncertain correspondences are presented to the user.
 
-Trois états suffisent :
+## 12. Export and game integration
 
-- **Erreur certaine**.
-- **Risque dépendant du jeu**.
-- **Suggestion d’optimisation**.
+Export is part of the product from its first version. Essential outputs are tile, palette and tilemap data. Assemblies, animations and metadata require documented formats suited to their consumers.
 
-L’estimation des transferts indique ses hypothèses. L’éditeur calcule le coût des ressources qu’il connaît ; le temps disponible dépend aussi du programme du jeu.
+[SuperFamiconv](https://github.com/Optiroc/SuperFamiconv) provides a functional reference for conversion, remapping and deduplication.
 
-L’édition et la sauvegarde restent possibles en présence d’erreurs. L’export destiné à la console explique précisément les incompatibilités restantes.
+An export set defines included resources, formats and filenames, data ordering and reservations, code symbols, allowed optimizations, and animation/assembly conventions.
 
-## 11. Import et réimport
+Named palettes and variants remain identifiable in exported data or symbols. The format explains palette selection for shared graphics.
 
-### 11.1. Formats et conversion
+Identical projects/settings produce identical data. Unrelated resource additions must not arbitrarily reorganize existing exports.
 
-Le premier format d’import est le PNG, avec préservation des indices lorsque l’image est indexée. Les feuilles de sprites permettent un découpage par grille et une association aux animations.
+A ca65 assembly export is the initial target for the discussed SNES workflow; local tool availability was not verified during this analysis. CLI exports enable game-build integration with the same results as the interface.
 
-Une intégration Aseprite permettrait de conserver les images, les durées et les noms d’animations en s’appuyant sur son [format documenté](https://github.com/aseprite/aseprite/blob/main/docs/ase-file-specs.md).
+## 13. Optimization
 
-Pour une image incompatible avec la destination, l’import propose :
+The editor can find identical tiles, reusable flipped duplicates where supported, unused resources, redundant colors, shared pose data and layouts reducing transfers. Each operation presents savings, affected elements and consequences.
 
-- La palette de destination.
-- Les couleurs à préserver.
-- La réduction des couleurs.
-- Le tramage éventuel.
-- Le découpage.
-- La comparaison avant/après.
+Two currently identical tiles are not necessarily intended to remain linked during future editing. Distinguish **merging project resources**, which changes editing relationships, from **deduplicating exported data**, which reduces files while preserving independent sources. Optimization preserves author intent and predictable editing.
 
-Aucune réduction de couleurs ne doit être silencieuse. L’import reste prévisible et réversible.
+## 14. Interface and usability
 
-### 11.2. Mise à jour des sources
+The interface follows the current work object:
 
-Le réimport permet de remplacer un dessin source en conservant les noms, points d’origine et assemblages lorsque cela est possible. Les correspondances incertaines sont présentées à l’utilisateur.
+| Area                | Purpose                                      |
+| ------------------- | -------------------------------------------- |
+| Left                | Searchable resource library with thumbnails. |
+| Center              | Drawing, assembly, map or scene.             |
+| Right               | Selection properties.                        |
+| Bottom, when needed | Palette or timeline.                         |
 
-## 12. Export et intégration au jeu
+Hardware details are accessible in a contextual inspector and appear automatically when they explain a problem.
 
-L’export fait partie du produit dès la première version.
+Priority interactions: double-click a piece to edit its drawing; return to assembly; find resource uses; replace resources in a selection or project; select a named palette and see immediate results; create a variant from the current resource; compare variants side by side; undo a bulk operation in one step.
 
-Les sorties essentielles sont les données de tiles, palettes et tilemaps. Les assemblages, animations et métadonnées demandent des formats documentés, adaptés au programme qui les consomme.
+History, autosave and recovery after unexpected closure are priorities so users can experiment safely. Omit components unrelated to the current task; the interface must not become a technical demonstration dashboard.
 
-Des outils existants comme SuperFamiconv illustrent les opérations de conversion, remappage et déduplication à prendre en compte. Ils constituent une référence fonctionnelle pour définir des exports maîtrisables. Voir la [documentation SuperFamiconv](https://github.com/Optiroc/SuperFamiconv).
+## 15. Verifying exported rendering
 
-Un ensemble d’export définit :
+The preview uses export-generated data where possible to avoid discrepancies with game assets. Eventually, a command can generate a small scene ROM and open a configured emulator.
 
-- Les ressources incluses.
-- Le format et les noms des fichiers.
-- L’ordre des données et les emplacements réservés.
-- Les symboles utilisables dans le code.
-- Les optimisations autorisées.
-- Les conventions d’animation et d’assemblage.
+Clearly distinguish editor preview, emulator verification and real-console observation. A demo ROM verifies assets in its own context, not the performance of the complete game.
 
-Les palettes nommées et les variantes doivent rester identifiables dans les données ou symboles fournis au jeu. Le format choisi explique comment sélectionner une autre palette pour des graphismes partagés.
+## 16. Implementation order
 
-À projet et réglages identiques, les données exportées sont identiques. Ajouter une ressource sans rapport ne doit pas réorganiser arbitrairement un export existant.
+All three groups below belong to the intended V1 scope; they describe internal sequencing, not a reduction of V1 to the first group. Target Linux and Windows with Tauri 2, TypeScript, React and Canvas 2D, standalone project files and French/English UI. Actual implementation and verification are tracked in [status.md](status.md).
 
-Un premier export assembleur ca65 est proposé pour le contexte de développement SNES évoqué. Il s’agit d’une cible fonctionnelle ; la présence des outils locaux n’a pas été vérifiée pour cette analyse.
+| Stage                     | Contents                                                                                                                                            | Outcome                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Create and export**     | Projects, named palettes, palette switching and simple variants, tile drawing, metasprite assembly, simple animations/tilemaps, documented exports. | Produce animated characters with outfit variants and a background ready for game integration. |
+| **Compose and control**   | Scenes, shared resources, metatiles, reimport, diagnostics, memory usage and optimization.                                                          | Prepare coherent graphics and fix problems in context.                                        |
+| **Use the whole console** | Advanced modes, Mode 7, per-line effects, color operations, loading scenarios and demo ROM.                                                         | Design complex scenes with data and integration constraints.                                  |
 
-Un export depuis la ligne de commande permet l’intégration à la compilation du jeu, avec les mêmes résultats que depuis l’interface.
+Named palettes and simple variants belong to the functional foundation.
 
-## 13. Optimisation
+## 17. Reference workflows
 
-L’éditeur peut rechercher :
+1. Recolor a character using a named palette without changing graphics or animations.
+2. Create home/away football variants sharing graphics and display both in a scene.
+3. Duplicate a palette, recolor the shirt and preserve skin/outline colors.
+4. Edit a shared palette and observe its users update without affecting other palettes' users.
+5. Fix a tile and locate every affected use.
+6. Import an updated character without rebuilding assemblies where correspondence is preserved.
+7. Compose multiple enemies and locate display overflow.
+8. Export a scene and reproduce its appearance in a demo ROM.
 
-- Les tiles identiques.
-- Les doublons réutilisables par retournement lorsque la destination le permet.
-- Les ressources inutilisées.
-- Les couleurs redondantes.
-- Les données communes entre poses.
-- Les organisations de données qui réduisent les transferts.
-
-Chaque opération présente le gain, les éléments concernés et ses conséquences.
-
-Fusionner deux tiles actuellement identiques ne signifie pas forcément que l’auteur souhaite les modifier ensemble à l’avenir. Deux opérations sont donc distinguées :
-
-- **Fusion des ressources du projet**, qui change leur relation pendant l’édition.
-- **Déduplication des données exportées**, qui réduit les fichiers en conservant l’indépendance des ressources sources.
-
-L’optimisation doit préserver l’intention de l’auteur et une édition prévisible.
-
-## 14. Interface et confort d’utilisation
-
-L’interface suit l’objet sur lequel l’utilisateur travaille.
-
-| Zone | Utilité |
-|---|---|
-| À gauche | Bibliothèque des ressources avec recherche et vignettes. |
-| Au centre | Dessin, assemblage, carte ou scène. |
-| À droite | Propriétés de la sélection. |
-| En bas, selon le besoin | Palette ou timeline. |
-
-Les informations matérielles détaillées sont accessibles dans un inspecteur contextuel. Elles apparaissent automatiquement lorsqu’elles expliquent un problème.
-
-Les interactions prioritaires sont :
-
-- Double-cliquer sur une pièce pour modifier son dessin.
-- Revenir immédiatement à l’assemblage.
-- Rechercher tous les usages d’une ressource.
-- Remplacer une ressource dans une sélection ou tout le projet.
-- Choisir une palette nommée pour la sélection et voir immédiatement le résultat.
-- Créer une variante à partir de la ressource courante.
-- Comparer deux variantes côte à côte.
-- Annuler une opération globale en une seule fois.
-
-L’historique, la sauvegarde automatique et la récupération après fermeture inattendue sont prioritaires. L’utilisateur doit pouvoir expérimenter sans craindre de perdre son travail.
-
-Les composants et informations sans utilité pour la tâche courante sont omis. L’interface ne doit pas devenir un tableau de démonstration technique.
-
-## 15. Vérification du rendu exporté
-
-L’aperçu intégré utilise les données produites par l’export autant que possible, pour éviter un rendu correct dans l’éditeur qui ne correspondrait pas aux fichiers livrés au jeu.
-
-À terme, une commande peut générer une petite ROM de démonstration contenant la scène et l’ouvrir dans un émulateur configuré.
-
-Les résultats sont clairement distingués :
-
-- Aperçu de l’éditeur.
-- Vérification dans l’émulateur.
-- Observation sur console réelle.
-
-Une ROM de démonstration vérifie les ressources dans son propre contexte. Elle ne garantit pas les performances du jeu complet.
-
-## 16. Ordre de réalisation
-
-Décision de réalisation : les trois ensembles ci-dessous appartiennent au périmètre visé pour la V1. Ils décrivent l'ordre du travail interne, sans réduire la première version au seul premier ensemble. L'application vise Linux et Windows avec Tauri 2, TypeScript, React et Canvas 2D ; les projets sont des fichiers autonomes et l'interface propose le français et l'anglais. L'état réellement implémenté et vérifié est suivi dans [status.md](status.md).
-
-| Étape | Contenu | Résultat concret |
-|---|---|---|
-| **Créer et exporter** | Projet, palettes nommées, changement de palette et variantes simples, dessin de tiles, assemblage de métasprites, animations simples, tilemap simple, exports documentés. | Produire un personnage animé avec des variantes de tenue et un décor intégrables à un jeu. |
-| **Composer et maîtriser** | Scènes, ressources partagées, métatiles, réimport, diagnostics, occupation mémoire et optimisation. | Préparer un ensemble graphique cohérent et corriger ses problèmes en contexte. |
-| **Exploiter toute la console** | Couverture avancée des modes, Mode 7, effets par ligne, opérations de couleur, scénarios de chargement et ROM de démonstration. | Concevoir des scènes complexes avec leurs données et leurs contraintes d’intégration. |
-
-La gestion des palettes nommées et des variantes simples appartient au socle fonctionnel.
-
-## 17. Parcours de référence
-
-La qualité du produit se juge sur quelques parcours complets :
-
-1. Recolorer un personnage en sélectionnant une palette nommée, sans modifier son dessin ni ses animations.
-2. Créer les variantes « domicile » et « extérieur » d’un joueur de football, partager leurs graphismes et les afficher ensemble dans une scène.
-3. Dupliquer une palette, changer les couleurs du maillot et conserver les couleurs de peau et de contour.
-4. Modifier une palette partagée et observer la mise à jour de ses utilisateurs, sans affecter ceux d’une autre palette.
-5. Corriger une tile et retrouver tous les endroits affectés.
-6. Importer une nouvelle version d’un personnage sans reconstruire ses assemblages lorsque les correspondances sont conservées.
-7. Composer plusieurs ennemis et localiser les dépassements d’affichage.
-8. Exporter une scène puis retrouver son rendu dans une ROM de démonstration.
-
-Ces parcours servent à vérifier le comportement utile du produit avec des contrôles ciblés, sans multiplier les procédures ou les tests redondants.
+Use these complete workflows for focused checks of useful behavior, without redundant procedures or tests.
