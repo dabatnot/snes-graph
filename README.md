@@ -62,11 +62,13 @@ npm run example
 npm run export -- examples/football.snesgraph artifacts/football --scene Match
 npm run export -- examples/football.snesgraph artifacts/football --scene Match --rom
 npm run export -- mon-projet.snesgraph sortie --set "Export principal"
+npm run export -- examples/football.snesgraph artifacts/gallery --gallery --rom
+npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --language en
 ```
 
-`--rom` utilise `ca65` et `ld65` présents dans le PATH. Dans l'application native, leurs chemins et celui de l'émulateur sont configurables dans l'atelier Exporter. La ROM contient une boucle de prévisualisation ; elle ne fournit pas un moteur de jeu.
+`--rom` utilise `ca65` et `ld65` présents dans le PATH. Dans l'application native, leurs chemins et celui de l'émulateur sont configurables dans l'atelier Exporter. Deux modes sont disponibles : une scène en boucle et une galerie interactive des personnages, cartes et scènes sélectionnés. La galerie se parcourt à la manette (port 1), inclut automatiquement les dépendances et fait défiler les grandes cartes. Elle ne fournit pas de logique de jeu. `--gallery` écrit les sources et `--gallery --rom` construit `gallery.sfc` ; cette option ne se combine pas avec `--scene`. Les menus suivent `--language fr|en` (français par défaut).
 
-La bibliothèque d'export et le worker de l'interface utilisent la même fonction `exportProject`. Les chemins des ressources reposent sur des identifiants stables ; les noms lisibles et les correspondances restent dans `manifest.json`.
+Le CLI et le worker partagent les générateurs `exportProject`, `demoSources` et `gallerySources` selon le mode demandé. Les chemins des ressources reposent sur des identifiants stables ; les noms lisibles et les correspondances restent dans `manifest.json`.
 
 ## Vérifications et documentation
 

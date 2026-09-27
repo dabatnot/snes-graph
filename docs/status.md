@@ -35,7 +35,7 @@ Ces corrections n’introduisent pas de nouveau format de projet. Les champs ajo
 - **Rotation** : les rotations de dessin sont proposées sur une sélection carrée pour préserver les dimensions et les références des tiles. Miroirs et déplacements restent disponibles sur les sélections rectangulaires.
 - **CGRAM** : placement automatique et slots imposés par palette/BG/OBJ. Les conflits restent bloquants ; les modes 8 bpp utilisent des couleurs que les OBJ peuvent aussi réclamer.
 - **Optimisation** : déduplication d'export, miroirs, comparaison du coût des découpages réguliers et création d'une occurrence indépendante. Pas de solveur qui garantisse un optimum global entre mémoire, OAM et transferts.
-- **Grandes cartes** : blocs exportés et fenêtre initiale calculée. La stratégie de streaming du jeu reste à écrire ; une ROM de prévisualisation peut refuser une transition trop volumineuse pour son budget DMA. Les grandes cartes combinées à des offsets par ligne/tile sont refusées dans l'export de scène ; l'export de carte seul reste disponible pour une intégration propre au jeu.
+- **Grandes cartes** : la galerie charge progressivement les lignes/colonnes et permet une exploration à la manette. L’export générique conserve ses blocs ; la stratégie de streaming d’un jeu reste à écrire ; une ROM de prévisualisation peut refuser une transition trop volumineuse pour son budget DMA. Les grandes cartes combinées à des offsets par ligne/tile sont refusées dans l'export de scène ; l'export de carte seul reste disponible pour une intégration propre au jeu.
 - **Historique** : snapshots, jusqu'à 50 opérations avec une estimation de rétention limitée à 128 Mio (au moins une opération conservée). Les très gros projets doivent encore faire l'objet d'un profilage mémoire réel.
 
 ## Vérifier la ROM dans Mesen
@@ -79,3 +79,21 @@ tiles animées utilisent des bases indépendantes. Aperçu de rotation observé 
 - Lot 6 : diagnostic mémoire issu du compilateur, liens vers ressources, lignes OBJ et instances contributrices, analyse annulable de 1 à 600 images. UI web FR/EN observée ; deux tests ciblés et build réussis.
 
 - Import : original/conversion/masque des pertes, alpha et marge ; réimport avec tiles modifiées et usages, palette conservée.
+
+## Galerie interactive — 27 septembre 2026
+
+Ajout des modes Galerie interactive / Scène en boucle, sélection indépendante des scènes, fermeture automatique des dépendances par vue, manette du port 1 et panneau Start. Les cartes sont explorables intégralement avec chargement progressif ; les personnages conservent leurs animations et variantes. La CLI accepte `--gallery`, `--rom` et `--language fr|en`.
+
+Parcours Mesen reproductible :
+
+```sh
+node --import tsx scripts/verify-gallery.ts /chemin/vers/Mesen
+```
+
+Les captures et ROMs sont produites sous `artifacts/gallery-validation/`. Les essais observés couvrent les menus FR/EN, les trois catégories, pause/pas à pas, variantes, animations bouclées/ping-pong/non bouclées, relance d’une animation terminée et changement de personnage sans répétition sur maintien de R. Une carte de 129 × 97 tiles a été parcourue aux quatre coins avec vérification des cellules VRAM. Les retours de panneau sur sprites, scène Football, Mode 7 et HDMA restituent des captures identiques à la vue mise en pause. Les exécutions finales ne signalent pas de lecture non initialisée.
+
+Interface web : choix des deux modes, sélection de la scène de référence et export des sources de galerie par worker vérifiés ; le statut « Export enregistré » a été observé. Captures FR/EN renouvelées. Les tests ciblés assemblent aussi des sources 50/60 Hz, des petites cartes et des cartes animées. Aucun essai sur console physique ; le paquet natif n’a pas été reconstruit pour cette fonctionnalité.
+
+Validation finale : 53 tests réussis, compilation TypeScript/Vite réussie ; l’export CLI Scène en boucle de Football a aussi été recompilé et observé dans Mesen (terrain et deux joueurs). Une carte de 32 × 24 pixels a été observée centrée avec sa bordure vide.
+
+Après ces validations, le binaire natif `src-tauri/target/release/snes-graph` a été reconstruit avec succès via `tauri build --no-bundle` pour les essais locaux. Les installateurs RPM/AppImage n’ont pas été régénérés.

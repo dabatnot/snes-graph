@@ -176,6 +176,7 @@ export type ExportSet = {
   id: string;
   name: string;
   sceneId: string;
+  gallerySceneIds?: string[];
   sheetIds: string[];
   actorIds: string[];
   mapIds: string[];

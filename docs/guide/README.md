@@ -194,12 +194,14 @@ refus sans mutation et déplacement avec chevauchement.
 `23-scene-analysis.png`, FR/EN : Chrome web, Football → Scènes → Mémoire et analyse temporelle → Calculer la mémoire à cette image. Analyse de 2 images observée : 12 OBJ, 4 par ligne, 8 portions, étendue VRAM 17280 octets. Captures 1878 × 867. Comparaison au compilateur d’export et attribution des instances en surcharge couvertes par deux tests ciblés ; compilation réussie.
 
 ### 24 — Import review / Comparaison du réimport
+
 Ouvrir une copie de Football, sélectionner Joueur, Réimporter le dessin, choisir
 `examples/reimport-review.png`. Garder le tramage désactivé. Capturer le dialogue
 en FR puis EN : 64 pixels alpha ajustés, tile 5 modifiée, usage Joueur.
 Le fichier est une variante de l’exemple interne, sans ressource tierce.
 
 ### Exemples d’intégration
+
 Section `integration-examples` dans les deux langues. Sources et recette Mesen dans
 `examples/integration/README.md`. Mesures et limites de validation dans
 `docs/evolution-validation.md`. Les captures d’émulateur restent des artefacts de test.
@@ -207,3 +209,15 @@ Section `integration-examples` dans les deux langues. Sources et recette Mesen d
 ### Capture 25 — poignées de collision (FR et EN)
 
 Exemple Football, Sprites, première pose : ajouter une collision 16 × 16 en (0, 0), puis sélectionner la pièce 1 sous le rectangle. Activer la plage de lecture et ajouter une troisième image. Capturer les poignées jaunes, le contour et les propriétés de la pièce, dans chaque langue (`25-collision-handles.png`). Capture Chrome locale 1878 × 867, revue du 27 septembre 2026.
+
+## Galerie interactive — captures du 27 septembre 2026
+
+Le parcours courant est documenté dans `#rom` et `#galerie-manette`, avec les mêmes ancres FR/EN. `09-export.png`, `10-rom.png` et `11-gallery-export.png` (ainsi que leurs équivalents `assets/en/`) proviennent de la version **web courante**, viewport 1440 × 920. Les autres anciennes captures natives ne prouvent pas la disponibilité de la nouvelle galerie dans un binaire installé.
+
+Recette : ouvrir l’exemple Football depuis Dessins, puis Exporter. Pour 09, garder toutes les ressources et Galerie interactive et montrer le haut de l’atelier. Pour 11, descendre jusqu’aux commandes ROM, garder Match coché dans Scènes de la galerie et la durée à 120. Pour 10, passer en Scène en boucle et choisir Match comme scène de référence ; le bouton web devient disponible. Cette action crée un ensemble temporaire (nom « Main export » lors du parcours anglais). Annuler cette modification après la capture. Aucun fichier d’exemple n’a été modifié.
+
+`12-gallery-rom.png` et `13-gallery-info.png` sont des captures réelles Mesen (256 × 224), respectivement de l’accueil et du panneau Start du personnage. Les versions anglaises proviennent d’une ROM générée en anglais, sans retouche. Reproduction : `node --import tsx scripts/verify-gallery.ts /chemin/vers/Mesen`, puis captures `home.png` / `sprite-info.png` des dossiers `football` et `football-en` sous `artifacts/gallery-validation/`.
+
+Vérifications de l’interface : l’export par worker a atteint « Export enregistré » ; le mode Scène en boucle est indisponible sans scène de référence et disponible avec Match. Les paramètres natifs de compilation restent inchangés ; aucune nouvelle capture du binaire natif n’est revendiquée.
+
+Manuels FR/EN ouverts dans le navigateur : rendu des nouvelles sections contrôlé, agrandissement des captures et changement de langue conservant l’ancre ROM vérifiés. Ancres et chemins des images contrôlés dans les deux éditions.

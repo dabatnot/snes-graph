@@ -15,6 +15,78 @@ const dma = (label: string, bytes: number, mode: number, port: number) =>
   `  lda #^${label}\n  sta $4304\n  ldx #${hex(bytes & 65535, 4)}\n  stx $4305\n` +
   write(0x420b, 1);
 
+/** Shared frame transfers for the loop preview and interactive gallery. */
+export function sceneFrame(
+  m: SceneMemory,
+  previous: SceneMemory,
+  label: string,
+  height: number,
+  fps: 50 | 60,
+) {
+  const chunks: { name: string; data: Uint8Array }[] = [
+    { name: label + "Oam", data: m.oam },
+    { name: label + "Cgram", data: m.cgram },
+  ];
+  let code =
+    `${label}:\n` +
+    write(0x420c, 0) +
+    write(0x2102, 0) +
+    write(0x2103, 0) +
+    dma(label + "Oam", 544, 0, 4) +
+    write(0x2121, 0) +
+    dma(label + "Cgram", 512, 0, 0x22);
+  let transfer = 1056;
+  for (let i = 0; i < 65536;) {
+    if (m.vram[i] === previous.vram[i]) {
+      i++;
+      continue;
+    }
+    const start = i & ~1;
+    let end = start + 2;
+    while (
+      end < 65536 &&
+      (m.vram[end] !== previous.vram[end] ||
+        m.vram[end + 1] !== previous.vram[end + 1])
+    )
+      end += 2;
+    const name = label + "Vram" + start;
+    chunks.push({ name, data: m.vram.slice(start, end) });
+    transfer += end - start;
+    code +=
+      write(0x2115, 0x80) +
+      `  ldx #${hex(start / 2, 4)}\n  stx $2116\n` +
+      dma(name, end - start, 1, 0x18);
+    i = end;
+  }
+  if (transfer > 4096)
+    throw new Error(
+      `Demo frame ${label}: ${transfer} DMA bytes exceed the 4096-byte preview budget`,
+    );
+  for (const [address, value] of m.registers) code += write(address, value);
+  let hdmaMask = 0;
+  for (const h of m.hdma) {
+    const name = label + "Hdma" + h.channel,
+      base = 0x4300 + h.channel * 16;
+    chunks.push({ name, data: h.data });
+    hdmaMask |= 1 << h.channel;
+    code +=
+      write(base, h.mode) +
+      write(base + 1, h.register) +
+      `  ldx #.loword(${name})\n  stx ${hex(base + 2, 4)}\n  lda #^${name}\n  sta ${hex(base + 4, 4)}\n`;
+  }
+  code += write(0x420c, hdmaMask) + "  rtl\n";
+  const clockBudget = ((fps === 50 ? 312 : 262) - height - 2) * 1364;
+  const clocks =
+    transfer * 8 +
+    code.split("\n").filter((line) => line.startsWith("  ")).length * 64 +
+    1024;
+  if (clocks > clockBudget)
+    throw new Error(
+      `Demo frame ${label}: too many transfers/register writes for the preview vblank budget (${clocks}/${clockBudget} estimated master clocks)`,
+    );
+  return { code, chunks };
+}
+
 /** A small, self-contained ca65 ROM. No game runtime or proprietary assets. */
 export function demoSources(
   p: Project,
@@ -48,67 +120,7 @@ export function demoSources(
     const m =
         tick === 0 ? first : compileScene(p, s, files, packed, built, tick),
       label = "Frame" + tick;
-    const chunks: { name: string; data: Uint8Array }[] = [
-      { name: label + "Oam", data: m.oam },
-      { name: label + "Cgram", data: m.cgram },
-    ];
-    let code =
-      `${label}:\n` +
-      write(0x420c, 0) +
-      write(0x2102, 0) +
-      write(0x2103, 0) +
-      dma(label + "Oam", 544, 0, 4) +
-      write(0x2121, 0) +
-      dma(label + "Cgram", 512, 0, 0x22);
-    let transfer = 1056;
-    for (let i = 0; i < 65536;) {
-      if (m.vram[i] === previous.vram[i]) {
-        i++;
-        continue;
-      }
-      const start = i & ~1;
-      let end = start + 2;
-      while (
-        end < 65536 &&
-        (m.vram[end] !== previous.vram[end] ||
-          m.vram[end + 1] !== previous.vram[end + 1])
-      )
-        end += 2;
-      const name = label + "Vram" + start;
-      chunks.push({ name, data: m.vram.slice(start, end) });
-      transfer += end - start;
-      code +=
-        write(0x2115, 0x80) +
-        `  ldx #${hex(start / 2, 4)}\n  stx $2116\n` +
-        dma(name, end - start, 1, 0x18);
-      i = end;
-    }
-    if (transfer > 4096)
-      throw new Error(
-        `Demo frame ${tick}: ${transfer} DMA bytes exceed the 4096-byte preview budget`,
-      );
-    for (const [address, value] of m.registers) code += write(address, value);
-    let hdmaMask = 0;
-    for (const h of m.hdma) {
-      const name = label + "Hdma" + h.channel,
-        base = 0x4300 + h.channel * 16;
-      chunks.push({ name, data: h.data });
-      hdmaMask |= 1 << h.channel;
-      code +=
-        write(base, h.mode) +
-        write(base + 1, h.register) +
-        `  ldx #.loword(${name})\n  stx ${hex(base + 2, 4)}\n  lda #^${name}\n  sta ${hex(base + 4, 4)}\n`;
-    }
-    code += write(0x420c, hdmaMask) + "  rtl\n";
-    const clockBudget = (262 - s.height - 2) * 1364;
-    const clocks =
-      transfer * 8 +
-      code.split("\n").filter((line) => line.startsWith("  ")).length * 64 +
-      1024;
-    if (clocks > clockBudget)
-      throw new Error(
-        `Demo frame ${tick}: too many transfers/register writes for the preview vblank budget (${clocks}/${clockBudget} estimated master clocks)`,
-      );
+    const { code, chunks } = sceneFrame(m, previous, label, s.height, p.fps);
     // Conservative code size bound keeps every incbin and DMA source within one LoROM bank.
     const estimate =
       chunks.reduce((n, c) => n + c.data.length, 0) +

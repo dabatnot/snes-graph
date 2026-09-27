@@ -267,6 +267,12 @@ export function validateProject(p: Project): void {
       )
         throw new Error("Missing export resource");
     }
+    if (
+      e.gallerySceneIds !== undefined &&
+      (!Array.isArray(e.gallerySceneIds) ||
+        e.gallerySceneIds.some((id) => !p.scenes.some((s) => s.id === id)))
+    )
+      throw new Error("Missing gallery scene");
     if (e.sceneId && !p.scenes.some((s) => s.id === e.sceneId))
       throw new Error("Missing export scene");
   }

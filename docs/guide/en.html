@@ -7315,8 +7315,8 @@ npm run dev</code></pre>
         <h2>15 · Exporting and generating a ROM</h2>
         <p class="intro">
           Save preserves your editable work. Export produces data for
-          integration into the game. Generate ROM produces a demonstration loop
-          for checking the result.
+          integration into the game. Generate ROM produces an interactive
+          gallery or a looping scene for checking the result.
         </p>
         <figure>
           <a data-zoom="" href="assets/en/09-export.png"
@@ -7330,7 +7330,8 @@ npm run dev</code></pre>
           <figcaption>
             <span class="figure-tag">Screenshot 9.</span> The default selection
             includes every resource, but the reference scene is initially None:
-            select Match before generating its ROM.
+            select Match for Looping scene mode. The gallery needs no reference
+            scene. Web screenshot.
           </figcaption>
         </figure>
         <h3 id="ensemble-export">Selection and export sets</h3>
@@ -7436,8 +7437,9 @@ npm run dev</code></pre>
                 <td>
                   <p>
                     Choose Match to prepare this composition’s export and
-                    demonstration ROM. None is suitable for an independent
-                    resource export; ROM generation remains unavailable then.
+                    Looping scene ROM. None is suitable for an independent asset
+                    export or an interactive gallery, which has its own scene
+                    selection.
                   </p>
                 </td>
               </tr>
@@ -7714,131 +7716,181 @@ npm run dev</code></pre>
             to the same colors.
           </p>
         </div>
-        <h3 id="rom">Desktop demonstration ROM</h3>
+        <h3 id="rom">Two ROM modes</h3>
+        <p>
+          Choose <strong>Interactive gallery</strong> under
+          <strong>ROM type</strong> to browse the project with a controller, or
+          <strong>Looping scene</strong> to retain the reference-scene preview.
+          The gallery is selected by default.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/11-gallery-export.png"
+            ><img
+              src="assets/en/11-gallery-export.png"
+              width="1440"
+              height="920"
+              loading="eager"
+              alt="Interactive gallery ROM type, scene selection and duration in the web application."
+          /></a>
+          <figcaption>
+            Gallery export: select characters and maps, then select scenes
+            separately. Web application screenshot.
+          </figcaption>
+        </figure>
+        <ol>
+          <li>
+            Select the characters and maps to present. The gallery automatically
+            includes their required graphics and palettes, even when unchecked;
+            dependencies do not add menu entries.
+          </li>
+          <li>
+            Select <strong>Gallery scenes</strong>, independently of
+            <strong>Reference scene</strong>. An older export set without a
+            gallery selection includes all scenes; an explicitly empty selection
+            includes none.
+          </li>
+          <li>
+            Set <strong>Scene duration in console frames</strong> from 1 to 600.
+            The default is two seconds: 120 frames at 60 Hz or 100 at 50 Hz.
+            This does not limit map exploration or character animations.
+          </li>
+          <li>
+            On desktop, configure ca65/ld65 under
+            <strong>Compiler and emulator</strong>, then use
+            <strong>Generate ROM</strong> to save an <code>.sfc</code>.
+            <strong>Open in emulator</strong> builds and launches the ROM when
+            the emulator path is configured. Enter an executable or launcher
+            path, not a shell command.
+          </li>
+        </ol>
+        <p>
+          Tool paths remain local. Generation errors name the affected resource
+          in the status bar. Incompatible resources are never silently omitted.
+          Empty galleries are rejected. Resources follow project order; empty
+          categories are hidden.
+        </p>
+        <h4 id="galerie-manette">Browse with a controller</h4>
+        <p>
+          Use controller port 1. At the home screen, Up/Down chooses a category
+          and A opens it. L/R selects the previous/next resource, wrapping
+          around. B returns home. Changing resource resets its playback and
+          camera.
+        </p>
+        <p>
+          <strong>Start</strong> opens a separate information panel with the
+          name, list position and controls. Playback is suspended. Start or B
+          closes the panel and restores the previous state. Long names are
+          shortened on screen; characters unavailable in the built-in font
+          become “?” without changing project data. Menu language follows the
+          application language at generation time.
+        </p>
         <div class="table-wrap">
-          <table class="control-reference">
-            <caption>
-              Duration, generation and external tools
-            </caption>
+          <table>
             <thead>
               <tr>
-                <th>Interface reference</th>
-                <th>When and how to use it</th>
+                <th>Category</th>
+                <th>Controls</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="control-cell">
-                  <strong>ROM duration and commands</strong>
-                </td>
+                <td>Sprites</td>
                 <td>
-                  <a
-                    class="control-shot"
-                    data-caption="ROM duration and commands — excerpt from the native Linux interface."
-                    data-zoom=""
-                    href="assets/en/ui/export-rom.png"
-                    ><img
-                      alt="Screenshot: ROM duration and commands"
-                      height="102"
-                      loading="eager"
-                      src="assets/en/ui/export-rom.png"
-                      width="424"
-                  /></a>
-                  <p>
-                    Duration is expressed in console frames: 120 means two
-                    seconds at 60 Hz. Generate ROM produces the demonstration
-                    from the selected scene. Open in emulator becomes available
-                    once the emulator path is configured.
-                  </p>
+                  Up/Down: animation, or pose when no usable animation exists.
+                  A: play/pause; restart a finished animation. Left/Right while
+                  paused: previous/next frame. X: original palette, then
+                  variants. Y: black, gray or white backdrop. A common pose
+                  framing prevents position jumps. Durations, loops and
+                  ping-pong playback are preserved. Events do not execute game
+                  logic.
                 </td>
               </tr>
               <tr>
-                <td class="control-cell">
-                  <strong>Compiler and emulator</strong>
-                </td>
+                <td>Maps</td>
                 <td>
-                  <a
-                    class="control-shot"
-                    data-caption="Compiler and emulator — excerpt from the native Linux interface."
-                    data-zoom=""
-                    href="assets/en/ui/export-outils.png"
-                    ><img
-                      alt="Screenshot: Compiler and emulator"
-                      height="206"
-                      loading="eager"
-                      src="assets/en/ui/export-outils.png"
-                      width="1115"
-                  /></a>
-                  <p>
-                    Expand this area to specify the ca65, ld65 and emulator
-                    executables. A bare name assumes it can be found in PATH;
-                    otherwise enter its full path. These settings belong to the
-                    local installation.
-                  </p>
-                  <p>
-                    In the web version, the button exports the ca65 project; it
-                    does not launch a local compiler or emulator.
-                  </p>
+                  D-pad: move the camera at 1 pixel per console frame; hold A
+                  for 4 pixels. Small maps are centered; others start at the
+                  top-left. The camera stops at map boundaries, without
+                  repeating the background. Incremental loading supports the
+                  project's full map dimensions. Tile animations remain active.
+                </td>
+              </tr>
+              <tr>
+                <td>Scenes</td>
+                <td>
+                  A: play/pause. The precomputed sequence repeats for the
+                  selected duration. Scene-export graphics modes and effects are
+                  retained. There is no free camera or playable character; Mode
+                  7 scenes are viewed here.
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <figure>
-          <a data-zoom="" href="assets/en/10-rom.png"
+          <a data-zoom href="assets/en/12-gallery-rom.png"
             ><img
-              alt="ROM generation with the Match scene, a 120-frame duration and ca65, ld65 and emulator path fields."
-              height="920"
+              src="assets/en/12-gallery-rom.png"
+              width="256"
+              height="224"
               loading="eager"
-              src="assets/en/10-rom.png"
-              width="1440"
+              alt="Football ROM home screen with Sprites, Maps and Scenes in Mesen."
+          /></a>
+          <figcaption>Actual ROM home screen captured in Mesen.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/en/13-gallery-info.png"
+            ><img
+              src="assets/en/13-gallery-info.png"
+              width="256"
+              height="224"
+              loading="eager"
+              alt="Character information panel with animation and controller commands."
           /></a>
           <figcaption>
-            <span class="figure-tag">Screenshot 10.</span> In the native
-            version, build tools are configured here. The presence of these
-            fields does not mean the executables are installed.
+            The panel temporarily replaces the resource view rather than sharing
+            its background layers or palettes.
           </figcaption>
         </figure>
-        <ol>
-          <li>Choose a reference scene, for example Match.</li>
-          <li>Expand <strong>Compiler and emulator</strong>.</li>
-          <li>
-            Enter <strong>ca65</strong> and <strong>ld65</strong>, either as
-            names accessible through PATH or as full paths.
-          </li>
-          <li>
-            To launch the emulator, fill in
-            <strong>Emulator path</strong>. Enter an executable or launcher
-            path, not a shell command with arguments.
-          </li>
-          <li>
-            Select <strong>Duration in console frames</strong>, from 1 to 600.
-            120 frames represent 2 seconds at 60 Hz.
-          </li>
-          <li>
-            Click <strong>Generate ROM</strong> to save an <code>.sfc</code>, or
-            <strong>Open in emulator</strong> to build and launch the preview
-            directly.
-          </li>
-        </ol>
         <p>
-          Tool paths are stored locally; they are not part of the portable
-          project. The emulator button requires a nonempty path, but the
-          program’s existence and operation are checked when launched. Build
-          errors appear in the status bar.
+          The gallery is limited to 4 MiB of ROM and SNES graphics capacity per
+          resource. Maps reserve a blank border tile and dedicated animated-tile
+          slots within the 1024-tile and available VRAM limits. Palette, OBJ or
+          transfer overflows prevent generation. Characters exceeding the 256 ×
+          224 viewport are reported. Existing scene restrictions, including
+          large maps with certain offsets, still apply. Shortening a scene does
+          not fix an individually expensive transfer.
         </p>
+        <h4>Keep a looping scene</h4>
         <p>
-          The ROM plays a scene loop and updates its exported data. It contains
-          no football controls, opponents or collision engine. The compiler
-          enforces a per-frame transfer budget; shortening the duration does not
-          necessarily fix an individual transition that is too expensive.
+          Choose <strong>Looping scene</strong>, then a
+          <strong>Reference scene</strong>, such as Match. This preserves the
+          existing preview without a menu. Unlike the gallery, this mode uses
+          the regular export's explicit dependency selection.
         </p>
+        <figure>
+          <a data-zoom href="assets/en/10-rom.png"
+            ><img
+              src="assets/en/10-rom.png"
+              width="1440"
+              height="920"
+              loading="eager"
+              alt="Looping scene mode with Match selected in the web application."
+          /></a>
+          <figcaption>
+            Looping scene mode remains available. Web screenshot; the desktop
+            buttons generate or launch the ROM directly.
+          </figcaption>
+        </figure>
         <h3 id="rom-web">ca65 sources in the browser</h3>
         <p>
-          The button is called <strong>Export ca65 project</strong>. It
-          downloads <code>ProjectName.ca65-demo.zip</code>. Extract it and
-          follow its ca65/ld65 build instructions. The browser cannot execute
-          local programs for you.
+          <strong>Export ca65 project</strong> downloads
+          <code>ProjectName.ca65-gallery.zip</code> for a gallery or
+          <code>ProjectName.ca65-demo.zip</code> for a looping scene. Extract
+          the archive and follow its <code>README.txt</code> to build with
+          ca65/ld65. The browser does not execute local tools. Cancellation
+          stops export calculation, not native compilation that has already
+          started.
         </p>
         <h3 id="cli">Command-line export</h3>
         <p>
@@ -7846,14 +7898,24 @@ npm run dev</code></pre>
         </p>
         <pre><code>npm run export -- examples/football.snesgraph artifacts/football --scene Match
 npm run export -- examples/football.snesgraph artifacts/football --scene Match --rom
-npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
+npm run export -- my-project.snesgraph output --set "Main export"
+npm run export -- examples/football.snesgraph artifacts/gallery --gallery --rom
+npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --language en</code></pre>
+        <p>
+          <code>--gallery</code> writes gallery sources; add
+          <code>--rom</code> to compile <code>gallery.sfc</code> in the output
+          directory. <code>--language fr|en</code> chooses menu language (French
+          by default). <code>--gallery</code> and <code>--scene</code> cannot be
+          combined. <code>--set</code> applies the saved selection.
+        </p>
         <p>
           <code>--scene</code> accepts a name or identifier.
-          <code>--set</code> uses a saved set. <code>--rom</code> requires
-          ca65/ld65 in PATH and a scene; the CLI prepares a two-second loop. It
-          writes files directly into the destination folder, and the ROM into
-          <code>demo/demo.sfc</code>, rather than a ZIP archive. Use an output
-          folder separate from your sources.
+          <code>--set</code> uses a saved set. Without <code>--gallery</code>,
+          <code>--rom</code> requires ca65/ld65 in PATH and a scene; the CLI
+          prepares a two-second loop. It writes files directly into the
+          destination folder, and the ROM into <code>demo/demo.sfc</code>,
+          rather than a ZIP archive. Use an output folder separate from your
+          sources.
         </p>
       </section>
       <section class="chapter" id="football">
@@ -7911,9 +7973,9 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
         <p>
           Save. In Export, start from All assets, choose Match as the reference
           scene and name the set Full match. Check that Gardien is selected
-          along with the two original palettes. Export the resources. On
-          desktop, configure ca65/ld65, generate a 120-frame loop and open it in
-          your emulator.
+          along with the two original palettes. Export the resources. Choose
+          Looping scene. On desktop, configure ca65/ld65, generate a 120-frame
+          loop and open it in your emulator.
         </p>
         <div class="recipe">
           <p>
@@ -8265,7 +8327,8 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
               <tr>
                 <td>Why is Generate ROM disabled?</td>
                 <td>
-                  Choose a Reference scene. For Open in emulator, also enter its
+                  In Looping scene mode, choose a Reference scene. The gallery
+                  does not require one. For Open in emulator, also enter its
                   path.
                 </td>
               </tr>
@@ -8686,8 +8749,8 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
               <tr>
                 <td>Large maps</td>
                 <td>
-                  Block-based export and initial viewport; no complete game
-                  streaming system.
+                  Full exploration in the gallery; block-based export for
+                  integration into a game.
                 </td>
                 <td>
                   Implement the loading strategy in your engine. Scene export
@@ -8708,17 +8771,19 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
               <tr>
                 <td>Export</td>
                 <td>
-                  Explicit dependencies; some checks run only at launch.
-                  Cancellation targets export processing, not necessarily a
-                  native build already running.
+                  Automatic dependencies in the gallery, explicit dependencies
+                  in other exports; some checks run only at launch. Cancellation
+                  targets export processing, not necessarily a native build
+                  already running.
                 </td>
                 <td>Read the final message and check the generated files.</td>
               </tr>
               <tr>
                 <td>ROM</td>
                 <td>
-                  1–600-frame loop in the interface, transfer and timing
-                  budgets; no game logic.
+                  Interactive gallery or looping scene; scenes are limited to
+                  1–600 frames and ROMs to 4 MiB, with transfer and timing
+                  budgets. No game logic.
                 </td>
                 <td>
                   Use it for verification, then integrate the data into your
@@ -8774,8 +8839,9 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
         </p>
         <h3 id="provenance">Sources and illustrations</h3>
         <p>
-          Screenshots 1–17 were taken in the native application; views 18–25 in
-          the Linux browser, with the same English interface, using the files
+          Historical screenshots 1–17 were taken in the native application;
+          views 18–25 in the Linux browser, with the same English interface,
+          using the files
           <a download="" href="../../examples/football.snesgraph"
             >football.snesgraph</a
           >,
@@ -8786,9 +8852,10 @@ npm run export -- my-project.snesgraph output --set "Main export"</code></pre>
           <a download="" href="../../examples/hdma.snesgraph">hdma.snesgraph</a
           >. Tables also associate each control with a targeted excerpt of the
           interface; click an image to enlarge it. Original screenshots and crop
-          regions are retained for future updates. These are editor previews,
-          not console captures. Diagrams and charts explain relationships and
-          calculations; they are not performance measurements.
+          regions are retained for future updates. Export and ROM views were
+          refreshed in the browser. Running gallery captures come from Mesen;
+          none demonstrates a physical-console test. Diagrams and charts explain
+          relationships and calculations; they are not performance measurements.
         </p>
         <p>
           Command descriptions were checked against the interface code and

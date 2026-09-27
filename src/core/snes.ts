@@ -195,6 +195,7 @@ export function defaultExport(p: Project, sceneId = ""): ExportSet {
     id: "all",
     name: "All",
     sceneId,
+    gallerySceneIds: p.scenes.map((s) => s.id),
     sheetIds: p.sheets.map((v) => v.id),
     actorIds: p.actors.map((v) => v.id),
     mapIds: p.maps.map((v) => v.id),

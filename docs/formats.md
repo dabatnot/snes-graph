@@ -18,6 +18,8 @@ Une palette contient 4, 16 ou 256 mots RGB555 `rrrrr | ggggg << 5 | bbbbb << 10`
 
 Les fichiers importés sont vérifiés avant leur ouverture. La limite est de 128 Mio décompressés et 10 000 entrées. Les sauvegardes natives passent par un fichier temporaire sur le même volume, synchronisé puis renommé. La récupération automatique utilise le répertoire de données de l'application, ou IndexedDB dans le navigateur.
 
+Les ensembles d’export acceptent désormais `gallerySceneIds?: string[]`, indépendant de `sceneId`. Champ absent : toutes les scènes, pour compatibilité avec les anciens projets. Liste vide : aucune scène. Les nouveaux ensembles enregistrent toutes les scènes existantes par défaut. Suppression et remplacement d’une scène actualisent ces références. Le format reste en version 1.
+
 ## Export générique
 
 Tous les nombres multioctets binaires sont en **little-endian**. Les noms et les identifiants sont disponibles dans `manifest.json`. Les adresses de l'API de placement sont précisées ci-dessous pour éviter une confusion octets/mots.
@@ -91,6 +93,14 @@ Le dégradé de ciel utilise trois canaux vers COLDATA et le mélange sur le fon
 Le générateur produit des sources ca65 autonomes et une configuration LoROM. Il prépare une boucle de 1 à 600 images : OAM, CGRAM, registres, HDMA et différences de VRAM sont mis à jour pendant la période verticale disponible. Un plafond de **4096 octets DMA par image** et une estimation conservatrice du coût des instructions/transferts sont appliqués, avec une fenêtre réduite en 239 lignes. Une transition trop coûteuse est refusée avec son numéro d'image. Le temps d'exécution complet du jeu n'est pas modélisé. L'activation initiale du HDMA attend le vblank.
 
 Le projet de démonstration inclut ses instructions de compilation. Le CLI et l'hôte natif corrigent le checksum après l'assemblage. Les sources fonctionnent sans bibliothèque de moteur. Leur intégration dans un jeu demande de choisir sa propre stratégie de chargement.
+
+## Galerie interactive
+
+`gallerySources(project, options, ticks, language)` produit des sources ca65 autonomes : `main.s`, `lorom.cfg`, des blocs binaires internes et `README.txt`. Ces blocs sont propres au programme de galerie ; pour intégrer des ressources dans un jeu, conserver l’export générique documenté ci-dessus. Le worker utilise un choix explicite `assets | scene | gallery` et transfère chaque ArrayBuffer une seule fois, même si plusieurs fichiers partagent un tampon.
+
+La galerie ferme automatiquement les dépendances par entrée, sans ajouter de vues pour ces dépendances. Les ressources sont rechargées séparément sous écran éteint. Les sprites utilisent des tables de poses/durées ; les cartes une fenêtre circulaire de 64 × 32 cellules, avec transfert des lignes/colonnes entrantes. Les animations de tiles ont des slots distincts des tiles statiques, même avec déduplication. Les scènes partagent le compilateur de transferts de la prévisualisation, avec une séquence de 1–600 images. Le panneau Start suspend la lecture et recharge l’état précédent à sa fermeture ; le HDMA est réactivé seulement au vblank.
+
+Limite : 4 Mio LoROM, avec blocs et sources DMA ne franchissant pas une banque. Les banques ROM finales utilisent leurs adresses hautes pour éviter les banques WRAM $7E/$7F. Les scènes gardent le plafond de 4096 octets DMA et le contrôle de coût ; les cartes réservent un budget conservateur de transferts animés. Les rythmes 50/60 Hz déterminent la région et le budget vertical. Le checksum est corrigé par le CLI et l’application native après l’assemblage.
 
 ## Références de formats
 

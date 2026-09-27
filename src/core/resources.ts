@@ -137,6 +137,8 @@ export function removeResource(p: Project, kind: ResourceKind, id: string) {
   for (const set of p.exports) {
     for (const key of ["sheetIds", "paletteIds", "actorIds", "mapIds"] as const)
       set[key] = set[key].filter((v) => v !== id);
+    if (set.gallerySceneIds)
+      set.gallerySceneIds = set.gallerySceneIds.filter((v) => v !== id);
     if (set.sceneId === id) set.sceneId = "";
   }
 }
@@ -193,6 +195,10 @@ export function replaceReferences(
   for (const e of p.exports) {
     for (const k of ["sheetIds", "paletteIds", "actorIds", "mapIds"] as const)
       e[k] = [...new Set(e[k].map((id) => (id === old ? next : id)))];
+    if (e.gallerySceneIds)
+      e.gallerySceneIds = [
+        ...new Set(e.gallerySceneIds.map((id) => (id === old ? next : id))),
+      ];
     if (e.sceneId === old) e.sceneId = next;
   }
   validateProject(p);

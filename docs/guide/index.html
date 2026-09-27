@@ -7517,8 +7517,8 @@ npm run dev</code></pre>
         <h2>15 · Exporter et générer une ROM</h2>
         <p class="intro">
           Enregistrer conserve votre travail éditable. Exporter produit les
-          données à intégrer au jeu. Générer une ROM produit une boucle de
-          démonstration pour vérifier le résultat.
+          données à intégrer au jeu. Générer une ROM produit une galerie
+          interactive ou une scène en boucle pour vérifier le résultat.
         </p>
         <figure>
           <a data-zoom href="assets/09-export.png"
@@ -7532,7 +7532,8 @@ npm run dev</code></pre>
           <figcaption>
             <span class="figure-tag">Capture 9.</span> La sélection par défaut
             comprend toutes les ressources, mais la scène de référence est
-            initialement Aucune : choisissez Match avant de générer sa ROM.
+            initialement Aucune. La galerie fonctionne sans scène de référence ;
+            choisissez Match pour le mode Scène en boucle. Capture web.
           </figcaption>
         </figure>
         <h3 id="ensemble-export">Sélection et ensembles d’export</h3>
@@ -7639,9 +7640,9 @@ npm run dev</code></pre>
                 <td>
                   <p>
                     Choisissez Match pour préparer l’export de cette composition
-                    et la ROM de démonstration. Aucune convient à un export de
-                    ressources indépendant ; la génération de ROM reste alors
-                    indisponible.
+                    et sa ROM en mode Scène en boucle. Aucune convient à un
+                    export de ressources indépendant ou à une galerie
+                    interactive, qui possède sa propre sélection de scènes.
                   </p>
                 </td>
               </tr>
@@ -7933,135 +7934,189 @@ npm run dev</code></pre>
             mêmes couleurs.
           </p>
         </div>
-        <h3 id="rom">ROM de démonstration sur le bureau</h3>
+        <h3 id="rom">Deux modes de ROM</h3>
+        <p>
+          Dans <strong>Type de ROM</strong>, choisissez
+          <strong>Galerie interactive</strong> pour explorer le projet à la
+          manette, ou <strong>Scène en boucle</strong> pour conserver la
+          prévisualisation d’une scène de référence. La galerie est proposée par
+          défaut.
+        </p>
+        <figure>
+          <a data-zoom href="assets/11-gallery-export.png"
+            ><img
+              src="assets/11-gallery-export.png"
+              width="1440"
+              height="920"
+              loading="eager"
+              alt="Type de ROM Galerie interactive, sélection des scènes et durée dans la version web."
+          /></a>
+          <figcaption>
+            Export de galerie : personnages et cartes cochés, puis scènes
+            choisies séparément. Capture de la version web.
+          </figcaption>
+        </figure>
+        <ol>
+          <li>
+            Cochez les personnages et cartes à présenter. Pour une galerie,
+            leurs dessins et palettes nécessaires sont inclus automatiquement,
+            même décochés ; ils n’ajoutent pas d’entrées au menu.
+          </li>
+          <li>
+            Cochez les <strong>Scènes de la galerie</strong>. Cette liste est
+            indépendante de <strong>Scène de référence</strong>. Un ancien
+            ensemble sans sélection de galerie inclut toutes les scènes ; une
+            liste entièrement décochée n’en inclut aucune.
+          </li>
+          <li>
+            Réglez <strong>Durée des scènes en images console</strong>, de 1 à
+            600 : par défaut deux secondes, soit 120 images à 60 Hz ou 100 à 50
+            Hz. Cette durée ne limite pas l’exploration des cartes ni les
+            animations des personnages.
+          </li>
+          <li>
+            Sur le bureau, renseignez ca65/ld65 dans
+            <strong>Outils de compilation et émulateur</strong>, puis
+            <strong>Générer la ROM</strong> pour enregistrer un
+            <code>.sfc</code>.
+            <strong>Ouvrir dans l’émulateur</strong> construit et lance la ROM
+            si son chemin est configuré. Utilisez un chemin d’exécutable ou de
+            lanceur, pas une commande shell.
+          </li>
+        </ol>
+        <p>
+          Les chemins d’outils restent locaux. Une erreur de génération apparaît
+          dans la barre d’état avec la ressource concernée. Aucune ressource
+          incompatible n’est retirée silencieusement. Une galerie vide est
+          refusée. L’ordre des ressources suit celui du projet ; les catégories
+          vides n’apparaissent pas.
+        </p>
+        <h4 id="galerie-manette">Explorer la galerie à la manette</h4>
+        <p>
+          Utilisez la manette du port 1. À l’accueil, Haut/Bas sélectionne une
+          catégorie et A l’ouvre. Dans chaque catégorie, L/R change de
+          ressource, avec retour circulaire. B revient à l’accueil. Un
+          changement de ressource réinitialise sa lecture et sa caméra.
+        </p>
+        <p>
+          <strong>Start</strong> ouvre un panneau séparé avec le nom, la
+          position dans la liste et les commandes. La lecture est suspendue.
+          Start ou B ferme ce panneau en restituant l’état précédent. Les noms
+          trop longs sont abrégés à l’écran ; les caractères absents de la
+          petite police intégrée deviennent « ? », sans modifier le projet. Les
+          menus suivent la langue de l’application lors de la génération.
+        </p>
         <div class="table-wrap">
-          <table class="control-reference">
-            <caption>
-              Durée, génération et outils externes
-            </caption>
+          <table>
             <thead>
               <tr>
-                <th>Repère dans l’interface</th>
-                <th>Quand et comment l’utiliser</th>
+                <th>Catégorie</th>
+                <th>Commandes</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="control-cell">
-                  <strong>Durée et commandes ROM</strong>
-                </td>
+                <td>Sprites</td>
                 <td>
-                  <a
-                    class="control-shot"
-                    data-caption="Durée et commandes ROM — extrait de l’interface native Linux."
-                    data-zoom=""
-                    href="assets/ui/export-rom.png"
-                    ><img
-                      alt="Capture : Durée et commandes ROM"
-                      height="98"
-                      loading="eager"
-                      src="assets/ui/export-rom.png"
-                      width="532"
-                  /></a>
-                  <p>
-                    La durée est exprimée en images console : 120 correspond à
-                    deux secondes à 60 Hz. Générer la ROM produit la
-                    démonstration à partir de la scène choisie. Ouvrir dans
-                    l’émulateur devient disponible quand le chemin de
-                    l’émulateur est configuré.
-                  </p>
+                  Haut/Bas : animation, ou pose sans animation exploitable. A :
+                  lecture/pause ; relance une animation terminée. Gauche/Droite
+                  en pause : image précédente/suivante. X : palette originale
+                  puis variantes. Y : fond noir, gris, blanc. Le cadrage commun
+                  aux poses évite les sauts de position ; les durées, boucles et
+                  allers-retours sont conservés. Les événements n’exécutent
+                  aucune logique de jeu.
                 </td>
               </tr>
               <tr>
-                <td class="control-cell">
-                  <strong>Outils de compilation et émulateur</strong>
-                </td>
+                <td>Cartes</td>
                 <td>
-                  <a
-                    class="control-shot"
-                    data-caption="Outils de compilation et émulateur — extrait de l’interface native Linux."
-                    data-zoom=""
-                    href="assets/ui/export-outils.png"
-                    ><img
-                      alt="Capture : Outils de compilation et émulateur"
-                      height="206"
-                      loading="eager"
-                      src="assets/ui/export-outils.png"
-                      width="730"
-                  /></a>
-                  <p>
-                    Dépliez cette zone pour préciser les exécutables ca65, ld65
-                    et l’émulateur. Un nom seul suppose qu’il est trouvable dans
-                    le PATH ; sinon saisissez son chemin complet. Ces réglages
-                    sont propres à l’installation locale.
-                  </p>
-                  <p>
-                    Dans la version web, le bouton exporte le projet ca65 ; il
-                    ne lance pas un compilateur ni un émulateur local.
-                  </p>
+                  Croix : caméra à 1 pixel par image console ; maintenir A : 4
+                  pixels. Les petites cartes sont centrées, les autres démarrent
+                  en haut à gauche. La caméra s’arrête aux bords, sans
+                  répétition du décor. Le chargement progressif permet de
+                  parcourir les grandes cartes jusqu’aux dimensions autorisées
+                  du projet. Les animations de tiles restent actives.
+                </td>
+              </tr>
+              <tr>
+                <td>Scènes</td>
+                <td>
+                  A : lecture/pause. La séquence précalculée se répète selon la
+                  durée choisie. Les modes et effets pris en charge par l’export
+                  de scène sont conservés. Pas de caméra libre ni de personnage
+                  jouable ; les scènes Mode 7 se consultent ici.
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <figure>
+          <a data-zoom href="assets/12-gallery-rom.png"
+            ><img
+              src="assets/12-gallery-rom.png"
+              width="256"
+              height="224"
+              loading="eager"
+              alt="Accueil de la ROM Football avec Sprites, Cartes et Scènes dans Mesen."
+          /></a>
+          <figcaption>Accueil réel de la ROM, capturé dans Mesen.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/13-gallery-info.png"
+            ><img
+              src="assets/13-gallery-info.png"
+              width="256"
+              height="224"
+              loading="eager"
+              alt="Panneau Start du personnage Joueur avec l’animation et les commandes."
+          /></a>
+          <figcaption>
+            Le panneau remplace temporairement le rendu ; il ne consomme pas ses
+            palettes ou arrière-plans.
+          </figcaption>
+        </figure>
+        <p>
+          La galerie reste limitée à 4 Mio de ROM et aux capacités graphiques
+          SNES par ressource. Une carte réserve une tile vide pour ses bordures
+          et des slots propres à ses tiles animées, dans la limite de 1024 tiles
+          et de la mémoire vidéo disponible. Les dépassements de palettes, d’OBJ
+          ou de transferts bloquent la génération. Un personnage dont le cadrage
+          dépasse 256 × 224 pixels est signalé. Les restrictions existantes des
+          scènes, notamment les grandes cartes avec certains offsets, restent
+          applicables. Raccourcir une scène ne corrige pas un transfert
+          individuel trop coûteux.
+        </p>
+        <h4>Conserver une scène en boucle</h4>
+        <p>
+          Choisissez <strong>Scène en boucle</strong> puis une
+          <strong>Scène de référence</strong>, par exemple Match. Ce mode
+          conserve la prévisualisation existante, sans menu. Contrairement à la
+          galerie, il utilise la sélection explicite des dépendances de l’export
+          habituel.
+        </p>
+        <figure>
           <a data-zoom href="assets/10-rom.png"
             ><img
-              loading="eager"
               src="assets/10-rom.png"
               width="1440"
               height="920"
-              alt="Génération de ROM avec scène Match, durée 120 images et champs ca65, ld65, chemin de l’émulateur."
+              loading="eager"
+              alt="Mode Scène en boucle avec la scène Match sélectionnée dans la version web."
           /></a>
           <figcaption>
-            <span class="figure-tag">Capture 10.</span> Dans la version native,
-            les outils de compilation se règlent ici. La présence des champs ne
-            signifie pas que les exécutables sont installés.
+            Le mode Scène en boucle reste disponible. Capture web ; sur le
+            bureau, les boutons génèrent ou lancent directement la ROM.
           </figcaption>
         </figure>
-        <ol>
-          <li>Choisissez une scène de référence, par exemple Match.</li>
-          <li>Dépliez <strong>Outils de compilation et émulateur</strong>.</li>
-          <li>
-            Indiquez <strong>ca65</strong> et <strong>ld65</strong>, soit comme
-            noms accessibles dans le PATH, soit par leurs chemins complets.
-          </li>
-          <li>
-            Pour lancer l’émulateur, renseignez
-            <strong>Chemin de l’émulateur</strong>. Saisissez un chemin
-            d’exécutable ou de lanceur, pas une commande shell avec options.
-          </li>
-          <li>
-            Choisissez <strong>Durée en images console</strong>, entre 1 et 600.
-            120 images représentent 2 secondes à 60 Hz.
-          </li>
-          <li>
-            Cliquez sur <strong>Générer la ROM</strong> pour enregistrer un
-            <code>.sfc</code>, ou sur
-            <strong>Ouvrir dans l’émulateur</strong> pour construire puis lancer
-            directement la prévisualisation.
-          </li>
-        </ol>
-        <p>
-          Les chemins d’outils sont mémorisés localement ; ils ne font pas
-          partie du projet portable. Le bouton d’émulateur nécessite un chemin
-          non vide, mais l’existence et le fonctionnement du programme sont
-          vérifiés au lancement. Une erreur de compilation apparaît dans la
-          barre d’état.
-        </p>
-        <p>
-          La ROM joue une boucle de la scène et met à jour ses données
-          exportées. Elle ne contient ni commandes de football, ni adversaires,
-          ni moteur de collisions. Le compilateur impose un budget de transferts
-          par image ; raccourcir la durée ne corrige pas nécessairement une
-          transition individuelle trop coûteuse.
-        </p>
         <h3 id="rom-web">Sources ca65 dans le navigateur</h3>
         <p>
-          Le bouton s’appelle <strong>Exporter le projet ca65</strong>. Il
-          télécharge <code>NomDuProjet.ca65-demo.zip</code>. Décompressez-le et
-          suivez ses instructions de compilation avec ca65/ld65. Le navigateur
-          ne peut pas exécuter les programmes locaux à votre place.
+          <strong>Exporter le projet ca65</strong> télécharge
+          <code>NomDuProjet.ca65-gallery.zip</code> pour une galerie, ou
+          <code>NomDuProjet.ca65-demo.zip</code> pour une scène en boucle.
+          Décompressez et suivez le <code>README.txt</code> inclus pour compiler
+          avec ca65/ld65. Le navigateur n’exécute pas les outils locaux.
+          L’annulation interrompt le calcul de l’export, pas une compilation
+          native déjà lancée.
         </p>
         <h3 id="cli">Export en ligne de commande</h3>
         <p>
@@ -8070,15 +8125,25 @@ npm run dev</code></pre>
         </p>
         <pre><code>npm run export -- examples/football.snesgraph artifacts/football --scene Match
 npm run export -- examples/football.snesgraph artifacts/football --scene Match --rom
-npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></pre>
+npm run export -- mon-projet.snesgraph sortie --set "Export principal"
+npm run export -- examples/football.snesgraph artifacts/gallery --gallery --rom
+npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --language en</code></pre>
+        <p>
+          <code>--gallery</code> produit les sources de galerie ; avec
+          <code>--rom</code>, il compile <code>gallery.sfc</code> dans le
+          dossier de sortie. <code>--language fr|en</code> choisit les menus
+          (français par défaut). <code>--gallery</code> et
+          <code>--scene</code> sont incompatibles. <code>--set</code> applique
+          la sélection enregistrée.
+        </p>
         <p>
           <code>--scene</code> accepte un nom ou un identifiant.
-          <code>--set</code> utilise un ensemble enregistré.
-          <code>--rom</code> nécessite ca65/ld65 dans le PATH et une scène ; le
-          CLI prépare une boucle de deux secondes. Il écrit les fichiers
-          directement dans le dossier de destination, et la ROM dans
-          <code>demo/demo.sfc</code>, plutôt qu’une archive ZIP. Utilisez un
-          dossier de sortie distinct de vos sources.
+          <code>--set</code> utilise un ensemble enregistré. Sans
+          <code>--gallery</code>, <code>--rom</code> nécessite ca65/ld65 dans le
+          PATH et une scène ; le CLI prépare une boucle de deux secondes. Il
+          écrit les fichiers directement dans le dossier de destination, et la
+          ROM dans <code>demo/demo.sfc</code>, plutôt qu’une archive ZIP.
+          Utilisez un dossier de sortie distinct de vos sources.
         </p>
       </section>
 
@@ -8142,9 +8207,9 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
           Enregistrez. Dans Exporter, partez de Toutes les ressources,
           choisissez Match comme scène de référence et nommez l’ensemble Match
           complet. Vérifiez que Gardien est coché avec les deux palettes
-          initiales. Exportez les ressources. Dans le bureau, configurez
-          ca65/ld65, générez une boucle de 120 images et ouvrez-la dans votre
-          émulateur.
+          initiales. Exportez les ressources. Choisissez Scène en boucle. Dans
+          le bureau, configurez ca65/ld65, générez une boucle de 120 images et
+          ouvrez-la dans votre émulateur.
         </p>
         <div class="recipe">
           <p>
@@ -8524,8 +8589,9 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>Pourquoi Générer la ROM est grisé ?</td>
                 <td>
-                  Choisissez une Scène de référence. Pour Ouvrir dans
-                  l’émulateur, renseignez aussi son chemin.
+                  En mode Scène en boucle, choisissez une Scène de référence. La
+                  galerie n’en exige pas. Pour Ouvrir dans l’émulateur,
+                  renseignez aussi son chemin.
                 </td>
               </tr>
               <tr>
@@ -8978,8 +9044,8 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>Grandes cartes</td>
                 <td>
-                  Export par blocs et fenêtre initiale ; pas de système de
-                  streaming de jeu complet.
+                  Exploration complète dans la galerie ; export par blocs pour
+                  une intégration dans un jeu.
                 </td>
                 <td>
                   Implémentez la stratégie de chargement dans votre moteur.
@@ -9000,9 +9066,10 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>Export</td>
                 <td>
-                  Dépendances explicites ; certains contrôles interviennent
-                  seulement au lancement. L’annulation vise le calcul d’export,
-                  pas nécessairement une compilation native déjà lancée.
+                  Dépendances automatiques dans la galerie, explicites pour les
+                  autres exports ; certains contrôles interviennent seulement au
+                  lancement. L’annulation vise le calcul d’export, pas
+                  nécessairement une compilation native déjà lancée.
                 </td>
                 <td>
                   Lisez le message final et vérifiez les fichiers produits.
@@ -9011,8 +9078,9 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
               <tr>
                 <td>ROM</td>
                 <td>
-                  Boucle de 1–600 images dans l’interface, budgets de transfert
-                  et de temps ; pas de logique de jeu.
+                  Galerie interactive ou scène en boucle ; scènes limitées à
+                  1–600 images, ROM à 4 Mio, budgets de transfert et de temps.
+                  Pas de logique de jeu.
                 </td>
                 <td>
                   Utilisez-la pour la vérification, puis intégrez les données
@@ -9071,9 +9139,9 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
         </p>
         <h3 id="provenance">Sources et illustrations</h3>
         <p>
-          Les captures 1–17 proviennent de l’application native ; les vues 18–25
-          du navigateur sous Linux, avec la même interface française, à partir
-          des fichiers
+          Les captures historiques 1–17 proviennent de l’application native ;
+          les vues 18–25 du navigateur sous Linux, avec la même interface
+          française, à partir des fichiers
           <a href="../../examples/football.snesgraph" download
             >football.snesgraph</a
           >,
@@ -9083,10 +9151,11 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
           Les tableaux associent aussi chaque commande à un extrait ciblé de
           cette interface ; cliquez sur une image pour l’agrandir. Les captures
           originales et leurs zones de recadrage sont conservées pour les
-          prochaines mises à jour. Ce sont des aperçus de l’éditeur, pas des
-          captures de console. Les schémas et graphiques explicitent les
-          relations et calculs ; ils ne représentent pas des mesures de
-          performances.
+          prochaines mises à jour. Les vues Exporter et ROM ont été renouvelées
+          depuis le navigateur. Les captures de la galerie en fonctionnement
+          proviennent de Mesen ; aucune capture ne prouve un essai sur console
+          physique. Les schémas et graphiques explicitent les relations et
+          calculs ; ils ne représentent pas des mesures de performances.
         </p>
         <p>
           La description des commandes a été confrontée au code de l’interface

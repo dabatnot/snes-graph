@@ -8,7 +8,8 @@ import type { Project, ExportSet } from "../core/model";
 import { uid } from "../core/model";
 import { Check, Field, NumberField, Select } from "./controls";
 import { diagnosticText } from "./Scenes";
-import { tr } from "../i18n";
+import i18n, { tr } from "../i18n";
+import type { ExportKind } from "../core/gallery";
 export function Exports({
   project,
   change,
@@ -19,6 +20,7 @@ export function Exports({
   report: (s: string) => void;
 }) {
   const [selected, setSelected] = useState(project.exports[0]?.id ?? ""),
+    [romMode, setRomMode] = useState<"scene" | "gallery">("gallery"),
     [busy, setBusy] = useState(false),
     [ticks, setTicks] = useState(project.fps * 2),
     [ca65, setCa65] = useState(
@@ -49,7 +51,8 @@ export function Exports({
       }
       f(e);
     });
-  const run = async (demo = false, launch = false) => {
+  const run = async (kind: ExportKind = "assets", launch = false) => {
+    const demo = kind !== "assets";
     setBusy(true);
     abort.current = new AbortController();
     try {
@@ -58,8 +61,9 @@ export function Exports({
         project,
         opt,
         abort.current.signal,
-        demo,
+        kind,
         ticks,
+        i18n.language.startsWith("fr") ? "fr" : "en",
       );
       if (demo && isTauri()) {
         const rom = fixRomChecksum(
@@ -95,7 +99,12 @@ export function Exports({
             ]),
           ),
         ),
-        project.name + (demo ? ".ca65-demo.zip" : ".snes-export.zip"),
+        project.name +
+          (kind === "gallery"
+            ? ".ca65-gallery.zip"
+            : demo
+              ? ".ca65-demo.zip"
+              : ".snes-export.zip"),
       );
       if (result) report(tr("Export enregistré", "Export saved"));
     } catch (e) {
@@ -169,29 +178,75 @@ export function Exports({
           {`\n`}sprites.chr{`\n`}assets.inc{`\n`}manifest.json
         </pre>
         <h3>{tr("ROM de démonstration", "Demo ROM")}</h3>
+        <Select
+          label={tr("Type de ROM", "ROM type")}
+          value={romMode}
+          options={[
+            {
+              value: "gallery",
+              label: tr("Galerie interactive", "Interactive gallery"),
+            },
+            { value: "scene", label: tr("Scène en boucle", "Looping scene") },
+          ]}
+          onChange={(v) => setRomMode(v as "scene" | "gallery")}
+        />
+        {romMode === "gallery" && (
+          <section>
+            <h3>{tr("Scènes de la galerie", "Gallery scenes")}</h3>
+            {project.scenes.map((s) => (
+              <Check
+                key={s.id}
+                label={s.name}
+                value={(
+                  opt.gallerySceneIds ?? project.scenes.map((s) => s.id)
+                ).includes(s.id)}
+                onChange={(checked) =>
+                  edit((e) => {
+                    const ids =
+                      e.gallerySceneIds ?? project.scenes.map((s) => s.id);
+                    e.gallerySceneIds = checked
+                      ? [...ids, s.id]
+                      : ids.filter((id) => id !== s.id);
+                  })
+                }
+              />
+            ))}
+          </section>
+        )}
         <p>
-          {tr(
-            "Une boucle de la scène pour vérifier les ressources dans votre émulateur.",
-            "A scene loop to inspect exported resources in your emulator.",
-          )}
+          {romMode === "gallery"
+            ? tr(
+                "Parcourez les personnages, cartes et scènes sélectionnés à la manette. Start affiche les commandes. Les dépendances nécessaires sont incluses automatiquement.",
+                "Browse selected characters, maps and scenes with a controller. Start shows the controls. Required dependencies are included automatically.",
+              )
+            : tr(
+                "Une boucle de la scène pour vérifier les ressources dans votre émulateur.",
+                "A scene loop to inspect exported resources in your emulator.",
+              )}
         </p>
         <NumberField
-          label={tr("Durée en images console", "Duration in console frames")}
+          label={tr(
+            "Durée des scènes en images console",
+            "Scene duration in console frames",
+          )}
           value={ticks}
           min={1}
           max={600}
           onChange={setTicks}
         />
         <div className="button-row">
-          <button disabled={busy || !scene} onClick={() => run(true)}>
+          <button
+            disabled={busy || (romMode === "scene" && !scene)}
+            onClick={() => run(romMode)}
+          >
             {isTauri()
               ? tr("Générer la ROM", "Generate ROM")
               : tr("Exporter le projet ca65", "Export ca65 project")}
           </button>
           {isTauri() && (
             <button
-              disabled={busy || !scene || !emulator}
-              onClick={() => run(true, true)}
+              disabled={busy || (romMode === "scene" && !scene) || !emulator}
+              onClick={() => run(romMode, true)}
             >
               {tr("Ouvrir dans l’émulateur", "Open in emulator")}
             </button>
