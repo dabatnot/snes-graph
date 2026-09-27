@@ -144,3 +144,9 @@ Implemented one embedded PNG reference per drawing, with proportional fit, numer
 Validation: 74 tests pass, including reference archive round-trips, invalid inputs, size limits, duplication, resizing and rendering isolation. Version check and production build pass (Vite reports a bundle-size advisory). Chromium web checks at 1440 × 920 cover import, placement, handle resizing, Escape cancellation, single-gesture undo, painting, visibility, duplication, removal/undo and save/reopen. A PNG exported after drawing contained only the 76 painted outline pixels. Native Linux/Windows graphical checks and packages were not run for this change.
 
 Reference overflow correction: the workspace includes the full visible reference, including negative coordinates, while the paint canvas and grid retain drawing dimensions. A separate native-resolution bitmap avoids allocating a giant raster when the reference is enlarged. Chromium checks cover out-of-grid manipulation, undo and paint bounds; the offline manuals describe the corrected behavior.
+
+## Drawing gestures and keyboard shortcuts — September 27, 2026
+
+Added pointer-centered Ctrl+wheel zoom, keyboard zoom/fit, Space and middle-button panning, direct hexadecimal palette keys (including the AZERTY number row), tool shortcuts and temporary Ctrl-click picking. Selection commands share their buttons and shortcuts; lasso masks survive copy/paste and movement, arrow repeats undo as one gesture, Escape cancels previews, and Shift constrains shapes. Locked layers remain read-only and text inputs keep native undo.
+
+Validation: 78 tests, version check and production build pass; Vite retains its bundle-size advisory. Chromium journeys verify navigation, editing and cancellation. Both manuals and captures were updated. The native Linux development window starts, but native input automation timed out, so its gestures are not claimed as verified. Windows and packages were not tested. No version or format change.

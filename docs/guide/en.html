@@ -1648,10 +1648,10 @@ npm run dev</code></pre>
           </table>
         </div>
         <p>
-          Pixels moved beyond the drawing are lost from the result; use Undo to
-          restore them. A stroke is committed only when the pointer is released.
-          No B/E/G shortcuts are documented for selecting tools: use the
-          toolbar.
+          A stroke is committed on pointer release; Escape cancels it. Selection
+          moves are blocked at drawing boundaries. See
+          <a href="#drawing-shortcuts">drawing shortcuts</a> for tools, colors
+          and navigation.
         </p>
         <h3 id="vue-dessin">Zoom, grid, symmetry, and preview</h3>
         <div class="table-wrap">
@@ -2006,17 +2006,17 @@ npm run dev</code></pre>
           supported, up to 4096 × 4096 pixels and 128 MiB, within the project's
           total 128 MiB limit. The original colors and transparency are
           preserved without SNES conversion. Zooming and resizing use sharp
-          pixels without smoothing; any antialiasing already in the PNG is retained.
+          pixels without smoothing; any antialiasing already in the PNG is
+          retained.
         </p>
         <p>
           The image initially fits inside the canvas, centered at 50% opacity.
           Use <strong>X (px)</strong>, <strong>Y (px)</strong> and
           <strong>Width (px)</strong> for precise placement; height follows the
-          original proportions. The reference remains visible beyond the tile surface,
-          including at negative positions. Scroll the workspace to reach the
-          full image; painting and the grid stay limited to the tiles.
-          <strong>Fit to canvas</strong> restores the
-          centered fit.
+          original proportions. The reference remains visible beyond the tile
+          surface, including at negative positions. Scroll the workspace to
+          reach the full image; painting and the grid stay limited to the tiles.
+          <strong>Fit to canvas</strong> restores the centered fit.
         </p>
         <p>
           Choose <strong>Adjust reference</strong> to drag the image or its
@@ -2055,10 +2055,18 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/en/33-reference-overflow.png"><img
-            src="assets/en/33-reference-overflow.png" width="1440" height="920"
-            loading="lazy" alt="The reference extends beyond the tiles; only the gridded area accepts painting." /></a>
-          <figcaption>The reference extends beyond the tiles; only the gridded area accepts painting.</figcaption>
+          <a data-zoom href="assets/en/33-reference-overflow.png"
+            ><img
+              src="assets/en/33-reference-overflow.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="The reference extends beyond the tiles; only the gridded area accepts painting."
+          /></a>
+          <figcaption>
+            The reference extends beyond the tiles; only the gridded area
+            accepts painting.
+          </figcaption>
         </figure>
         <h3 id="calques">Drawing layers</h3>
         <div class="table-wrap">
@@ -7935,10 +7943,10 @@ npm run dev</code></pre>
         <p>
           <strong>Start</strong> opens a separate information panel with the
           name, list position and controls. Playback is suspended. Start or B
-          closes the panel and restores the previous state. Names in this panel are
-          limited to 28 characters without an ellipsis. Only A–Z, a–z and 0–9
-          are retained; all other characters, including accented letters, become
-          spaces without changing project data. Menu language follows the
+          closes the panel and restores the previous state. Names in this panel
+          are limited to 28 characters without an ellipsis. Only A–Z, a–z and
+          0–9 are retained; all other characters, including accented letters,
+          become spaces without changing project data. Menu language follows the
           application language at generation time.
         </p>
         <div class="table-wrap">
@@ -7986,7 +7994,13 @@ npm run dev</code></pre>
           </table>
         </div>
         <p>
-          The blue and ivory menu uses a gold cursor and previews the first resource in the selected category. Sprite previews fit the complete pose regardless of its editor origin. Preview colors use a reduced palette; opened resources retain their original palettes. The project title is centered on one or two lines, with an ellipsis if it is too long. Accented letters in this title are converted to their unaccented equivalents.
+          The blue and ivory menu uses a gold cursor and previews the first
+          resource in the selected category. Sprite previews fit the complete
+          pose regardless of its editor origin. Preview colors use a reduced
+          palette; opened resources retain their original palettes. The project
+          title is centered on one or two lines, with an ellipsis if it is too
+          long. Accented letters in this title are converted to their unaccented
+          equivalents.
         </p>
         <figure>
           <a data-zoom href="assets/en/12-gallery-rom.png"
@@ -8000,21 +8014,59 @@ npm run dev</code></pre>
           <figcaption>Actual ROM home screen captured in Mesen.</figcaption>
         </figure>
         <p>
-          Controller hints use a pixel-art D-pad and framed button letters (A, B, X, Y, L, R), plus a Start capsule. The same symbols appear in the home menu, resource bars and information panel. They describe controller inputs; they are not on-screen buttons. Left/Right frame stepping still requires paused playback.
+          Controller hints use a pixel-art D-pad and framed button letters (A,
+          B, X, Y, L, R), plus a Start capsule. The same symbols appear in the
+          home menu, resource bars and information panel. They describe
+          controller inputs; they are not on-screen buttons. Left/Right frame
+          stepping still requires paused playback.
         </p>
         <p>
-          The resource-card layout keeps sprite pixels at their native size. Sprites fitting within 144 × 168 pixels have a side panel showing the current pose and variant (up to nine characters); larger sprites keep the full-screen view. Maps use a 256 × 168 viewing area between the title and control bars, and can still be scrolled to their edges. Scenes retain their original rendering: the bars cover the top 32 and bottom 24 lines without rescaling. Cards currently require Mode 1, a free BG3, spare video memory and palette entries, and no scene effects, color math or interlace. Other resources keep the full-screen view. Start opens the separate blue information panel in every case. Cards and information panels use the same thin outlines and square corners as the home menu.
+          The resource-card layout keeps sprite pixels at their native size.
+          Sprites fitting within 144 × 168 pixels have a side panel showing the
+          current pose and variant (up to nine characters); larger sprites keep
+          the full-screen view. Maps use a 256 × 168 viewing area between the
+          title and control bars, and can still be scrolled to their edges.
+          Scenes retain their original rendering: the bars cover the top 32 and
+          bottom 24 lines without rescaling. Cards currently require Mode 1, a
+          free BG3, spare video memory and palette entries, and no scene
+          effects, color math or interlace. Other resources keep the full-screen
+          view. Start opens the separate blue information panel in every case.
+          Cards and information panels use the same thin outlines and square
+          corners as the home menu.
         </p>
         <figure>
-          <a data-zoom href="assets/en/29-gallery-card-sprite.png"><img src="assets/en/29-gallery-card-sprite.png" width="256" height="224" loading="lazy" alt="Sprite card: current pose and palette variant." /></a>
-          <figcaption>Sprite card: current pose and palette variant.</figcaption>
+          <a data-zoom href="assets/en/29-gallery-card-sprite.png"
+            ><img
+              src="assets/en/29-gallery-card-sprite.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Sprite card: current pose and palette variant."
+          /></a>
+          <figcaption>
+            Sprite card: current pose and palette variant.
+          </figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/en/30-gallery-card-map.png"><img src="assets/en/30-gallery-card-map.png" width="256" height="224" loading="lazy" alt="Map view with title and camera controls." /></a>
+          <a data-zoom href="assets/en/30-gallery-card-map.png"
+            ><img
+              src="assets/en/30-gallery-card-map.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Map view with title and camera controls."
+          /></a>
           <figcaption>Map view with title and camera controls.</figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/en/31-gallery-card-scene.png"><img src="assets/en/31-gallery-card-scene.png" width="256" height="224" loading="lazy" alt="Scene view with title and playback controls." /></a>
+          <a data-zoom href="assets/en/31-gallery-card-scene.png"
+            ><img
+              src="assets/en/31-gallery-card-scene.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Scene view with title and playback controls."
+          /></a>
           <figcaption>Scene view with title and playback controls.</figcaption>
         </figure>
         <figure>
@@ -8062,13 +8114,13 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <p>
-          In views without a card, the four-square SNES Graph icon is overlaid at the bottom right on the
-          panels and resource previews, including Looping scene mode. The home
-          screen instead displays the SNES Graph name below the title. Scene
-          effects and windows also affect the icon. It uses free OBJ entries and
-          tiles; insufficient space blocks export. When all palettes are
-          occupied, its colors use the closest available colors without
-          recoloring project resources.
+          In views without a card, the four-square SNES Graph icon is overlaid
+          at the bottom right on the panels and resource previews, including
+          Looping scene mode. The home screen instead displays the SNES Graph
+          name below the title. Scene effects and windows also affect the icon.
+          It uses free OBJ entries and tiles; insufficient space blocks export.
+          When all palettes are occupied, its colors use the closest available
+          colors without recoloring project resources.
         </p>
         <h3 id="rom-web">ca65 sources in the browser</h3>
         <p>
@@ -8641,12 +8693,132 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
             </tbody>
           </table>
         </div>
+        <h3 id="drawing-shortcuts">Drawing shortcuts</h3>
         <p>
-          Copy/paste pixels and colors using their workspace buttons. Do not
-          assume Ctrl+C/Ctrl+V copy a graphic selection: in a text field, they
-          retain their text behavior. If a Shift shortcut is not recognized by
-          your keyboard layout, use the corresponding button.
+          Only active in the drawing editor, outside text fields, selects and
+          dialogs. Text editing keeps its normal shortcuts; buttons keep normal
+          keyboard activation. Navigation, tool and color changes do not enter
+          undo history.
         </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Shortcut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ctrl + wheel</td>
+                <td>
+                  Zoom around the pointer, inside the drawing workspace only.
+                </td>
+              </tr>
+              <tr>
+                <td>+ / −</td>
+                <td>Zoom around the viewport center.</td>
+              </tr>
+              <tr>
+                <td>Shift + F</td>
+                <td>
+                  Fit drawing (⌖); excludes reference overflow. Minimum 100%,
+                  with scrolling if needed.
+                </td>
+              </tr>
+              <tr>
+                <td>Space + drag / middle-button drag</td>
+                <td>
+                  Pan without painting; ordinary wheel scrolling is unchanged.
+                </td>
+              </tr>
+              <tr>
+                <td>0–9, A–F</td>
+                <td>
+                  Select a palette index. AZERTY number row works without Shift;
+                  keypad supported. In 2 bpp, only 0–3. Index 0 is transparent.
+                  B, E and F select colors, not tools.
+                </td>
+              </tr>
+              <tr>
+                <td>P / Shift + P</td>
+                <td>Pencil / Eraser</td>
+              </tr>
+              <tr>
+                <td>G / I / L / R / O</td>
+                <td>Fill / Picker / Line / Rectangle / Ellipse</td>
+              </tr>
+              <tr>
+                <td>M / Shift + M / V</td>
+                <td>Selection / Lasso / Move</td>
+              </tr>
+              <tr>
+                <td>Shift + G</td>
+                <td>Toggle grid.</td>
+              </tr>
+              <tr>
+                <td>Ctrl + click</td>
+                <td>
+                  Temporarily pick a composite drawing pixel, never the
+                  reference. Keeps the current tool and works on locked layers.
+                </td>
+              </tr>
+              <tr>
+                <td>Ctrl + A / C / X / V</td>
+                <td>Select all / Copy / Cut / Paste.</td>
+              </tr>
+              <tr>
+                <td>Delete</td>
+                <td>
+                  Erase selected pixels on the active layer; no selection means
+                  no change.
+                </td>
+              </tr>
+              <tr>
+                <td>Arrows / Shift + arrows</td>
+                <td>
+                  Move selected pixels by 1 / 8 pixels, keeping the selection. A
+                  held key is one undo step.
+                </td>
+              </tr>
+              <tr>
+                <td>Shift while drawing</td>
+                <td>
+                  Constrain a line to 45° increments, a rectangle to a square,
+                  or an ellipse to a circle.
+                </td>
+              </tr>
+              <tr>
+                <td>Escape</td>
+                <td>Cancel the current gesture; otherwise deselect.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Copy without a selection copies the active layer. Cut requires a
+          selection. Paste uses the selection origin, or the drawing’s top-left
+          corner; pixels outside the drawing are ignored. The internal clipboard
+          preserves the lasso mask: outside pixels do not erase the destination,
+          while selected transparent pixels do. Locked layers allow selection
+          and copy, but not edits. Each edit gesture is one undo step. Losing
+          window focus cancels an unfinished gesture. While adjusting a
+          reference, navigation remains available but painting and selection
+          shortcuts are disabled.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/34-drawing-shortcuts.png"
+            ><img
+              src="assets/en/34-drawing-shortcuts.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="Drawing navigation, palette indices and selection commands."
+          /></a>
+          <figcaption>
+            Drawing navigation, palette indices and selection commands.
+          </figcaption>
+        </figure>
         <h3 id="glossaire">Glossary</h3>
         <div class="table-wrap">
           <table>

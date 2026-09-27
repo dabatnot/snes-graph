@@ -268,3 +268,11 @@ Gallery thumbnails now rasterize the complete first pose, independently of the e
 ### Reference overflow correction
 
 `assets/33-reference-overflow.png` and `assets/en/33-reference-overflow.png` show the corrected workspace in Chromium at 1440 × 920, route `/`, Graphics → Tiles. Temporary 32 × 32 drawing; same icon PNG; reference width 64, X/Y −16, opacity 50%, zoom 1000%, grid on, one white painted pixel. The full reference remains visible outside the tile grid. Both captures were visually inspected. Browser checks also exercise outside clicks (no painting), painting inside, dragging from outside the grid, resizing with the outside handle, and single-step undo.
+
+## Drawing gestures and shortcuts — September 27, 2026
+
+`assets/34-drawing-shortcuts.png` and `assets/en/34-drawing-shortcuts.png` show the Chromium web editor at 1440 × 920, route `/`. A temporary 32 × 32, 4 bpp drawing named Practice contains a white square drawn with the rectangle constraint (select R, then hold Shift while dragging); color F, grid off, fitted zoom 1800%. Scroll the inspector to Selection. Original examples were not changed. Both captures were visually inspected; selection commands fit in two columns.
+
+Browser checks cover palette/tool keys, simulated AZERTY Digit6, Ctrl+wheel anchoring, Space/middle-button panning, fit, repeated-arrow single-step undo, Escape cancellation, clipboard/delete, constrained square, lasso cut/undo, temporary picker and input/modal isolation. Native Linux development build starts, but native input automation times out; native Ctrl+wheel and middle-button gestures remain unverified. Windows was not tested. The format and application version are unchanged.
+
+Manual QA: both new captures open and close in the image lightbox; the French chapter search finds AZERTY. Both editions have 110 matching anchors and 511 checked local/external link entries. Browser layer checks also verify locked-layer painting protection and composite picking.

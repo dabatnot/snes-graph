@@ -1,7 +1,17 @@
+import {
+  paletteKey,
+  textInput,
+  constrain,
+  copyPixels,
+  pastePixels,
+  movePixels,
+  type PixelClip,
+  type Selection,
+} from "./drawing-input";
 import { chooseFile } from "../platform";
 import { createReference, fitReference } from "../core/reference";
 import type { DrawingReference } from "../core/model";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   clone,
   hex,
@@ -34,10 +44,12 @@ export function Drawing({
   paletteId,
   setPalette,
   focusTile,
+  shortcutsEnabled = true,
 }: {
   project: Project;
   sheet: Sheet;
   focusTile?: number;
+  shortcutsEnabled?: boolean;
   change: (fn: (p: Project) => void) => void;
   paletteId: string;
   setPalette: (id: string) => void;
@@ -78,7 +90,12 @@ export function Drawing({
     ...clone(sheet),
     pixels: (layer?.pixels ?? sheet.pixels).slice(),
   });
-  const commit = (pixels: Uint8Array) =>
+  const commit = (pixels: Uint8Array) => {
+    if (
+      layer?.locked ||
+      pixels.every((v, i) => v === (layer?.pixels ?? sheet.pixels)[i])
+    )
+      return;
     change((p) => {
       const s = p.sheets.find((s) => s.id === sheet.id)!;
       if (s.layers) {
@@ -88,6 +105,7 @@ export function Drawing({
         flattenSheet(s);
       } else s.pixels = pixels;
     });
+  };
   const [adjustReference, setAdjustReference] = useState(false);
   const [referencePreview, setReferencePreview] =
     useState<DrawingReference | null>(null);
@@ -137,17 +155,6 @@ export function Drawing({
       bitmap?.close();
     };
   }, [sheet.id, sheet.reference?.id]);
-  useEffect(() => {
-    const cancel = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && referenceGesture.current) {
-        e.preventDefault();
-        referenceGesture.current = null;
-        setReferencePreview(null);
-      }
-    };
-    window.addEventListener("keydown", cancel);
-    return () => window.removeEventListener("keydown", cancel);
-  }, []);
   const updateReference = (values: Partial<DrawingReference>) =>
     change((p) => {
       const r = p.sheets.find((s) => s.id === sheet.id)?.reference;
@@ -183,9 +190,7 @@ export function Drawing({
     draft = useRef<Sheet | null>(null),
     start = useRef<Point | null>(null),
     last = useRef<Point | null>(null),
-    clip = useRef<{ width: number; height: number; pixels: Uint8Array } | null>(
-      null,
-    );
+    clip = useRef<PixelClip | null>(null);
   const referenceCanvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = referenceCanvas.current;
@@ -291,7 +296,7 @@ export function Drawing({
     );
   }, [sheet.id, sheet.width, sheet.height]);
   useEffect(() => {
-    draw();
+    draw(draft.current ?? undefined);
   }, [
     sheet,
     pal,
@@ -357,8 +362,11 @@ export function Drawing({
       return;
     }
     if (!draft.current || !start.current) return;
-    const b = pos(e),
-      a = start.current;
+    const a = start.current;
+    const b =
+      e.shiftKey && ["line", "rect", "ellipse"].includes(tool)
+        ? constrain(a, pos(e), tool)
+        : pos(e);
     if (tool === "select") {
       setSelection({
         x: Math.min(a.x, b.x),
@@ -374,21 +382,18 @@ export function Drawing({
       return;
     }
     if (tool === "move" && selection) {
-      const source = editable(),
-        target = editable(),
-        dx = b.x - a.x,
-        dy = b.y - a.y;
-      for (let y = selection.y; y < selection.y + selection.height; y++)
-        for (let x = selection.x; x < selection.x + selection.width; x++)
-          if (!mask.current || mask.current[y * sheet.width + x])
-            put(target, x, y, 0);
-      for (let y = selection.y; y < selection.y + selection.height; y++)
-        for (let x = selection.x; x < selection.x + selection.width; x++)
-          if (!mask.current || mask.current[y * sheet.width + x])
-            put(target, x + dx, y + dy, pixel(source, x, y));
-      draft.current = target;
-      last.current = b;
-      draw(target);
+      const moved = movePixels(
+        editable(),
+        selection,
+        mask.current,
+        b.x - a.x,
+        b.y - a.y,
+      );
+      if (moved) {
+        draft.current = moved.sheet;
+        last.current = b;
+        draw(moved.sheet);
+      }
       return;
     }
     if (["line", "rect", "ellipse"].includes(tool)) {
@@ -468,31 +473,333 @@ export function Drawing({
       }
       lasso.current = [];
     } else if (tool !== "select" && tool !== "pick") commit(pixels);
-    if (tool === "move") {
-      mask.current = null;
-      setSelection(null);
+    if (tool === "move" && selection && start.current && last.current) {
+      const moved = movePixels(
+        editable(),
+        selection,
+        mask.current,
+        last.current.x - start.current.x,
+        last.current.y - start.current.y,
+      );
+      if (moved) {
+        mask.current = moved.mask;
+        setSelection(moved.selection);
+      }
     }
+    selectionBefore.current = null;
     draft.current = null;
     start.current = null;
     last.current = null;
   }
   const copy = () => {
-    const source = editable();
     const r = selection ?? {
       x: 0,
       y: 0,
       width: sheet.width,
       height: sheet.height,
     };
-    const data = new Uint8Array(r.width * r.height);
-    for (let y = 0; y < r.height; y++)
-      for (let x = 0; x < r.width; x++)
-        data[y * r.width + x] =
-          !mask.current || mask.current[(r.y + y) * sheet.width + r.x + x]
-            ? pixel(source, r.x + x, r.y + y)
-            : 0;
-    clip.current = { width: r.width, height: r.height, pixels: data };
+    clip.current = copyPixels(editable(), r, mask.current);
   };
+  const paste = () => {
+    if (!clip.current || layer?.locked) return;
+    const s = editable();
+    pastePixels(s, clip.current, selection?.x ?? 0, selection?.y ?? 0);
+    commit(s.pixels);
+  };
+  const eraseSelection = () => {
+    if (!selection || layer?.locked) return;
+    const s = editable(),
+      c = copyPixels(s, selection, mask.current);
+    c.pixels.fill(0);
+    pastePixels(s, c, selection.x, selection.y);
+    commit(s.pixels);
+  };
+  const deselect = () => {
+    setSelection(null);
+    mask.current = null;
+  };
+  const area = useRef<HTMLDivElement>(null);
+  const workspace = useRef<HTMLDivElement>(null);
+  const space = useRef(false);
+  const pan = useRef<{
+    x: number;
+    y: number;
+    left: number;
+    top: number;
+  } | null>(null);
+  const selectionBefore = useRef<{
+    selection: Selection | null;
+    mask: Uint8Array | null;
+  } | null>(null);
+  const nudge = useRef<{
+    source: Sheet;
+    selection: Selection;
+    mask: Uint8Array | null;
+    dx: number;
+    dy: number;
+    key: string;
+  } | null>(null);
+  const zoomAnchor = useRef<{
+    x: number;
+    y: number;
+    screenX: number;
+    screenY: number;
+  } | null>(null);
+  const maxZoom = Math.max(
+    1,
+    Math.min(32, Math.floor(4096 / Math.max(sheet.width, sheet.height))),
+  );
+  const busy = () =>
+    !!(
+      draft.current ||
+      referenceGesture.current ||
+      pan.current ||
+      nudge.current
+    );
+  const zoomTo = (
+    value: number,
+    clientX?: number,
+    clientY?: number,
+    fit = false,
+  ) => {
+    if (!area.current || !workspace.current || busy()) return;
+    const a = area.current.getBoundingClientRect(),
+      w = workspace.current.getBoundingClientRect();
+    const screenX = clientX ?? a.left + area.current.clientWidth / 2;
+    const screenY = clientY ?? a.top + area.current.clientHeight / 2;
+    zoomAnchor.current = {
+      x: fit ? -left + sheet.width / 2 : (screenX - w.left) / zoom,
+      y: fit ? -top + sheet.height / 2 : (screenY - w.top) / zoom,
+      screenX,
+      screenY,
+    };
+    setZoom(Math.max(1, Math.min(maxZoom, value)));
+    // Fitting also scrolls when the zoom level is unchanged.
+    if (Math.max(1, Math.min(maxZoom, value)) === zoom) applyZoomAnchor();
+  };
+  function applyZoomAnchor() {
+    const anchor = zoomAnchor.current;
+    if (!anchor || !workspace.current || !area.current) return;
+    const w = workspace.current.getBoundingClientRect();
+    area.current.scrollLeft += w.left + anchor.x * zoom - anchor.screenX;
+    area.current.scrollTop += w.top + anchor.y * zoom - anchor.screenY;
+    zoomAnchor.current = null;
+  }
+  useLayoutEffect(applyZoomAnchor, [zoom]);
+  const fitDrawing = () => {
+    if (!area.current) return;
+    zoomTo(
+      Math.floor(
+        Math.min(
+          (area.current.clientWidth - 72) / sheet.width,
+          (area.current.clientHeight - 72) / sheet.height,
+        ),
+      ),
+      undefined,
+      undefined,
+      true,
+    );
+  };
+  function cancelGesture() {
+    if (nudge.current) {
+      setSelection(nudge.current.selection);
+      mask.current = nudge.current.mask;
+    } else if (selectionBefore.current) {
+      setSelection(selectionBefore.current.selection);
+      mask.current = selectionBefore.current.mask;
+    }
+    nudge.current = null;
+    selectionBefore.current = null;
+    draft.current = null;
+    start.current = last.current = null;
+    lasso.current = [];
+    referenceGesture.current = null;
+    setReferencePreview(null);
+    pan.current = null;
+    space.current = false;
+    draw();
+  }
+  function finishNudge() {
+    const g = nudge.current;
+    nudge.current = null;
+    if (g && draft.current && (g.dx || g.dy)) commit(draft.current.pixels);
+    draft.current = null;
+  }
+  function nudgeSelection(key: string, step: number) {
+    if (!selection || layer?.locked) return;
+    if (nudge.current && nudge.current.key !== key) return;
+    const g = nudge.current ?? {
+      source: editable(),
+      selection,
+      mask: mask.current,
+      dx: 0,
+      dy: 0,
+      key,
+    };
+    const dx =
+      g.dx + (key === "ArrowLeft" ? -step : key === "ArrowRight" ? step : 0);
+    const dy =
+      g.dy + (key === "ArrowUp" ? -step : key === "ArrowDown" ? step : 0);
+    const moved = movePixels(g.source, g.selection, g.mask, dx, dy);
+    if (!moved) return;
+    nudge.current = { ...g, dx, dy };
+    draft.current = moved.sheet;
+    mask.current = moved.mask;
+    setSelection(moved.selection);
+    draw(moved.sheet);
+  }
+  useEffect(() => {
+    const el = area.current;
+    if (!el) return;
+    const wheel = (e: WheelEvent) => {
+      if (!shortcutsEnabled || !e.ctrlKey) return;
+      e.preventDefault();
+      if (e.deltaY)
+        zoomTo(zoom + (e.deltaY < 0 ? 1 : -1), e.clientX, e.clientY);
+    };
+    el.addEventListener("wheel", wheel, { passive: false });
+    const down = (e: KeyboardEvent) => {
+      if (!shortcutsEnabled || textInput(e.target) || e.isComposing || e.altKey)
+        return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        if (busy()) cancelGesture();
+        else deselect();
+        return;
+      }
+      if (nudge.current && e.key === nudge.current.key) {
+        e.preventDefault();
+        nudgeSelection(e.key, e.shiftKey ? 8 : 1);
+        return;
+      }
+      if (busy()) {
+        // Do not save or undo a partially previewed edit.
+        if (
+          e.ctrlKey ||
+          e.metaKey ||
+          e.code === "Space" ||
+          e.key.startsWith("Arrow")
+        )
+          e.preventDefault();
+        return;
+      }
+      if (
+        e.code === "Space" &&
+        !(e.target instanceof HTMLElement && e.target.closest("button"))
+      ) {
+        if (e.ctrlKey || e.metaKey) return;
+        e.preventDefault();
+        space.current = true;
+        return;
+      }
+      const key = e.key.toLowerCase();
+      if (e.ctrlKey || e.metaKey) {
+        if (adjustReference) return;
+        if (["a", "c", "x", "v"].includes(key)) {
+          e.preventDefault();
+          if (e.repeat) return;
+          if (key === "a") {
+            mask.current = null;
+            setSelection({
+              x: 0,
+              y: 0,
+              width: sheet.width,
+              height: sheet.height,
+            });
+          }
+          if (key === "c") copy();
+          if (key === "x" && selection && !layer?.locked) {
+            copy();
+            eraseSelection();
+          }
+          if (key === "v") paste();
+        }
+        return;
+      }
+      if (
+        key === "+" ||
+        (key === "-" && !e.code.startsWith("Digit")) ||
+        e.code === "NumpadAdd" ||
+        e.code === "NumpadSubtract"
+      ) {
+        e.preventDefault();
+        zoomTo(zoom + (key === "-" || e.code === "NumpadSubtract" ? -1 : 1));
+        return;
+      }
+      if (e.shiftKey && key === "f") {
+        e.preventDefault();
+        fitDrawing();
+        return;
+      }
+      if (adjustReference) return;
+      if (e.shiftKey && key === "g") {
+        e.preventDefault();
+        if (!e.repeat) setGrid((v) => !v);
+        return;
+      }
+      const index = paletteKey(e, Math.min(pal.colors.length, 1 << sheet.bpp));
+      if (index !== null) {
+        e.preventDefault();
+        setColor(index);
+        return;
+      }
+      const keyTools: Record<string, Tool> = {
+        p: e.shiftKey ? "erase" : "pen",
+        g: "fill",
+        i: "pick",
+        l: "line",
+        r: "rect",
+        o: "ellipse",
+        m: e.shiftKey ? "lasso" : "select",
+        v: "move",
+      };
+      if (keyTools[key]) {
+        e.preventDefault();
+        setTool(keyTools[key]);
+        return;
+      }
+      if (e.key === "Delete") {
+        e.preventDefault();
+        if (!e.repeat) eraseSelection();
+        return;
+      }
+      if (
+        ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key) &&
+        selection
+      ) {
+        e.preventDefault();
+        nudgeSelection(e.key, e.shiftKey ? 8 : 1);
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space") space.current = false;
+      if (e.key === nudge.current?.key) finishNudge();
+    };
+    window.addEventListener("keydown", down, true);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", cancelGesture);
+    return () => {
+      el.removeEventListener("wheel", wheel);
+      window.removeEventListener("keydown", down, true);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", cancelGesture);
+    };
+  });
+  useEffect(() => {
+    if (!shortcutsEnabled) cancelGesture();
+  }, [shortcutsEnabled]);
+  const toolKeys = [
+    "P",
+    "Shift+P",
+    "G",
+    "I",
+    "L",
+    "R",
+    "O",
+    "M",
+    "Shift+M",
+    "V",
+  ];
   const tools: [Tool, string, string, string][] = [
     ["pen", "✎", "Crayon", "Pencil"],
     ["erase", "⌫", "Gomme", "Eraser"],
@@ -509,10 +816,10 @@ export function Drawing({
     <>
       <div className="work">
         <div className="toolbar">
-          {tools.map(([key, icon, fr, en]) => (
+          {tools.map(([key, icon, fr, en], index) => (
             <button
               key={key}
-              title={tr(fr, en)}
+              title={`${tr(fr, en)} (${toolKeys[index]})`}
               aria-label={tr(fr, en)}
               className={tool === key ? "active" : ""}
               disabled={adjustReference}
@@ -522,31 +829,80 @@ export function Drawing({
             </button>
           ))}
           <span className="separator" />
-          <button onClick={() => setZoom(Math.max(1, zoom - 1))}>−</button>
+          <button
+            title={tr("Dézoomer (−)", "Zoom out (−)")}
+            onClick={() => zoomTo(zoom - 1)}
+          >
+            −
+          </button>
           <span>{zoom * 100}%</span>
           <button
-            onClick={() =>
-              setZoom(
-                Math.min(
-                  32,
-                  Math.floor(4096 / Math.max(sheet.width, sheet.height)),
-                  zoom + 1,
-                ),
-              )
-            }
+            title={tr("Zoomer (+)", "Zoom in (+)")}
+            onClick={() => zoomTo(zoom + 1)}
           >
             ＋
           </button>
-          <Check label={tr("Grille", "Grid")} value={grid} onChange={setGrid} />
+          <button
+            title={tr("Cadrer le dessin (Maj+F)", "Fit drawing (Shift+F)")}
+            onClick={fitDrawing}
+          >
+            ⌖
+          </button>
+          <span title="Shift+G">
+            <Check
+              label={tr("Grille", "Grid")}
+              value={grid}
+              onChange={setGrid}
+            />
+          </span>
           <Check
             label={tr("Symétrie", "Symmetry")}
             value={sym}
             onChange={setSym}
           />
         </div>
-        <div className="drawing-area">
+        <div
+          className="drawing-area"
+          ref={area}
+          tabIndex={-1}
+          onPointerDownCapture={(e) => {
+            if (!shortcutsEnabled || busy()) return;
+            area.current?.focus({ preventScroll: true });
+            if (e.button !== 1 && !(e.button === 0 && space.current)) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.setPointerCapture(e.pointerId);
+            pan.current = {
+              x: e.clientX,
+              y: e.clientY,
+              left: e.currentTarget.scrollLeft,
+              top: e.currentTarget.scrollTop,
+            };
+          }}
+          onPointerMoveCapture={(e) => {
+            if (!pan.current) return;
+            e.preventDefault();
+            e.stopPropagation();
+            e.currentTarget.scrollLeft =
+              pan.current.left - (e.clientX - pan.current.x);
+            e.currentTarget.scrollTop =
+              pan.current.top - (e.clientY - pan.current.y);
+          }}
+          onPointerUpCapture={(e) => {
+            if (!pan.current) return;
+            e.stopPropagation();
+            pan.current = null;
+            if (e.currentTarget.hasPointerCapture(e.pointerId))
+              e.currentTarget.releasePointerCapture(e.pointerId);
+          }}
+          onPointerCancel={cancelGesture}
+          onAuxClick={(e) => {
+            if (e.button === 1) e.preventDefault();
+          }}
+        >
           <div
             className="drawing-workspace"
+            ref={workspace}
             style={{
               width: (right - left) * zoom,
               height: (bottom - top) * zoom,
@@ -600,19 +956,26 @@ export function Drawing({
               aria-label={tr("Zone de dessin", "Drawing canvas")}
               ref={canvas}
               onPointerDown={(e) => {
-                if (e.button !== 0) return;
-                if (layer?.locked) return;
+                if (e.button !== 0 || !shortcutsEnabled) return;
+                if (busy()) return;
                 e.currentTarget.setPointerCapture(e.pointerId);
                 const a = pos(e);
-                if (tool === "pick") {
+                if (tool === "pick" || e.ctrlKey) {
                   setColor(pixel(sheet, a.x, a.y));
                   return;
                 }
+                if (layer?.locked && tool !== "select" && tool !== "lasso")
+                  return;
+                selectionBefore.current = { selection, mask: mask.current };
                 draft.current = editable();
                 start.current = a;
                 last.current = a;
                 if (tool === "select" || tool === "lasso") {
-                  setSelection(null);
+                  setSelection(
+                    tool === "select"
+                      ? { x: a.x, y: a.y, width: 1, height: 1 }
+                      : null,
+                  );
                   mask.current = null;
                   lasso.current = tool === "lasso" ? [a] : [];
                 } else if (tool === "fill") {
@@ -637,12 +1000,7 @@ export function Drawing({
               }}
               onPointerMove={move}
               onPointerUp={end}
-              onPointerCancel={() => {
-                referenceGesture.current = null;
-                setReferencePreview(null);
-                draft.current = null;
-                draw();
-              }}
+              onPointerCancel={cancelGesture}
             />
             {adjustReference && (
               <div
@@ -652,7 +1010,7 @@ export function Drawing({
                   "Reference placement",
                 )}
                 onPointerDown={(e) => {
-                  if (e.button !== 0) return;
+                  if (e.button !== 0 || !shortcutsEnabled) return;
 
                   if (!reference?.visible) return;
                   const point = referencePoint(e);
@@ -683,10 +1041,7 @@ export function Drawing({
                 }}
                 onPointerMove={move}
                 onPointerUp={end}
-                onPointerCancel={() => {
-                  referenceGesture.current = null;
-                  setReferencePreview(null);
-                }}
+                onPointerCancel={cancelGesture}
               />
             )}
           </div>
@@ -696,6 +1051,7 @@ export function Drawing({
             <button
               key={i}
               aria-label={`${tr("Couleur", "Color")} ${i}`}
+              title={`${tr("Couleur", "Color")} ${i.toString(16).toUpperCase()} (${i.toString(16).toUpperCase()})`}
               className={`${color === i ? "selected" : ""} ${i === 0 ? "transparent" : ""}`}
               style={{ background: i ? hex(c) : undefined }}
               onClick={() => setColor(i)}
@@ -1087,35 +1443,29 @@ export function Drawing({
               .join(", ") || tr("Tile sans autre usage", "No other tile uses")}
           </p>
         )}
-        <div className="button-row">
-          <button onClick={copy}>{tr("Copier", "Copy")}</button>
-          <button
-            onClick={() => {
-              if (!clip.current) return;
-              const c = clip.current;
-              {
-                const s = editable();
-                for (let y = 0; y < c.height; y++)
-                  for (let x = 0; x < c.width; x++)
-                    put(
-                      s,
-                      (selection?.x ?? 0) + x,
-                      (selection?.y ?? 0) + y,
-                      c.pixels[y * c.width + x],
-                    );
-                commit(s.pixels);
-              }
-            }}
-          >
+        <div className="button-row drawing-selection-actions">
+          <button onClick={copy} title="Ctrl+C">
+            {tr("Copier", "Copy")}
+          </button>
+          <button onClick={paste} title="Ctrl+V">
             {tr("Coller", "Paste")}
           </button>
+          <button
+            onClick={() => {
+              if (selection && !layer?.locked) {
+                copy();
+                eraseSelection();
+              }
+            }}
+            title="Ctrl+X"
+          >
+            {tr("Couper", "Cut")}
+          </button>
+          <button onClick={eraseSelection} title="Delete">
+            {tr("Effacer la sélection", "Erase selection")}
+          </button>
         </div>
-        <button
-          onClick={() => {
-            setSelection(null);
-            mask.current = null;
-          }}
-        >
+        <button onClick={deselect} title="Escape">
           {tr("Désélectionner", "Deselect")}
         </button>
         <NumberField

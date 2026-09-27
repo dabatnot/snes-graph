@@ -1,3 +1,4 @@
+import { textInput } from "./ui/drawing-input";
 import { checkProjectSize } from "./core/archive";
 import { HelpContent, type HelpPage } from "./ui/Help";
 import { openManual } from "./platform";
@@ -306,14 +307,10 @@ export default function App() {
   }, []);
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if (
-        (["rename", "news", "about", "licenses"] as (string | null)[]).includes(
-          modal,
-        )
-      )
-        return;
+      if (e.defaultPrevented || modal) return;
       if (e.ctrlKey || e.metaKey) {
         const key = e.key.toLowerCase();
+        if (textInput(e.target) && (key === "z" || key === "y")) return;
         if (key === "s") {
           e.preventDefault();
           void save(e.shiftKey);
@@ -914,6 +911,7 @@ export default function App() {
             change={change}
             paletteId={paletteId || sheet.paletteId}
             setPalette={setPalette}
+            shortcutsEnabled={!modal}
             focusTile={focusTile}
           />
         ) : tab === "palettes" && palette ? (

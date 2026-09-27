@@ -1712,10 +1712,11 @@ npm run dev</code></pre>
           </table>
         </div>
         <p>
-          Les pixels déplacés hors du dessin sont perdus dans le résultat ;
-          utilisez Annuler pour revenir en arrière. Le tracé n’est validé qu’au
-          relâchement du pointeur. Il n’y a pas de raccourcis B/E/G documentés
-          pour sélectionner les outils : utilisez la barre.
+          Un tracé est validé au relâchement du pointeur ; Échap l’annule. Les
+          déplacements de sélection sont bloqués aux limites du dessin.
+          Consultez les
+          <a href="#drawing-shortcuts">raccourcis de dessin</a> pour les outils,
+          couleurs et déplacements de vue.
         </p>
         <h3 id="vue-dessin">Zoom, grille, symétrie et aperçu</h3>
         <div class="table-wrap">
@@ -2136,10 +2137,18 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/33-reference-overflow.png"><img
-            src="assets/33-reference-overflow.png" width="1440" height="920"
-            loading="lazy" alt="La référence dépasse des tiles ; seule la zone quadrillée accepte la peinture." /></a>
-          <figcaption>La référence dépasse des tiles ; seule la zone quadrillée accepte la peinture.</figcaption>
+          <a data-zoom href="assets/33-reference-overflow.png"
+            ><img
+              src="assets/33-reference-overflow.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="La référence dépasse des tiles ; seule la zone quadrillée accepte la peinture."
+          /></a>
+          <figcaption>
+            La référence dépasse des tiles ; seule la zone quadrillée accepte la
+            peinture.
+          </figcaption>
         </figure>
         <h3 id="calques">Calques de dessin</h3>
         <div class="table-wrap">
@@ -8167,11 +8176,12 @@ npm run dev</code></pre>
         <p>
           <strong>Start</strong> ouvre un panneau séparé avec le nom, la
           position dans la liste et les commandes. La lecture est suspendue.
-          Start ou B ferme ce panneau en restituant l’état précédent. Les noms de ce panneau
-          sont limités à 28 caractères à l’écran, sans ellipse. Seuls A–Z, a–z
-          et 0–9 sont conservés ; les autres caractères, y compris les lettres
-          accentuées, deviennent des espaces sans modifier le projet. Les menus
-          suivent la langue de l’application lors de la génération.
+          Start ou B ferme ce panneau en restituant l’état précédent. Les noms
+          de ce panneau sont limités à 28 caractères à l’écran, sans ellipse.
+          Seuls A–Z, a–z et 0–9 sont conservés ; les autres caractères, y
+          compris les lettres accentuées, deviennent des espaces sans modifier
+          le projet. Les menus suivent la langue de l’application lors de la
+          génération.
         </p>
         <div class="table-wrap">
           <table>
@@ -8219,7 +8229,14 @@ npm run dev</code></pre>
           </table>
         </div>
         <p>
-          Le menu bleu et ivoire utilise un curseur doré et affiche un aperçu de la première ressource de la catégorie sélectionnée. L’aperçu d’un sprite cadre la pose complète, indépendamment de son point d’origine dans l’éditeur. La palette de cet aperçu est réduite ; les ressources ouvertes conservent leurs palettes originales. Le titre du projet est centré sur une ou deux lignes, avec des points de suspension s’il est trop long. Les lettres accentuées de ce titre sont remplacées par leurs équivalents sans accent.
+          Le menu bleu et ivoire utilise un curseur doré et affiche un aperçu de
+          la première ressource de la catégorie sélectionnée. L’aperçu d’un
+          sprite cadre la pose complète, indépendamment de son point d’origine
+          dans l’éditeur. La palette de cet aperçu est réduite ; les ressources
+          ouvertes conservent leurs palettes originales. Le titre du projet est
+          centré sur une ou deux lignes, avec des points de suspension s’il est
+          trop long. Les lettres accentuées de ce titre sont remplacées par
+          leurs équivalents sans accent.
         </p>
         <figure>
           <a data-zoom href="assets/12-gallery-rom.png"
@@ -8233,21 +8250,62 @@ npm run dev</code></pre>
           <figcaption>Accueil réel de la ROM, capturé dans Mesen.</figcaption>
         </figure>
         <p>
-          Les commandes utilisent une croix directionnelle en pixel art, des lettres encadrées (A, B, X, Y, L, R) et une capsule Start. Ces symboles apparaissent dans le menu, les bandeaux et le panneau d’informations. Ils désignent les touches de la manette, pas des boutons à cliquer à l’écran. Le changement d’image avec Gauche/Droite nécessite toujours de mettre la lecture en pause.
+          Les commandes utilisent une croix directionnelle en pixel art, des
+          lettres encadrées (A, B, X, Y, L, R) et une capsule Start. Ces
+          symboles apparaissent dans le menu, les bandeaux et le panneau
+          d’informations. Ils désignent les touches de la manette, pas des
+          boutons à cliquer à l’écran. Le changement d’image avec Gauche/Droite
+          nécessite toujours de mettre la lecture en pause.
         </p>
         <p>
-          La présentation en fiche conserve les pixels des sprites à leur taille native. Les sprites tenant dans 144 × 168 pixels disposent d’un panneau latéral avec leur pose et variante courantes (neuf caractères maximum) ; les plus grands conservent la vue plein écran. Les cartes utilisent une zone de 256 × 168 pixels entre le titre et les commandes, et restent explorables jusqu’à leurs bords. Les scènes conservent leur rendu original : les bandeaux couvrent les 32 lignes du haut et les 24 lignes du bas, sans redimensionnement. Les fiches nécessitent actuellement le Mode 1, un BG3 libre, de la mémoire vidéo et des couleurs disponibles, sans effets de scène, mélange de couleurs ni entrelacement. Les autres ressources restent en plein écran. Start ouvre dans tous les cas le panneau d’informations bleu séparé. Les fiches et panneaux d’informations reprennent les contours fins et les coins carrés de l’accueil.
+          La présentation en fiche conserve les pixels des sprites à leur taille
+          native. Les sprites tenant dans 144 × 168 pixels disposent d’un
+          panneau latéral avec leur pose et variante courantes (neuf caractères
+          maximum) ; les plus grands conservent la vue plein écran. Les cartes
+          utilisent une zone de 256 × 168 pixels entre le titre et les
+          commandes, et restent explorables jusqu’à leurs bords. Les scènes
+          conservent leur rendu original : les bandeaux couvrent les 32 lignes
+          du haut et les 24 lignes du bas, sans redimensionnement. Les fiches
+          nécessitent actuellement le Mode 1, un BG3 libre, de la mémoire vidéo
+          et des couleurs disponibles, sans effets de scène, mélange de couleurs
+          ni entrelacement. Les autres ressources restent en plein écran. Start
+          ouvre dans tous les cas le panneau d’informations bleu séparé. Les
+          fiches et panneaux d’informations reprennent les contours fins et les
+          coins carrés de l’accueil.
         </p>
         <figure>
-          <a data-zoom href="assets/29-gallery-card-sprite.png"><img src="assets/29-gallery-card-sprite.png" width="256" height="224" loading="lazy" alt="Fiche sprite : pose et variante de palette courantes." /></a>
-          <figcaption>Fiche sprite : pose et variante de palette courantes.</figcaption>
+          <a data-zoom href="assets/29-gallery-card-sprite.png"
+            ><img
+              src="assets/29-gallery-card-sprite.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Fiche sprite : pose et variante de palette courantes."
+          /></a>
+          <figcaption>
+            Fiche sprite : pose et variante de palette courantes.
+          </figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/30-gallery-card-map.png"><img src="assets/30-gallery-card-map.png" width="256" height="224" loading="lazy" alt="Carte avec titre et commandes de caméra." /></a>
+          <a data-zoom href="assets/30-gallery-card-map.png"
+            ><img
+              src="assets/30-gallery-card-map.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Carte avec titre et commandes de caméra."
+          /></a>
           <figcaption>Carte avec titre et commandes de caméra.</figcaption>
         </figure>
         <figure>
-          <a data-zoom href="assets/31-gallery-card-scene.png"><img src="assets/31-gallery-card-scene.png" width="256" height="224" loading="lazy" alt="Scène avec titre et commandes de lecture." /></a>
+          <a data-zoom href="assets/31-gallery-card-scene.png"
+            ><img
+              src="assets/31-gallery-card-scene.png"
+              width="256"
+              height="224"
+              loading="lazy"
+              alt="Scène avec titre et commandes de lecture."
+          /></a>
           <figcaption>Scène avec titre et commandes de lecture.</figcaption>
         </figure>
         <figure>
@@ -8298,13 +8356,14 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <p>
-          Dans les vues sans fiche, l’icône SNES Graph à quatre carrés est superposée en bas à droite sur
-          les panneaux et les aperçus de ressources, y compris en Scène en boucle.
-          L’accueil affiche le nom SNES Graph sous le titre à la place.
-          Elle reste soumise aux effets et fenêtres de la scène. Elle utilise
-          des places OBJ et des tiles libres ; un manque de place bloque
-          l’export. Si toutes les palettes sont occupées, ses couleurs sont
-          rapprochées de celles disponibles sans recolorer les ressources.
+          Dans les vues sans fiche, l’icône SNES Graph à quatre carrés est
+          superposée en bas à droite sur les panneaux et les aperçus de
+          ressources, y compris en Scène en boucle. L’accueil affiche le nom
+          SNES Graph sous le titre à la place. Elle reste soumise aux effets et
+          fenêtres de la scène. Elle utilise des places OBJ et des tiles libres
+          ; un manque de place bloque l’export. Si toutes les palettes sont
+          occupées, ses couleurs sont rapprochées de celles disponibles sans
+          recolorer les ressources.
         </p>
         <h3 id="rom-web">Sources ca65 dans le navigateur</h3>
         <p>
@@ -8918,13 +8977,138 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
             </tbody>
           </table>
         </div>
+        <h3 id="drawing-shortcuts">Raccourcis de dessin</h3>
         <p>
-          Copier/Coller les pixels et les couleurs se fait avec les boutons de
-          leurs ateliers. Ne supposez pas que Ctrl+C/Ctrl+V copient une
-          sélection graphique : dans un champ de texte, ils conservent leur
-          usage de texte. Si un raccourci avec Shift n’est pas reconnu par la
-          disposition clavier, utilisez le bouton correspondant.
+          Actifs uniquement dans l’éditeur de dessin, hors champs de saisie,
+          listes et fenêtres modales. La saisie conserve ses raccourcis et les
+          boutons leur activation clavier normale. La navigation et les
+          changements d’outil ou de couleur ne modifient pas l’historique.
         </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Raccourci</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ctrl + roulette</td>
+                <td>
+                  Zoomer autour du pointeur, uniquement dans la zone de dessin.
+                </td>
+              </tr>
+              <tr>
+                <td>+ / −</td>
+                <td>Zoomer autour du centre de la vue.</td>
+              </tr>
+              <tr>
+                <td>Maj + F</td>
+                <td>
+                  Cadrer le dessin (⌖), sans le débordement de la référence.
+                  Minimum 100 %, avec défilement si nécessaire.
+                </td>
+              </tr>
+              <tr>
+                <td>Espace + glisser / bouton central + glisser</td>
+                <td>
+                  Déplacer la vue sans peindre ; la roulette seule conserve le
+                  défilement normal.
+                </td>
+              </tr>
+              <tr>
+                <td>0–9, A–F</td>
+                <td>
+                  Choisir un indice de palette. Rangée numérique AZERTY sans Maj
+                  et pavé numérique acceptés. En 2 bpp : 0–3 seulement. L’indice
+                  0 est transparent. B, E et F choisissent des couleurs, pas des
+                  outils.
+                </td>
+              </tr>
+              <tr>
+                <td>P / Maj + P</td>
+                <td>Crayon / Gomme</td>
+              </tr>
+              <tr>
+                <td>G / I / L / R / O</td>
+                <td>Remplir / Pipette / Ligne / Rectangle / Ellipse</td>
+              </tr>
+              <tr>
+                <td>M / Maj + M / V</td>
+                <td>Sélection / Lasso / Déplacer</td>
+              </tr>
+              <tr>
+                <td>Maj + G</td>
+                <td>Afficher/masquer la grille.</td>
+              </tr>
+              <tr>
+                <td>Ctrl + clic</td>
+                <td>
+                  Prélever temporairement un pixel du dessin composite, jamais
+                  de la référence. Conserve l’outil actif et fonctionne sur un
+                  calque verrouillé.
+                </td>
+              </tr>
+              <tr>
+                <td>Ctrl + A / C / X / V</td>
+                <td>Tout sélectionner / Copier / Couper / Coller.</td>
+              </tr>
+              <tr>
+                <td>Suppr</td>
+                <td>
+                  Effacer les pixels sélectionnés du calque actif ; sans
+                  sélection, aucun changement.
+                </td>
+              </tr>
+              <tr>
+                <td>Flèches / Maj + flèches</td>
+                <td>
+                  Déplacer les pixels sélectionnés de 1 / 8 pixels, en
+                  conservant la sélection. Une touche maintenue correspond à une
+                  seule annulation.
+                </td>
+              </tr>
+              <tr>
+                <td>Maj pendant un tracé</td>
+                <td>
+                  Contraindre une ligne par pas de 45°, un rectangle en carré ou
+                  une ellipse en cercle.
+                </td>
+              </tr>
+              <tr>
+                <td>Échap</td>
+                <td>Annuler le geste en cours ; sinon désélectionner.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Copier sans sélection copie le calque actif. Couper exige une
+          sélection. Coller utilise l’origine de la sélection, sinon le coin
+          supérieur gauche du dessin ; les pixels hors dessin sont ignorés. Le
+          presse-papiers interne conserve le masque du lasso : les pixels
+          extérieurs n’effacent pas la destination, contrairement aux pixels
+          transparents sélectionnés. Les calques verrouillés autorisent
+          sélection et copie, mais pas les modifications. Chaque geste de
+          modification correspond à une annulation. La perte de focus annule un
+          geste inachevé. Pendant l’ajustement d’une référence, la navigation
+          reste disponible, mais les raccourcis de peinture et de sélection sont
+          désactivés.
+        </p>
+        <figure>
+          <a data-zoom href="assets/34-drawing-shortcuts.png"
+            ><img
+              src="assets/34-drawing-shortcuts.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="Navigation du dessin, indices de palette et commandes de sélection."
+          /></a>
+          <figcaption>
+            Navigation du dessin, indices de palette et commandes de sélection.
+          </figcaption>
+        </figure>
         <h3 id="glossaire">Glossaire</h3>
         <div class="table-wrap">
           <table>
