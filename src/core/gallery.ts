@@ -377,7 +377,16 @@ export function gallerySources(
         actor.poses.map((pose) => {
           const a = {
             ...actor,
-            poses: [pose, ...actor.poses.filter((v) => v !== pose)],
+            // Keep packing stable across poses; select the view through playback.
+            animations: [
+              {
+                id: "gallery-pose",
+                name: pose.name,
+                loop: false,
+                pingPong: false,
+                frames: [{ poseId: pose.id, ticks: 1, event: "" }],
+              },
+            ],
           };
           const project = {
             ...p,
@@ -385,7 +394,13 @@ export function gallerySources(
           };
           const s = {
             ...scene,
-            instances: [{ ...scene.instances[0], variantId: variant }],
+            instances: [
+              {
+                ...scene.instances[0],
+                animationId: "gallery-pose",
+                variantId: variant,
+              },
+            ],
           };
           return compile(project, s, { ...options, sceneId: s.id })(0);
         }),

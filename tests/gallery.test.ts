@@ -7,7 +7,7 @@ import { gallerySelection, gallerySources } from "../src/core/gallery";
 import { galleryFont, galleryText } from "../src/core/gallery-font";
 import { stampRomLogo, ROM_LOGO } from "../src/core/rom-logo";
 import { compileScene } from "../src/core/scene-export";
-import { defaultExport } from "../src/core/snes";
+import { defaultExport, packSprites, pieceKey } from "../src/core/snes";
 import {
   footballProject,
   makeMap,
@@ -51,6 +51,38 @@ function assemble(files: Record<string, Uint8Array>) {
   return rom;
 }
 describe("interactive gallery", () => {
+  it("keeps distinct pose crops addressed in the shared sprite VRAM across variants", () => {
+    const p = footballProject(),
+      actor = p.actors[0];
+    p.scenes = [];
+    p.exports = [];
+    actor.poses = actor.poses.map((pose, i) => ({
+      ...pose,
+      pieces: [pose.pieces[i]],
+    }));
+    actor.variants = [{ id: "variant", name: "Variant", palettes: {} }];
+    const packed = packSprites(p, [actor.id]),
+      expected = actor.poses.map(
+        (pose) => packed.starts[pieceKey(pose.pieces[0])],
+      ),
+      files = gallerySources(p, {
+        ...defaultExport(p),
+        actorIds: [actor.id],
+        mapIds: [],
+        gallerySceneIds: [],
+      });
+    expect(new Set(expected).size).toBe(2);
+    const oams = Object.values(files).filter(
+      (bytes) => bytes.length === 544 && bytes[0] !== 236,
+    );
+    const tiles = oams.map((bytes) => bytes[2] | ((bytes[3] & 1) << 8));
+    // Both palettes contain the second pose; initial loading adds only the first.
+    expect(tiles.filter((tile) => tile === expected[1])).toHaveLength(2);
+    expect(new Set(tiles)).toEqual(new Set(expected));
+    const vram = Object.values(files).find((bytes) => bytes.length === 32768)!;
+    expect(vram.slice(0, packed.data.length)).toEqual(packed.data);
+    if (compiler) assemble(files);
+  });
   it("preserves legacy/all versus explicit empty scene selection through save and resource replacement", () => {
     const p = footballProject(),
       opt = defaultExport(p);

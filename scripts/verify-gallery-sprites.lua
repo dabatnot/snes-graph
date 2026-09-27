@@ -10,6 +10,10 @@ emu.addEventCallback(function()
 end,emu.eventType.inputPolled)
 emu.addEventCallback(function()
  n=n+1
+ if n>=30 and n<=75 then
+  local tile=emu.read(2,emu.memType.snesSpriteRam)
+  assert(tile==(word(0x16)==1 and 2 or 0),"Pose must address its own crop in shared OBJ memory")
+ end
  if n==55 then assert(word(0x12)==1);pausedFrame=word(0x16)end
  if n==67 then assert(word(0x12)==1 and word(0x16)==(pausedFrame+1)%3,"Paused frame stepping")end
  if n==95 then assert(word(0x14)==1 and word(0x12)==0,"Ping pong selection")end

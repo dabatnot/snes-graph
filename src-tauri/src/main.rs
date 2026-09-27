@@ -100,7 +100,7 @@ fn launch_emulator(executable: String, rom: Vec<u8>, app: tauri::AppHandle) -> R
     Ok(())
 }
 #[tauri::command]
-fn open_manual(app: tauri::AppHandle, language: String) -> Result<(), String> {
+async fn open_manual(app: tauri::AppHandle, language: String) -> Result<(), String> {
     let page = match language.as_str() {
         "fr" => "index.html",
         "en" => "en.html",

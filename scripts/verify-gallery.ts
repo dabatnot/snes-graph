@@ -139,6 +139,9 @@ same(effectsDir, "hdma-paused", "hdma-restored");
 
 const sprites = footballProject();
 const actor = sprites.actors[0];
+// Distinct crops expose pose tables that accidentally address another pose's tiles.
+actor.poses[0].pieces = [actor.poses[0].pieces[0]];
+actor.poses[1].pieces = [actor.poses[1].pieces[1]];
 actor.poses.push({ ...actor.poses[0], id: "third-pose", name: "Third pose" });
 const frames = actor.poses.map((pose) => ({
   poseId: pose.id,
