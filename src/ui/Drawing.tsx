@@ -13,7 +13,6 @@ import { createReference, fitReference } from "../core/reference";
 import type { DrawingReference } from "../core/model";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  clone,
   hex,
   uid,
   flattenSheet,
@@ -79,6 +78,8 @@ export function Drawing({
             height: 8,
           },
     );
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const inputEnabled = shortcutsEnabled && !layoutOpen;
   const [layerId, setLayerId] = useState(sheet.layers?.[0]?.id ?? ""),
     [repeat, setRepeat] = useState(false),
     [replaceIndex, setReplaceIndex] = useState(0);
@@ -87,7 +88,7 @@ export function Drawing({
   const lasso = useRef<Point[]>([]),
     mask = useRef<Uint8Array | null>(null);
   const editable = () => ({
-    ...clone(sheet),
+    ...sheet,
     pixels: (layer?.pixels ?? sheet.pixels).slice(),
   });
   const commit = (pixels: Uint8Array) => {
@@ -222,8 +223,12 @@ export function Drawing({
   function draw(input?: Sheet) {
     let s = input ?? sheet;
     if (input && layer && sheet.layers) {
-      s = clone(sheet);
-      s.layers!.find((l) => l.id === layer.id)!.pixels = input.pixels;
+      s = {
+        ...sheet,
+        layers: sheet.layers.map((l) =>
+          l.id === layer.id ? { ...l, pixels: input.pixels } : l,
+        ),
+      };
       flattenSheet(s);
     }
     const c = canvas.current;
@@ -441,7 +446,7 @@ export function Drawing({
       setReferencePreview(null);
       return;
     }
-    if (!draft.current) return;
+    if (!draft.current || !start.current) return;
     const pixels = draft.current.pixels.slice();
     if (tool === "lasso") {
       const points = lasso.current,
@@ -533,6 +538,8 @@ export function Drawing({
   } | null>(null);
   const nudge = useRef<{
     source: Sheet;
+    owner: Sheet;
+    layerId: string | undefined;
     selection: Selection;
     mask: Uint8Array | null;
     dx: number;
@@ -619,7 +626,19 @@ export function Drawing({
     space.current = false;
     draw();
   }
+  function cancelStaleNudge() {
+    const g = nudge.current;
+    if (g && (g.owner !== sheet || g.layerId !== layer?.id)) {
+      cancelGesture();
+      return true;
+    }
+    return false;
+  }
+  useLayoutEffect(() => {
+    cancelStaleNudge();
+  }, [sheet, layer?.id]);
   function finishNudge() {
+    if (cancelStaleNudge()) return;
     const g = nudge.current;
     nudge.current = null;
     if (g && draft.current && (g.dx || g.dy)) commit(draft.current.pixels);
@@ -630,6 +649,8 @@ export function Drawing({
     if (nudge.current && nudge.current.key !== key) return;
     const g = nudge.current ?? {
       source: editable(),
+      owner: sheet,
+      layerId: layer?.id,
       selection,
       mask: mask.current,
       dx: 0,
@@ -652,14 +673,14 @@ export function Drawing({
     const el = area.current;
     if (!el) return;
     const wheel = (e: WheelEvent) => {
-      if (!shortcutsEnabled || !e.ctrlKey) return;
+      if (!inputEnabled || !e.ctrlKey) return;
       e.preventDefault();
       if (e.deltaY)
         zoomTo(zoom + (e.deltaY < 0 ? 1 : -1), e.clientX, e.clientY);
     };
     el.addEventListener("wheel", wheel, { passive: false });
     const down = (e: KeyboardEvent) => {
-      if (!shortcutsEnabled || textInput(e.target) || e.isComposing || e.altKey)
+      if (!inputEnabled || textInput(e.target) || e.isComposing || e.altKey)
         return;
       if (e.key === "Escape") {
         e.preventDefault();
@@ -775,19 +796,25 @@ export function Drawing({
       if (e.code === "Space") space.current = false;
       if (e.key === nudge.current?.key) finishNudge();
     };
+    const interruptNudge = (e: PointerEvent) => {
+      if (nudge.current && e.target instanceof Node && !el.contains(e.target))
+        cancelGesture();
+    };
+    window.addEventListener("pointerdown", interruptNudge, true);
     window.addEventListener("keydown", down, true);
     window.addEventListener("keyup", up);
     window.addEventListener("blur", cancelGesture);
     return () => {
       el.removeEventListener("wheel", wheel);
+      window.removeEventListener("pointerdown", interruptNudge, true);
       window.removeEventListener("keydown", down, true);
       window.removeEventListener("keyup", up);
       window.removeEventListener("blur", cancelGesture);
     };
   });
   useEffect(() => {
-    if (!shortcutsEnabled) cancelGesture();
-  }, [shortcutsEnabled]);
+    if (!inputEnabled) cancelGesture();
+  }, [inputEnabled]);
   const toolKeys = [
     "P",
     "Shift+P",
@@ -866,7 +893,7 @@ export function Drawing({
           ref={area}
           tabIndex={-1}
           onPointerDownCapture={(e) => {
-            if (!shortcutsEnabled || busy()) return;
+            if (!inputEnabled || busy()) return;
             area.current?.focus({ preventScroll: true });
             if (e.button !== 1 && !(e.button === 0 && space.current)) return;
             e.preventDefault();
@@ -956,7 +983,7 @@ export function Drawing({
               aria-label={tr("Zone de dessin", "Drawing canvas")}
               ref={canvas}
               onPointerDown={(e) => {
-                if (e.button !== 0 || !shortcutsEnabled) return;
+                if (e.button !== 0 || !inputEnabled) return;
                 if (busy()) return;
                 e.currentTarget.setPointerCapture(e.pointerId);
                 const a = pos(e);
@@ -1010,7 +1037,7 @@ export function Drawing({
                   "Reference placement",
                 )}
                 onPointerDown={(e) => {
-                  if (e.button !== 0 || !shortcutsEnabled) return;
+                  if (e.button !== 0 || !inputEnabled) return;
 
                   if (!reference?.visible) return;
                   const point = referencePoint(e);
@@ -1125,6 +1152,8 @@ export function Drawing({
           </button>
         </div>
         <SheetLayout
+          open={layoutOpen}
+          setOpen={setLayoutOpen}
           project={project}
           sheet={sheet}
           selection={selection}

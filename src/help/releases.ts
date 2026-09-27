@@ -19,6 +19,53 @@ export type ReleaseNote = {
 };
 export const releases: ReleaseNote[] = [
   {
+    version: "0.2.4",
+    date: "2026-09-27",
+    commits: [],
+    en: {
+      title: "Drawing references, gestures and keyboard shortcuts",
+      summary:
+        "Draw with an embedded reference image and navigate, choose colors and edit selections directly from the keyboard.",
+      added: [
+        "Reference images saved inside projects, with position, size, opacity and visibility controls; references remain separate from exported artwork.",
+        "Pointer-centered Ctrl+wheel zoom, keyboard zoom, Shift+F framing, Space-drag and middle-button panning.",
+        "Direct palette keys 0–9 and A–F, including the unshifted AZERTY number row and numeric keypad; tool shortcuts and temporary Ctrl-click color picking.",
+        "Selection copy, cut, paste and deletion; arrow-key movement by 1 or 8 pixels, with a held key forming one undo step.",
+        "Shift-constrained lines, squares and circles, plus Escape to cancel a gesture.",
+      ],
+      improved: [
+        "English and French manuals and tooltips document drawing gestures, shortcut scope and palette limits.",
+        "Drawing previews avoid copying embedded reference images on every pointer update.",
+      ],
+      fixed: [
+        "Keyboard moves cannot overwrite another layer when the active layer changes, and canvas clicks no longer finish them prematurely.",
+        "Drawing and undo shortcuts stay inactive behind the Size and arrangement dialog.",
+        "Lasso masks are preserved during copying and movement; locked layers remain protected from edits.",
+      ],
+    },
+    fr: {
+      title: "Références de dessin, gestes et raccourcis clavier",
+      summary:
+        "Dessinez avec une image de référence intégrée et utilisez le clavier pour naviguer, choisir les couleurs et modifier les sélections.",
+      added: [
+        "Images de référence enregistrées dans les projets, avec réglage de position, taille, opacité et visibilité ; elles restent séparées des dessins exportés.",
+        "Zoom Ctrl+roulette centré sur le pointeur, zoom clavier, cadrage Maj+F et déplacement de vue avec Espace+glisser ou le bouton central.",
+        "Couleurs accessibles par 0–9 et A–F, y compris la rangée numérique AZERTY sans Maj et le pavé numérique ; raccourcis d’outils et pipette temporaire par Ctrl+clic.",
+        "Copie, coupe, collage et effacement de sélection ; déplacement par flèches de 1 ou 8 pixels, avec une seule annulation par pression prolongée.",
+        "Contraintes Maj pour les lignes, carrés et cercles, et Échap pour annuler un geste.",
+      ],
+      improved: [
+        "Manuels français et anglais et infobulles détaillant les gestes, la portée des raccourcis et les limites des palettes.",
+        "Les aperçus de dessin évitent de recopier l’image de référence à chaque mouvement du pointeur.",
+      ],
+      fixed: [
+        "Un déplacement clavier ne peut plus écraser un autre calque lors d’un changement de calque ; un clic dans le dessin ne le termine plus prématurément.",
+        "Les raccourcis de dessin et d’annulation restent inactifs derrière la fenêtre Dimensions et organisation.",
+        "Conservation du masque du lasso pendant la copie et le déplacement ; protection des calques verrouillés contre les modifications.",
+      ],
+    },
+  },
+  {
     version: "0.2.3",
     date: "2026-09-27",
     commits: [],

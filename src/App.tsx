@@ -307,7 +307,12 @@ export default function App() {
   }, []);
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || modal) return;
+      if (
+        e.defaultPrevented ||
+        modal ||
+        document.querySelector('[aria-modal="true"]')
+      )
+        return;
       if (e.ctrlKey || e.metaKey) {
         const key = e.key.toLowerCase();
         if (textInput(e.target) && (key === "z" || key === "y")) return;

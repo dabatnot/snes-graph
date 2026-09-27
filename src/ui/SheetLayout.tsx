@@ -11,20 +11,23 @@ import { Check, NumberField, Select, Preview } from "./controls";
 import { tr } from "../i18n";
 
 export function SheetLayout({
+  open,
+  setOpen,
   project,
   sheet,
   selection,
   change,
   onApplied,
 }: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
   project: Project;
   sheet: Sheet;
   selection: { x: number; y: number; width: number; height: number } | null;
   change: (fn: (p: Project) => void) => void;
   onApplied: () => void;
 }) {
-  const [open, setOpen] = useState(false),
-    [width, setWidth] = useState(sheet.width / 8),
+  const [width, setWidth] = useState(sheet.width / 8),
     [height, setHeight] = useState(sheet.height / 8),
     [anchor, setAnchor] = useState("0"),
     [mode, setMode] = useState("resize"),

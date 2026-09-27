@@ -276,3 +276,14 @@ Gallery thumbnails now rasterize the complete first pose, independently of the e
 Browser checks cover palette/tool keys, simulated AZERTY Digit6, Ctrl+wheel anchoring, Space/middle-button panning, fit, repeated-arrow single-step undo, Escape cancellation, clipboard/delete, constrained square, lasso cut/undo, temporary picker and input/modal isolation. Native Linux development build starts, but native input automation times out; native Ctrl+wheel and middle-button gestures remain unverified. Windows was not tested. The format and application version are unchanged.
 
 Manual QA: both new captures open and close in the image lightbox; the French chapter search finds AZERTY. Both editions have 110 matching anchors and 511 checked local/external link entries. Browser layer checks also verify locked-layer painting protection and composite picking.
+
+### Shortcut review corrections
+
+The September 27 branch review added cancellation of unfinished keyboard moves
+when clicking outside the workspace. Both manuals describe that behavior; no
+visible controls or captures changed. Chromium regression checks verify layer
+switching without overwriting pixels, clicking the canvas during a held-arrow
+move, single-step undo, and isolation of drawing/global undo shortcuts while
+Size and arrangement is open. Both manual pages display the new text and retain
+valid internal anchor links. Native Linux and Windows gesture checks remain
+unverified as recorded above.
