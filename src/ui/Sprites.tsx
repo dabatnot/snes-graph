@@ -52,7 +52,10 @@ export function Sprites({
     [play, setPlay] = useState(false),
     [onion, setOnion] = useState(false),
     [compare, setCompare] = useState(false);
-  const [playRange, setPlayRange] = useState<[number, number] | null>(null);
+  const [rangeSelection, setRangeSelection] = useState<{
+    animationId: string;
+    range: [number, number];
+  } | null>(null);
   const [targetPoses, setTargetPoses] = useState<string[]>([]);
   const [marquee, setMarquee] = useState<{
     x: number;
@@ -91,29 +94,17 @@ export function Sprites({
     setPiece("");
     setPlay(false);
   }, [actor.id]);
-  const animation = actor.animations[animIndex] ?? actor.animations[0],
-    pose =
+  const animation = actor.animations[animIndex] ?? actor.animations[0];
+  const playRange =
+    rangeSelection?.animationId === animation?.id
+      ? rangeSelection!.range
+      : null;
+  const setPlayRange = (range: [number, number] | null) =>
+    setRangeSelection(range && { animationId: animation.id, range });
+  const pose =
       dragPose ??
       (play
-        ? frameAt(
-            playRange
-              ? {
-                  ...actor,
-                  animations: [
-                    {
-                      ...animation,
-                      loop: true,
-                      frames: animation.frames.slice(
-                        Math.min(playRange[0], animation.frames.length - 1),
-                        Math.max(playRange[0], playRange[1]) + 1,
-                      ),
-                    },
-                  ],
-                }
-              : actor,
-            animation?.id ?? "",
-            tick,
-          )
+        ? frameAt(actor, animation?.id ?? "", tick, playRange)
         : actor.poses[Math.min(poseIndex, actor.poses.length - 1)]),
     variant = actor.variants.find((v) => v.id === variantId),
     piece = pose?.pieces.find((c) => c.id === pieceId);
@@ -292,6 +283,23 @@ export function Sprites({
                 scale={3}
               />
               {!play &&
+                pose?.boxes.map((b, index) => (
+                  <div
+                    key={index}
+                    aria-hidden="true"
+                    style={{
+                      position: "absolute",
+                      pointerEvents: "none",
+                      zIndex: 3,
+                      left: (64 - actor.originX + b.x) * 3,
+                      top: (80 - actor.originY + b.y) * 3,
+                      width: b.width * 3,
+                      height: b.height * 3,
+                      border: "1px solid #ffc857",
+                    }}
+                  />
+                ))}
+              {!play &&
                 pose &&
                 [
                   {
@@ -318,9 +326,9 @@ export function Sprites({
                       index,
                       x: 64 - actor.originX + b.x,
                       y: 80 - actor.originY + b.y,
-                      width: b.width,
-                      height: b.height,
-                      name: b.name,
+                      width: 4,
+                      height: 4,
+                      name: tr("Déplacer ", "Move ") + b.name,
                     },
                     {
                       kind: "box-size" as const,
@@ -358,7 +366,7 @@ export function Sprites({
                       height: m.height * 3,
                       minWidth: 0,
                       padding: 0,
-                      background: m.kind === "box" ? "transparent" : "#ffc857",
+                      background: "#ffc857",
                       border: "1px solid #ffc857",
                     }}
                     onPointerDown={(e) => {
@@ -581,6 +589,7 @@ export function Sprites({
                 setPose(actor.poses.findIndex((p) => p.id === id));
                 setPlay(false);
               }}
+              range={playRange}
               onRange={setPlayRange}
             />
           )}

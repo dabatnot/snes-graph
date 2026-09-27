@@ -4110,13 +4110,14 @@ npm run dev</code></pre>
           priorité commune.
         </p>
         <p>
-          Les repères jaunes manipulent l’origine et les attaches. Glissez une
-          boîte de collision pour la déplacer, ou sa poignée inférieure droite
-          pour modifier sa taille. Déplacer l’origine change le rendu par
-          rapport au point d’ancrage. Pour copier le placement d’un groupe
-          nommé, sélectionnez ses poses de destination ; leur nombre de pièces
-          dans ce groupe doit être identique. La correspondance suit l’ordre des
-          pièces.
+          Les repères jaunes manipulent l’origine et les attaches. Glissez la
+          poignée supérieure gauche d’une boîte de collision pour la déplacer,
+          ou sa poignée inférieure droite pour modifier sa taille. Le contour
+          laisse passer les clics vers les pièces. Déplacer l’origine change le
+          rendu par rapport au point d’ancrage. Pour copier le placement d’un
+          groupe nommé, sélectionnez ses poses de destination ; leur nombre de
+          pièces dans ce groupe doit être identique. La correspondance suit
+          l’ordre des pièces.
         </p>
         <p>
           Cochez les images de séquence pour les dupliquer, les supprimer ou
@@ -4134,6 +4135,20 @@ npm run dev</code></pre>
           collective s’annule en une étape.
         </p>
         <figure>
+          <a data-zoom href="assets/25-collision-handles.png"
+            ><img
+              src="assets/25-collision-handles.png"
+              width="1878"
+              height="867"
+              loading="lazy"
+              alt="Poignées de collision : déplacement en haut à gauche, taille en bas à droite. La pièce située dessous reste sélectionnable."
+          /></a>
+          <figcaption>
+            Poignées de collision : déplacement en haut à gauche, taille en bas
+            à droite. La pièce située dessous reste sélectionnable.
+          </figcaption>
+        </figure>
+        <figure>
           <a data-zoom href="assets/21-animation-edit.png"
             ><img
               src="assets/21-animation-edit.png"
@@ -4145,8 +4160,11 @@ npm run dev</code></pre>
           <figcaption>Sélection et édition collective</figcaption>
         </figure>
         <p>
-          Le curseur suit la plage bouclée sélectionnée ; sans boucle, il reste
-          sur la dernière image.
+          Le curseur suit la pose affichée, y compris le retour ping-pong.
+          Cliquer sur une image place aussi le curseur à son début. Modifier les
+          bornes active la plage ; ajouter une image étend cette plage. Changer
+          d’animation ne réutilise pas la plage d’une autre animation. Sans
+          boucle, la lecture reste sur sa dernière image.
         </p>
         <h3 id="sequence">Séquence d’animation</h3>
         <div class="table-wrap">
@@ -4917,8 +4935,10 @@ npm run dev</code></pre>
           n’est pas coché. Déplacer remplit d’abord la région source avec la
           cellule du pinceau courant, puis colle la copie ; les chevauchements
           sont autorisés. Palettes, collisions et priorités restent conservées.
-          Les associations de terrain des cellules transformées sont retirées.
-          Toute modification du projet exige de recalculer l’aperçu.
+          Les associations de terrain des cellules transformées sont retirées et
+          les raccords voisins sont recalculés. Toute modification du projet
+          exige de recalculer l’aperçu. Si le dessin source, ses calques ou ses
+          animations changent, recopiez la région avant de coller.
         </p>
         <p>
           Les règles de terrain affichent maintenant leurs seize tiles en grille
@@ -9051,7 +9071,7 @@ npm run export -- mon-projet.snesgraph sortie --set "Export principal"</code></p
         </p>
         <h3 id="provenance">Sources et illustrations</h3>
         <p>
-          Les captures 1–17 proviennent de l’application native ; les vues 18–24
+          Les captures 1–17 proviennent de l’application native ; les vues 18–25
           du navigateur sous Linux, avec la même interface française, à partir
           des fichiers
           <a href="../../examples/football.snesgraph" download

@@ -384,26 +384,42 @@ export function tileAt(map: Tilemap, tile: number, tick = 0): number {
       ]
     : tile;
 }
+/** Locate the source sequence entry, including its offset, during playback. */
+export function animationPosition(
+  a: Animation,
+  tick: number,
+  range: [number, number] | null = null,
+) {
+  const first = range
+    ? Math.max(0, Math.min(range[0], a.frames.length - 1))
+    : 0;
+  const last = range
+    ? Math.max(first, Math.min(range[1], a.frames.length - 1))
+    : a.frames.length - 1;
+  const indices = a.frames.map((_, i) => i).slice(first, last + 1);
+  if (a.pingPong && indices.length > 2)
+    indices.push(...indices.slice(1, -1).reverse());
+  const total = indices.reduce((sum, i) => sum + a.frames[i].ticks, 0);
+  let offset =
+    a.loop || range
+      ? Math.max(0, tick) % total
+      : Math.min(Math.max(0, tick), total - 1);
+  for (const index of indices) {
+    if (offset < a.frames[index].ticks) return { index, offset };
+    offset -= a.frames[index].ticks;
+  }
+  return { index: 0, offset: 0 };
+}
 export function frameAt(
   actor: Actor,
   animationId: string,
   tick: number,
+  range: [number, number] | null = null,
 ): Pose | undefined {
   const a = actor.animations.find((a) => a.id === animationId);
   if (!a?.frames.length) return actor.poses[0];
-  const frames =
-    a.pingPong && a.frames.length > 2
-      ? [...a.frames, ...a.frames.slice(1, -1).reverse()]
-      : a.frames;
-  const total = frames.reduce((s, f) => s + f.ticks, 0);
-  let t = a.loop
-    ? Math.max(0, tick) % total
-    : Math.min(Math.max(tick, 0), total - 1);
-  for (const f of frames) {
-    if (t < f.ticks) return actor.poses.find((p) => p.id === f.poseId);
-    t -= f.ticks;
-  }
-  return actor.poses[0];
+  const { index } = animationPosition(a, tick, range);
+  return actor.poses.find((p) => p.id === a.frames[index].poseId);
 }
 export function paletteAt(p: Palette, tick: number): number[] {
   const c = p.colors.slice(),

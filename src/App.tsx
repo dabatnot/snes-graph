@@ -767,7 +767,10 @@ export default function App() {
           .map((a) => (
             <div
               key={a.id}
-              style={{ display: tab === "actors" ? "contents" : "none" }}
+              style={{
+                display:
+                  tab === "actors" && a.id === actor?.id ? "contents" : "none",
+              }}
             >
               <Sprites
                 project={project}
@@ -792,7 +795,10 @@ export default function App() {
           .map((m) => (
             <div
               key={m.id}
-              style={{ display: tab === "maps" ? "contents" : "none" }}
+              style={{
+                display:
+                  tab === "maps" && m.id === map?.id ? "contents" : "none",
+              }}
             >
               <Maps
                 project={project}

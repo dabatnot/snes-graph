@@ -2,6 +2,7 @@ import { clone, flattenSheet, uid, type Project, type Cell } from "./model";
 import { extractTile } from "./pixels";
 import { growSheet } from "./resources";
 import { validateProject } from "./archive";
+import { connectTerrain } from "./terrain";
 export type Region = { x: number; y: number; width: number; height: number };
 export type MapClip = {
   sheetId: string;
@@ -193,6 +194,7 @@ export function pasteMap(
   for (let yy = 0; yy < height; yy++)
     for (let xx = 0; xx < width; xx++)
       m.cells[(y + yy) * m.width + x + xx] = transformed[yy * width + xx];
+  for (const terrain of m.terrains ?? []) connectTerrain(m, terrain.id);
   if (generated.length) {
     const columns = s.width / 8,
       newHeight = Math.ceil((initialCount + generated.length) / columns) * 8;

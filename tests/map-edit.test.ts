@@ -2,6 +2,7 @@ import { it, expect } from "vitest";
 import { clone, newProject, makeMap } from "../src/core/model";
 import { captureMap, pasteMap } from "../src/core/map-edit";
 import { renderMap } from "../src/core/render";
+import { connectTerrain } from "../src/core/terrain";
 const project = () => {
   const p = newProject(),
     s = p.sheets[0];
@@ -56,4 +57,34 @@ it("rotates animated frames without animating an existing static tile", () => {
   expect(a.frames).toHaveLength(2);
   expect(a.ticks).toBe(8);
   expect(p.maps[0].cells[0].tile).toBe(0);
+});
+it("reconnects remaining terrain around both ends of a moved region", () => {
+  const p = newProject(),
+    s = p.sheets[0];
+  s.width = 128;
+  s.height = 8;
+  s.pixels = new Uint8Array(1024);
+  const m = makeMap(s, 7, 1);
+  p.maps = [m];
+  m.terrains = [
+    {
+      id: "terrain",
+      name: "Terrain",
+      tiles: Array.from({ length: 16 }, (_, i) => i),
+    },
+  ];
+  m.cells.forEach((cell) => {
+    cell.terrain = "terrain";
+  });
+  connectTerrain(m, "terrain");
+  const region = { x: 1, y: 0, width: 1, height: 1 };
+  pasteMap(p, m.id, captureMap(p, m.id, region), 5, 0, "copy", false, {
+    region,
+    fill: { ...m.cells[0], tile: 15 },
+  });
+  expect(p.maps[0].cells.map((cell) => cell.tile)).toEqual([
+    0, 15, 2, 10, 8, 10, 0,
+  ]);
+  expect(p.maps[0].cells[1].terrain).toBeUndefined();
+  expect(p.maps[0].cells[5].terrain).toBeUndefined();
 });

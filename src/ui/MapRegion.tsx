@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { clone, type Project, type Tilemap, type Cell } from "../core/model";
+import { useMemo, useState } from "react";
+import {
+  clone,
+  type Project,
+  type Tilemap,
+  type Cell,
+  type Sheet,
+} from "../core/model";
 import {
   captureMap,
   pasteMap,
@@ -22,7 +28,10 @@ export function MapRegion({
   fill: Cell;
   change: (fn: (p: Project) => void) => void;
 }) {
-  const [clip, setClip] = useState<MapClip | null>(null),
+  const [captured, setCaptured] = useState<{
+      clip: MapClip;
+      sheet: Sheet;
+    } | null>(null),
     [x, setX] = useState(0),
     [y, setY] = useState(0),
     [operation, setOperation] = useState<"copy" | "flipX" | "flipY" | "rotate">(
@@ -37,6 +46,30 @@ export function MapRegion({
       original: Project;
     } | null>(null),
     [error, setError] = useState("");
+  const sheet = project.sheets.find((s) => s.id === map.sheetId)!;
+  // Project edits clone every resource; compare the actual source, not identity.
+  const clip = useMemo(() => {
+    if (!captured) return null;
+    const before = captured.sheet;
+    return before.id === sheet.id &&
+      before.width === sheet.width &&
+      before.height === sheet.height &&
+      before.bpp === sheet.bpp &&
+      before.pixels.every((pixel, i) => pixel === sheet.pixels[i]) &&
+      (before.layers?.length ?? 0) === (sheet.layers?.length ?? 0) &&
+      (before.layers ?? []).every((layer, i) => {
+        const current = sheet.layers![i];
+        return (
+          layer.id === current.id &&
+          layer.visible === current.visible &&
+          layer.pixels.every((pixel, j) => pixel === current.pixels[j])
+        );
+      }) &&
+      JSON.stringify(captured.clip.animations) ===
+        JSON.stringify(map.animatedTiles)
+      ? captured.clip
+      : null;
+  }, [captured, sheet, map.animatedTiles]);
   const clear = () => {
     setResult(null);
     setError("");
@@ -48,7 +81,7 @@ export function MapRegion({
       </summary>
       <button
         onClick={() => {
-          setClip(captureMap(project, map.id, region));
+          setCaptured({ clip: captureMap(project, map.id, region), sheet });
           setSource({ ...region });
           setX(region.x);
           setY(region.y);
@@ -58,6 +91,14 @@ export function MapRegion({
         {tr("Copier la région sélectionnée", "Copy selected region")} (
         {region.width} × {region.height})
       </button>
+      {captured && !clip && (
+        <p>
+          {tr(
+            "Le dessin source ou ses animations ont changé. Recopiez la région avant de coller.",
+            "The source drawing or its animations changed. Copy the region again before pasting.",
+          )}
+        </p>
+      )}
       {clip && (
         <>
           <Select

@@ -203,3 +203,7 @@ Le fichier est une variante de l’exemple interne, sans ressource tierce.
 Section `integration-examples` dans les deux langues. Sources et recette Mesen dans
 `examples/integration/README.md`. Mesures et limites de validation dans
 `docs/evolution-validation.md`. Les captures d’émulateur restent des artefacts de test.
+
+### Capture 25 — poignées de collision (FR et EN)
+
+Exemple Football, Sprites, première pose : ajouter une collision 16 × 16 en (0, 0), puis sélectionner la pièce 1 sous le rectangle. Activer la plage de lecture et ajouter une troisième image. Capturer les poignées jaunes, le contour et les propriétés de la pièce, dans chaque langue (`25-collision-handles.png`). Capture Chrome locale 1878 × 867, revue du 27 septembre 2026.

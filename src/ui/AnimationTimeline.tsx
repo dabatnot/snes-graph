@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { clone, type Actor, type Animation } from "../core/model";
+import {
+  animationPosition,
+  clone,
+  type Actor,
+  type Animation,
+} from "../core/model";
 import { moveFrames } from "../core/animation-edit";
 import { Check, NumberField, Select } from "./controls";
 import { tr } from "../i18n";
@@ -10,6 +15,7 @@ export function AnimationTimeline({
   edit,
   onSeek,
   onRange,
+  range,
   tick,
   playing,
 }: {
@@ -19,31 +25,28 @@ export function AnimationTimeline({
   edit: (fn: (a: Animation) => void) => void;
   onSeek: (poseId: string) => void;
   onRange: (range: [number, number] | null) => void;
+  range: [number, number] | null;
   tick: number;
   playing: boolean;
 }) {
   const [selected, setSelected] = useState<number[]>([]),
     [duration, setDuration] = useState(8),
-    [range, setRange] = useState(false),
-    [from, setFrom] = useState(0),
-    [to, setTo] = useState(animation.frames.length - 1),
     [cursor, setCursor] = useState(0);
   const ids = selected.filter((i) => i < animation.frames.length);
   const total = animation.frames.reduce((n, f) => n + f.ticks, 0);
-  const first = Math.min(from, animation.frames.length - 1);
-  const last = Math.max(first, Math.min(to, animation.frames.length - 1));
-  const rangeStart = animation.frames
-    .slice(0, first)
-    .reduce((n, f) => n + f.ticks, 0);
-  const rangeDuration = animation.frames
-    .slice(first, last + 1)
-    .reduce((n, f) => n + f.ticks, 0);
+  const first = Math.min(range?.[0] ?? 0, animation.frames.length - 1);
+  const last = Math.max(
+    first,
+    Math.min(
+      range?.[1] ?? animation.frames.length - 1,
+      animation.frames.length - 1,
+    ),
+  );
+  const position = animationPosition(animation, tick, range);
   const playhead = playing
-    ? range
-      ? rangeStart + (tick % rangeDuration)
-      : animation.loop
-        ? tick % total
-        : Math.min(tick, total - 1)
+    ? animation.frames
+        .slice(0, position.index)
+        .reduce((n, f) => n + f.ticks, 0) + position.offset
     : Math.min(cursor, total - 1);
   const seek = (t: number) => {
     setCursor(t);
@@ -75,7 +78,6 @@ export function AnimationTimeline({
             });
             setSelected([]);
             onRange(null);
-            setRange(false);
           }}
         >
           {tr("Dupliquer les images", "Duplicate frames")}
@@ -88,7 +90,6 @@ export function AnimationTimeline({
             });
             setSelected([]);
             onRange(null);
-            setRange(false);
           }}
         >
           {tr("Supprimer les images", "Delete frames")}
@@ -127,9 +128,8 @@ export function AnimationTimeline({
       <div className="button-row">
         <Check
           label={tr("Boucler une plage", "Loop a range")}
-          value={range}
+          value={range !== null}
           onChange={(v) => {
-            setRange(v);
             onRange(v ? [first, last] : null);
           }}
         />
@@ -139,12 +139,7 @@ export function AnimationTimeline({
           max={animation.frames.length}
           value={first + 1}
           onChange={(v) => {
-            setFrom(v - 1);
-            if (range)
-              onRange([
-                v - 1,
-                Math.max(v - 1, Math.min(to, animation.frames.length - 1)),
-              ]);
+            onRange([v - 1, Math.max(v - 1, last)]);
           }}
         />
         <NumberField
@@ -153,8 +148,7 @@ export function AnimationTimeline({
           max={animation.frames.length}
           value={last + 1}
           onChange={(v) => {
-            setTo(v - 1);
-            if (range) onRange([first, v - 1]);
+            onRange([first, v - 1]);
           }}
         />
       </div>
@@ -182,7 +176,6 @@ export function AnimationTimeline({
               );
               setSelected([]);
               onRange(null);
-              setRange(false);
             }}
             style={{
               border: ids.includes(n) ? "1px solid #8daaff" : undefined,
@@ -197,7 +190,15 @@ export function AnimationTimeline({
                 )
               }
             />
-            <button onClick={() => onSeek(f.poseId)}>
+            <button
+              onClick={() =>
+                seek(
+                  animation.frames
+                    .slice(0, n)
+                    .reduce((sum, frame) => sum + frame.ticks, 0),
+                )
+              }
+            >
               {n + 1} · {f.event || "—"}
             </button>
             <Select
@@ -239,7 +240,7 @@ export function AnimationTimeline({
           edit((a) => {
             a.frames.push({ poseId: actor.poses[0].id, ticks: 8, event: "" });
           });
-          setTo(animation.frames.length);
+          if (range) onRange([first, animation.frames.length]);
         }}
       >
         + {tr("Image", "Frame")}
