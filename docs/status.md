@@ -106,4 +106,6 @@ English is now the first-launch and fallback language; a saved French preference
 
 CI defines Windows x86-64 NSIS, Ubuntu 24.04 DEB/AppImage and Fedora 44 RPM builds. An annotated stable tag matching a commit on `main` triggers checks and automatic publication of the complete asset set, with English version-specific notes and SHA-256 checksums. See [releasing.md](releasing.md).
 
-Validation for this migration is recorded in the release procedure. Workflow definitions are not evidence of green hosted builds. No public release or tag is created by preparing these changes. Actual publication remains unverified until the first authorized tagged release; Windows 11, Ubuntu 24.04 and Fedora 44 desktop acceptance must be recorded separately.
+Validation: 67 tests passed and [hosted CI](https://github.com/dabatnot/snes-graph/actions/runs/36317092349) is green for all three builds, Windows silent installation/startup, clean Ubuntu/Fedora package installation and Linux startup under Xvfb. All four packages were downloaded, inspected and verified against generated SHA-256 checksums. Native first-launch English, save/reopen, language switching and offline help were observed on the local Fedora 44 desktop. Detailed evidence and scope are recorded in the release procedure.
+
+No public release, tag or merge into main was created. Actual publication remains unverified until the first authorized tagged release. Windows 11 and Ubuntu 24.04 graphical desktop checks remain unavailable; CI startup does not replace those checks.
