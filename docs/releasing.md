@@ -13,10 +13,10 @@ Inspect remote tags and releases before reserving a version:
 ```sh
 git ls-remote --tags origin
 gh release list --repo dabatnot/snes-graph --limit 100
-npm run version:set -- 0.2.1
+npm run version:set -- 0.2.2
 npm run version:check
-npm run --silent release:notes -- --version 0.2.1
-npm run --silent release:notes -- fr --version 0.2.1
+npm run --silent release:notes -- --version 0.2.2
+npm run --silent release:notes -- fr --version 0.2.2
 npm test
 npm run build
 ```
@@ -48,8 +48,8 @@ Once the exact delivery commit is on main and its checks passed, an authorized r
 ```sh
 git switch main
 git pull --ff-only origin main
-git tag -a v0.2.1 -m "SNES Graph 0.2.1"
-git push origin v0.2.1
+git tag -a v0.2.2 -m "SNES Graph 0.2.2"
+git push origin v0.2.2
 ```
 
 These are publication commands, not validation commands. Review the intended commit before using them. The pipeline checks annotated tag type, stable tag syntax, HEAD equality, main ancestry, synchronized versions and matching release notes.
@@ -83,3 +83,8 @@ All four artifacts were downloaded and staged with the release script; their exp
 On the local Fedora 44 Workstation desktop, the rebuilt native 0.2.1 executable was observed starting in English with isolated fresh preferences. A test project was saved and reopened through native dialogs, the interface switched to French and back to English, and the bundled English manual opened in its own native window. This checks the local executable, not installation of the CI RPM on a graphical desktop. Windows 11 and Ubuntu 24.04 graphical desktops were unavailable; these optional checks remain unverified and are not release blockers.
 
 Automatic publication remains unverified until the first real tagged release. No public tag, release or merge into main was used for these checks. Downloadable build artifacts are attached to the CI run; GitHub Releases will receive the stable assets only after the authorized main/tag delivery.
+
+
+## First tagged run and correction
+
+The annotated `v0.2.1` tag at `559c7cb` triggered [run 36319912414](https://github.com/dabatnot/snes-graph/actions/runs/36319912414). It failed before packaging: actions/checkout rewrote the local tag reference to the event commit, hiding its annotation. The remote tag remains annotated and unchanged; no 0.2.1 release was published. Version 0.2.2 restores the original remote tag object locally before validation. A regression test reproduces the local rewrite and verifies that fetching the original tag restores the guard.

@@ -9,6 +9,7 @@ import { version } from "../package.json";
 describe("Release guard", () => {
   it("requires an annotated matching tag checked out on main history", () => {
     const root = mkdtempSync(join(tmpdir(), "snes-release-"));
+    const remote = `${root}-remote.git`;
     const git = (...args: string[]) =>
       execFileSync("git", args, { cwd: root, stdio: "pipe" });
     try {
@@ -31,6 +32,18 @@ describe("Release guard", () => {
       git("update-ref", "refs/remotes/origin/main", "HEAD");
       git("tag", "-a", `v${version}`, "-m", "Release");
       expect(checkRelease(`v${version}`, root)).toBe(version);
+      // Preserve a remote tag object before reproducing checkout's local rewrite.
+      git("clone", "--bare", root, remote);
+      git("remote", "add", "origin", remote);
+      git("update-ref", `refs/tags/v${version}`, "HEAD");
+      expect(() => checkRelease(`v${version}`, root)).toThrow("annotated");
+      git(
+        "fetch",
+        "origin",
+        "main:refs/remotes/origin/main",
+        `+refs/tags/v${version}:refs/tags/v${version}`,
+      );
+      expect(checkRelease(`v${version}`, root)).toBe(version);
       expect(() => checkRelease(`v${version}-rc.1`, root)).toThrow("stable");
       git("tag", "v9.0.0");
       expect(() => checkRelease("v9.0.0", root)).toThrow("annotated");
@@ -46,6 +59,7 @@ describe("Release guard", () => {
       git("tag", "-a", "v7.0.0", "-m", "Off main");
       expect(() => checkRelease("v7.0.0", root)).toThrow();
     } finally {
+      rmSync(remote, { recursive: true, force: true });
       rmSync(root, { recursive: true, force: true });
     }
   });

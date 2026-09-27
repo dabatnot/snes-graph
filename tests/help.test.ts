@@ -40,8 +40,8 @@ describe("Help and distribution", () => {
         );
       }
       expect(checkVersion(dir)).toBe(version);
-      setVersion("0.2.2", dir);
-      expect(checkVersion(dir)).toBe("0.2.2");
+      setVersion("0.2.3", dir);
+      expect(checkVersion(dir)).toBe("0.2.3");
       expect(() => setVersion("invalid", dir)).toThrow();
       const config = JSON.parse(
         readFileSync(join(dir, "src-tauri/tauri.conf.json"), "utf8"),

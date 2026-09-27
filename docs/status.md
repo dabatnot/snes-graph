@@ -109,3 +109,8 @@ CI defines Windows x86-64 NSIS, Ubuntu 24.04 DEB/AppImage and Fedora 44 RPM buil
 Validation: 67 tests passed and [hosted CI](https://github.com/dabatnot/snes-graph/actions/runs/36317092349) is green for all three builds, Windows silent installation/startup, clean Ubuntu/Fedora package installation and Linux startup under Xvfb. All four packages were downloaded, inspected and verified against generated SHA-256 checksums. Native first-launch English, save/reopen, language switching and offline help were observed on the local Fedora 44 desktop. Detailed evidence and scope are recorded in the release procedure.
 
 No public release, tag or merge into main was created. Actual publication remains unverified until the first authorized tagged release. Windows 11 and Ubuntu 24.04 graphical desktop checks remain unavailable and are optional for this delivery by maintainer decision; CI startup does not establish graphical compatibility.
+
+
+## Release checkout correction — 0.2.2
+
+The first tagged 0.2.1 run stopped before packaging because checkout replaced the local annotated tag reference with its commit. The remote tag was preserved and no release was published. Version 0.2.2 explicitly fetches the remote tag object before the existing annotation, commit, version and main-ancestry checks. See [the release record](releasing.md#first-tagged-run-and-correction).

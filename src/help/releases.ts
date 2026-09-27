@@ -19,6 +19,27 @@ export type ReleaseNote = {
 };
 export const releases: ReleaseNote[] = [
   {
+    version: "0.2.2",
+    date: "2026-09-27",
+    commits: [],
+    en: {
+      title: "Annotated release tag validation",
+      summary:
+        "Fix release validation after GitHub Actions checks out an annotated tag.",
+      fixed: [
+        "Restore the original remote tag object before checking its annotation and commit.",
+      ],
+    },
+    fr: {
+      title: "Validation des tags de release annotés",
+      summary:
+        "Correction de la validation après le checkout d’un tag annoté par GitHub Actions.",
+      fixed: [
+        "Récupération du tag distant original avant de vérifier son annotation et son commit.",
+      ],
+    },
+  },
+  {
     version: "0.2.1",
     date: "2026-09-27",
     commits: [],
