@@ -1,12 +1,12 @@
 {
   "name": "snes-graph",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "scripts": {
     "format": "prettier --write src scripts tests docs README.md",
-    "bundle:linux": "NO_STRIP=1 tauri build --bundles rpm,appimage",
-    "bundle:windows": "tauri build --bundles nsis",
+    "bundle:linux": "NO_STRIP=1 tauri build --bundles rpm,appimage -- --locked",
+    "bundle:windows": "tauri build --bundles nsis -- --locked",
     "dev": "vite --host 127.0.0.1",
     "build": "npm run version:check && tsc --noEmit && vite build",
     "test": "vitest run",
@@ -18,7 +18,9 @@
     "benchmark": "tsx scripts/benchmark.ts",
     "version:set": "node --import tsx scripts/version.ts",
     "version:check": "node --import tsx scripts/version.ts --check",
-    "release:notes": "node --import tsx scripts/release-notes.ts"
+    "release:notes": "node --import tsx scripts/release-notes.ts",
+    "bundle:ubuntu": "NO_STRIP=1 tauri build --bundles deb,appimage -- --locked",
+    "bundle:fedora": "tauri build --bundles rpm -- --locked"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1",

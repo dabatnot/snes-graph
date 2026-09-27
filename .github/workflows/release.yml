@@ -1,0 +1,83 @@
+name: Publish desktop release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Validate annotated tag, main ancestry, version and notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          git fetch origin main:refs/remotes/origin/main
+          node --import tsx scripts/release-check.ts "$RELEASE_TAG"
+  packages:
+    needs: validate
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: packages
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: snes-graph-*-x86_64
+          path: packages
+      - name: Assemble release assets
+        run: |
+          python3 scripts/release-assets.py packages release-assets
+          cd release-assets
+          sha256sum --check SHA256SUMS
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("./package.json").version')
+          npm run --silent release:notes -- en --version "$version" > release-notes.md
+          printf '\nDownloads: Windows 11 x86-64 (NSIS), Ubuntu 24.04 x86-64 (DEB), Fedora 44 x86-64 (RPM), and Linux x86-64 AppImage (Ubuntu 24.04 baseline).\n\nVerify downloads against SHA256SUMS.\n' >> release-notes.md
+          # List via the API so authentication/network errors cannot look like a missing release.
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases" --jq '.[] | {tag_name, draft}' > releases.jsonl
+          draft=$(jq -sr --arg tag "$RELEASE_TAG" '[.[] | select(.tag_name == $tag)] | if length == 0 then "missing" else .[0].draft end' releases.jsonl)
+          if [ "$draft" = false ]; then
+            echo 'Refusing to modify an already published release' >&2
+            exit 1
+          fi
+          if [ "$draft" = missing ]; then
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "SNES Graph $version" --notes-file release-notes.md
+          else
+            gh release edit "$RELEASE_TAG" --title "SNES Graph $version" --notes-file release-notes.md
+            # Only drafts may have partial assets replaced on retry.
+            gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' > old-assets.txt
+            while IFS= read -r asset; do
+              gh release delete-asset "$RELEASE_TAG" "$asset" --yes
+            done < old-assets.txt
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/*
+          gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' | sort > uploaded.txt
+          find release-assets -maxdepth 1 -type f -printf '%f\n' | sort > expected.txt
+          diff -u expected.txt uploaded.txt
+          gh release edit "$RELEASE_TAG" --draft=false --latest

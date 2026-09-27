@@ -43,6 +43,15 @@ describe("Help and distribution", () => {
       setVersion("0.2.1", dir);
       expect(checkVersion(dir)).toBe("0.2.1");
       expect(() => setVersion("invalid", dir)).toThrow();
+      const config = JSON.parse(
+        readFileSync(join(dir, "src-tauri/tauri.conf.json"), "utf8"),
+      );
+      config.version = "9.9.9";
+      writeFileSync(
+        join(dir, "src-tauri/tauri.conf.json"),
+        JSON.stringify(config),
+      );
+      expect(() => checkVersion(dir)).toThrow("Version mismatch");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -51,7 +60,7 @@ describe("Help and distribution", () => {
     expect(releases[0].version).toBe(version);
     expect(
       releases
-        .slice(1)
+        .filter((r) => !r.version)
         .every((r) => r.version === undefined && r.commits.length),
     ).toBe(true);
     for (const language of ["fr", "en"] as const) {
@@ -62,6 +71,33 @@ describe("Help and distribution", () => {
       expect(releaseMarkdown(language)).toContain("9726792");
     }
   });
+  it("exports only the requested release and rejects missing notes", () => {
+    const notes = releaseMarkdown("en", version);
+    expect(notes).toContain(version);
+    expect(notes).not.toContain("## 0.2.0");
+    expect(notes).not.toContain("9726792");
+    expect(releaseMarkdown()).toContain(releases[0].en.title);
+    expect(releaseMarkdown("fr", version)).toContain(releases[0].fr.title);
+    expect(() => releaseMarkdown("en", "99.0.0")).toThrow("No release notes");
+  });
+  it.each([null, "en", "fr", "de"])(
+    "initializes language from saved preference %s",
+    async (saved) => {
+      vi.resetModules();
+      vi.stubGlobal("localStorage", { getItem: () => saved });
+      vi.stubGlobal("navigator", { language: "fr-FR" });
+      try {
+        const { default: i18n, tr } = await import("../src/i18n");
+        expect(i18n.language).toBe(saved === "fr" ? "fr" : "en");
+        expect(tr("Bonjour", "Hello")).toBe(
+          saved === "fr" ? "Bonjour" : "Hello",
+        );
+        expect(i18n.options.fallbackLng).toEqual(["en"]);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    },
+  );
   it("packages the manual link graph and keeps its window unprivileged", () => {
     const files = offlineFiles();
     expect(files).toContain("docs/guide/en.html");

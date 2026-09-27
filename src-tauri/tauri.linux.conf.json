@@ -8,7 +8,12 @@
           "/usr/share/mime/packages/snes-graph.xml": "linux/snes-graph.xml"
         }
       },
-      "deb": { "desktopTemplate": "linux/snes-graph.desktop" },
+      "deb": {
+        "desktopTemplate": "linux/snes-graph.desktop",
+        "files": {
+          "/usr/share/mime/packages/snes-graph.xml": "linux/snes-graph.xml"
+        }
+      },
       "appimage": {
         "files": {
           "usr/share/mime/packages/snes-graph.xml": "linux/snes-graph.xml"

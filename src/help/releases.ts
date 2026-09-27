@@ -19,6 +19,33 @@ export type ReleaseNote = {
 };
 export const releases: ReleaseNote[] = [
   {
+    version: "0.2.1",
+    date: "2026-09-27",
+    commits: [],
+    en: {
+      title: "English defaults and desktop releases",
+      summary:
+        "English is now the default language, with French still available. Tagged releases provide Windows, Ubuntu and Fedora packages.",
+      added: [
+        "Automated release packaging with downloadable installers and SHA-256 checksums.",
+      ],
+      improved: [
+        "English project documentation and default CLI, gallery and help language.",
+      ],
+    },
+    fr: {
+      title: "Anglais par défaut et distributions de bureau",
+      summary:
+        "L’anglais devient la langue par défaut ; le français reste disponible. Les versions taguées proposent des paquets Windows, Ubuntu et Fedora.",
+      added: [
+        "Distribution automatisée des installateurs avec sommes de contrôle SHA-256.",
+      ],
+      improved: [
+        "Documentation de travail en anglais et langue par défaut du CLI, de la galerie et de l’aide.",
+      ],
+    },
+  },
+  {
     version: "0.2.0",
     date: "2026-09-27",
     commits: ["43089ff", "299527f"],
@@ -123,12 +150,19 @@ export const releases: ReleaseNote[] = [
     },
   },
 ];
-export function releaseMarkdown(language: "fr" | "en") {
+export function releaseMarkdown(
+  language: "fr" | "en" = "en",
+  version?: string,
+) {
+  const selected = version
+    ? releases.filter((r) => r.version === version)
+    : releases;
+  if (!selected.length) throw new Error(`No release notes for ${version}`);
   const labels =
     language === "fr"
       ? { added: "Ajouts", improved: "Améliorations", fixed: "Corrections" }
       : { added: "Added", improved: "Improved", fixed: "Fixed" };
-  return releases
+  return selected
     .map((r) => {
       const text = r[language];
       return (
