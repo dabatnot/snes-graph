@@ -7,6 +7,7 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
   returnEmptyString: false,
 });
+document.documentElement.lang = i18n.language;
 export const tr = (fr: string, en: string) =>
   i18n.t(fr, { defaultValue: i18n.language.startsWith("fr") ? fr : en });
 export default i18n;

@@ -86,9 +86,12 @@ describe("Help and distribution", () => {
       vi.resetModules();
       vi.stubGlobal("localStorage", { getItem: () => saved });
       vi.stubGlobal("navigator", { language: "fr-FR" });
+      const document = { documentElement: { lang: "" } };
+      vi.stubGlobal("document", document);
       try {
         const { default: i18n, tr } = await import("../src/i18n");
         expect(i18n.language).toBe(saved === "fr" ? "fr" : "en");
+        expect(document.documentElement.lang).toBe(i18n.language);
         expect(tr("Bonjour", "Hello")).toBe(
           saved === "fr" ? "Bonjour" : "Hello",
         );
