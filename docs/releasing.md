@@ -23,7 +23,15 @@ npm run build
 
 If the version already exists, stop version preparation and report the conflict. Add bilingual notes before exporting them. Omit `--version` for full history. An unknown requested version fails. Update the affected manuals and third-party inventories if dependencies changed.
 
-Commit and push to `develop` when authorized. The `Desktop CI` workflow runs on pushes/PRs to develop/main, supports manual dispatch, and is reused by releases. Exercise it from develop without publishing a test tag. Inspect all jobs and download artifacts; a workflow file is not proof of success.
+Commit and push to `develop` when authorized. The `Desktop CI` workflow runs shared tests, version checks and the TypeScript/Vite build on pushes to develop and pull requests targeting develop or main. A push to main does not start another CI run.
+
+Desktop packaging and installation/startup checks run only on manual dispatch or when the release workflow calls CI with `build_packages: true`. Manually exercise the full build from develop before merging changes to dependencies, Tauri or packaging:
+
+```sh
+gh workflow run ci.yml --ref develop
+```
+
+Manual runs build all platforms without publishing. Inspect the jobs and download artifacts; a workflow file is not proof of success. Tagged releases always rebuild and validate the exact tagged commit before publication.
 
 ## Packages and checks
 
@@ -43,7 +51,7 @@ Before the first tag, check on Fedora 44: launch, create/save/reopen a project, 
 
 ## Publish from main
 
-Once the exact delivery commit is on main and its checks passed, an authorized release operator creates and pushes the tag:
+Once the delivery commit is on main and the develop or pull-request checks passed, an authorized release operator creates and pushes the tag:
 
 ```sh
 git switch main
@@ -68,7 +76,7 @@ The publisher assembles a draft and publishes only when every expected asset is 
 
 Runs serialize per tag. Failed checks/builds do not publish a release. A partially uploaded draft can be resumed by rerunning the same tagged workflow; draft assets are replaced as a complete set. Existing published releases are refused, never edited. Network/API failures fail delivery instead of being interpreted as absent releases.
 
-Never move a release tag or overwrite published assets. If code changes are required, prepare a new version/commit/tag. An infrastructure-only failure can rerun the same commit. No public test tags are needed: release guard tests use temporary local repositories.
+Platform-specific failures may first appear during the tagged release when no manual package build was requested. They block publication. Never move a release tag or overwrite published assets. If code changes are required, prepare a new version/commit/tag. An infrastructure-only failure can rerun the same commit. No public test tags are needed: release guard tests use temporary local repositories.
 
 ## Validation record — 0.2.1 preparation
 

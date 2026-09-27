@@ -30,6 +30,8 @@ jobs:
   packages:
     needs: validate
     uses: ./.github/workflows/ci.yml
+    with:
+      build_packages: true
   publish:
     needs: packages
     runs-on: ubuntu-24.04
