@@ -260,3 +260,11 @@ The updated information captures were inspected in both browser lightboxes; open
 ## Sprite preview bounds — September 27, 2026
 
 Gallery thumbnails now rasterize the complete first pose, independently of the editor origin. Existing editor rendering retains its 128 × 128 canvas. Preview rasterization follows gallery resource validation. A regression test covers shifted origins and a 176-pixel-wide pose. All 70 tests and the build passed; the English Football ROM completed the existing Mesen journey in artifacts/review-gallery. Compared home, sprite, information, map, scrolled-map and scene PNGs are byte-identical to artifacts/aligned-gallery, so the current manual captures remain valid. Both editions retain 108 matching anchors and 505 checked links. No console validation is claimed.
+
+## Update: drawing reference images — September 27, 2026
+
+`assets/32-reference.png` (FR) and `assets/en/32-reference.png` (EN) show the web editor in Chromium at 1440 × 920, route `/`, Graphics → Tiles. A temporary project uses a 128 × 128 drawing (16 × 16 tiles), the repository icon `src-tauri/icons/128x128@2x.png` as reference, X/Y 0, displayed width 70 pixels, opacity 65%, grid enabled and zoom 600%. A white rectangle is painted on Layer 2 above the reference. Scroll the right panel to the Reference image heading before capturing. No existing example project was modified. Both captures were visually inspected.
+
+### Reference overflow correction
+
+`assets/33-reference-overflow.png` and `assets/en/33-reference-overflow.png` show the corrected workspace in Chromium at 1440 × 920, route `/`, Graphics → Tiles. Temporary 32 × 32 drawing; same icon PNG; reference width 64, X/Y −16, opacity 50%, zoom 1000%, grid on, one white painted pixel. The full reference remains visible outside the tile grid. Both captures were visually inspected. Browser checks also exercise outside clicks (no painting), painting inside, dragging from outside the grid, resizing with the outside handle, and single-step undo.

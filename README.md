@@ -50,7 +50,7 @@ AppImage commands preserve bundled-library symbols with `NO_STRIP=1` to avoid li
 
 ## Use the editor
 
-- **Drawings:** indexed pixels, pencil, eraser, shapes, fill, selections, lasso, movement, symmetry, layers, seamless preview, PNG and Aseprite.
+- **Drawings:** indexed pixels, pencil, eraser, shapes, fill, selections, lasso, movement, symmetry, layers, embedded PNG references with adjustable placement/opacity, seamless preview, PNG and Aseprite.
 - **Palettes:** names, SNES colors, entry names, locks, duplication, gradients, remapped reordering and cycles.
 - **Sprites:** pieces, movement/groups, poses, animations, events, collisions, attachments and palette variants.
 - **Maps:** painting, fill, palettes/attributes, captured metatiles, terrain connections and animated tiles.

@@ -1,5 +1,7 @@
 import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 import type { Project } from "./model";
+import { decode } from "fast-png";
+import { validateReference } from "./reference";
 const MAX = 128 * 1024 * 1024;
 export function validateProject(p: Project): void {
   if (!p || p.format !== "snes-graph" || p.version !== 1)
@@ -93,6 +95,7 @@ export function validateProject(p: Project): void {
     }
   }
   for (const s of p.sheets) {
+    if (s.reference) validateReference(s.reference);
     integer(s.width, 8, 4096);
     integer(s.height, 8, 4096);
     if (
@@ -277,13 +280,19 @@ export function validateProject(p: Project): void {
       throw new Error("Missing export scene");
   }
 }
-export function saveProject(p: Project): Uint8Array {
-  validateProject(p);
+function projectFiles(p: Project) {
   const files: Record<string, Uint8Array> = {};
-  const sheets = p.sheets.map(({ pixels, layers, ...s }) => {
+  const sheets = p.sheets.map(({ pixels, layers, reference, ...s }) => {
     files[`pixels/${s.id}.bin`] = pixels;
+    let metadata;
+    if (reference) {
+      const { png, ...rest } = reference;
+      files[`references/${s.id}.png`] = png;
+      metadata = rest;
+    }
     return {
       ...s,
+      reference: metadata,
       layers: layers?.map(({ pixels, ...l }) => {
         files[`layers/${s.id}/${l.id}.bin`] = pixels;
         return l;
@@ -291,7 +300,30 @@ export function saveProject(p: Project): Uint8Array {
     };
   });
   files["project.json"] = strToU8(JSON.stringify({ ...p, sheets }, null, 2));
-  return zipSync(files, { level: 6, mtime: new Date("2000-01-01T00:00:00Z") });
+  return files;
+}
+export function checkProjectSize(p: Project) {
+  const files = projectFiles(p);
+  // Reserve ZIP headers and worst-case deflate overhead as well as payload bytes.
+  const size = Object.entries(files).reduce(
+    (n, [name, bytes]) =>
+      n +
+      bytes.length +
+      Math.ceil(bytes.length / 16384) * 5 +
+      128 +
+      name.length * 2,
+    22,
+  );
+  if (size > MAX || Object.keys(files).length > 10000)
+    throw new Error("Project exceeds 128 MiB / Le projet dépasse 128 Mio");
+}
+export function saveProject(p: Project): Uint8Array {
+  validateProject(p);
+  checkProjectSize(p);
+  return zipSync(projectFiles(p), {
+    level: 6,
+    mtime: new Date("2000-01-01T00:00:00Z"),
+  });
 }
 export function loadProject(bytes: Uint8Array): Project {
   if (bytes.length > MAX) throw new Error("Project exceeds 128 MiB");
@@ -312,6 +344,9 @@ export function loadProject(bytes: Uint8Array): Project {
   data.sheets = data.sheets.map((s: Record<string, unknown>) => ({
     ...s,
     pixels: files[`pixels/${s.id}.bin`],
+    reference: s.reference
+      ? { ...(s.reference as object), png: files[`references/${s.id}.png`] }
+      : undefined,
     layers: Array.isArray(s.layers)
       ? s.layers.map((l: Record<string, unknown>) => ({
           ...l,
@@ -320,5 +355,7 @@ export function loadProject(bytes: Uint8Array): Project {
       : undefined,
   }));
   validateProject(data);
+  for (const s of data.sheets)
+    if (s.reference) decode(s.reference.png, { checkCrc: true });
   return data;
 }

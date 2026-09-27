@@ -1,3 +1,4 @@
+import { checkProjectSize } from "./core/archive";
 import { HelpContent, type HelpPage } from "./ui/Help";
 import { openManual } from "./platform";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -123,6 +124,7 @@ export default function App() {
         const before = pRef.current,
           next = clone(before);
         f(next);
+        if (next.sheets.some((s) => s.reference)) checkProjectSize(next);
         past.current.push(before);
         if (past.current.length > 50) past.current.shift();
         const bytes = (p: Project) =>
@@ -130,6 +132,7 @@ export default function App() {
             (n, s) =>
               n +
               s.pixels.length +
+              (s.reference?.png.length ?? 0) +
               (s.layers ?? []).reduce((a, l) => a + l.pixels.length, 0),
             0,
           ) + p.maps.reduce((n, m) => n + m.cells.length * 64, 0);

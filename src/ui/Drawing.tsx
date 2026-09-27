@@ -1,3 +1,6 @@
+import { chooseFile } from "../platform";
+import { createReference, fitReference } from "../core/reference";
+import type { DrawingReference } from "../core/model";
 import { useEffect, useRef, useState } from "react";
 import {
   clone,
@@ -85,6 +88,97 @@ export function Drawing({
         flattenSheet(s);
       } else s.pixels = pixels;
     });
+  const [adjustReference, setAdjustReference] = useState(false);
+  const [referencePreview, setReferencePreview] =
+    useState<DrawingReference | null>(null);
+  const [referenceImage, setReferenceImage] = useState<{
+    key: string;
+    bitmap: ImageBitmap;
+  } | null>(null);
+  const [referenceError, setReferenceError] = useState("");
+  const referenceGesture = useRef<{
+    start: Point;
+    original: DrawingReference;
+    resize: boolean;
+    next: DrawingReference;
+  } | null>(null);
+  const reference = referencePreview ?? sheet.reference;
+  useEffect(() => {
+    let disposed = false;
+    let bitmap: ImageBitmap | undefined;
+    setReferenceImage(null);
+    setReferencePreview(null);
+    referenceGesture.current = null;
+    if (sheet.reference) {
+      createImageBitmap(
+        new Blob([new Uint8Array(sheet.reference.png)], { type: "image/png" }),
+      )
+        .then((image) => {
+          bitmap = image;
+          if (disposed) image.close();
+          else
+            setReferenceImage({
+              key: sheet.id + sheet.reference!.id,
+              bitmap: image,
+            });
+        })
+        .catch(() => {
+          if (!disposed)
+            setReferenceError(
+              tr(
+                "Impossible de lire la référence.",
+                "Cannot decode the reference.",
+              ),
+            );
+        });
+    } else setAdjustReference(false);
+    return () => {
+      disposed = true;
+      bitmap?.close();
+    };
+  }, [sheet.id, sheet.reference?.id]);
+  useEffect(() => {
+    const cancel = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && referenceGesture.current) {
+        e.preventDefault();
+        referenceGesture.current = null;
+        setReferencePreview(null);
+      }
+    };
+    window.addEventListener("keydown", cancel);
+    return () => window.removeEventListener("keydown", cancel);
+  }, []);
+  const updateReference = (values: Partial<DrawingReference>) =>
+    change((p) => {
+      const r = p.sheets.find((s) => s.id === sheet.id)?.reference;
+      if (r) Object.assign(r, values);
+    });
+  const importReference = async () => {
+    try {
+      const file = await chooseFile(["png"]);
+      if (!file) return;
+      const next = createReference(
+        file.bytes,
+        file.name,
+        sheet.width,
+        sheet.height,
+      );
+      change((p) => {
+        const target = p.sheets.find((s) => s.id === sheet.id);
+        if (target) target.reference = next;
+      });
+      setReferenceError("");
+    } catch (error) {
+      setReferenceError(String(error));
+    }
+  };
+  const referencePoint = (e: React.PointerEvent<HTMLElement>) => {
+    const rect = canvas.current!.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) / zoom,
+      y: (e.clientY - rect.top) / zoom,
+    };
+  };
   const canvas = useRef<HTMLCanvasElement>(null),
     draft = useRef<Sheet | null>(null),
     start = useRef<Point | null>(null),
@@ -92,6 +186,31 @@ export function Drawing({
     clip = useRef<{ width: number; height: number; pixels: Uint8Array } | null>(
       null,
     );
+  const referenceCanvas = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = referenceCanvas.current;
+    if (
+      !c ||
+      !referenceImage ||
+      !sheet.reference ||
+      referenceImage.key !== sheet.id + sheet.reference.id
+    )
+      return;
+    c.width = referenceImage.bitmap.width;
+    c.height = referenceImage.bitmap.height;
+    c.getContext("2d")!.drawImage(referenceImage.bitmap, 0, 0);
+  }, [referenceImage, sheet.id, sheet.reference?.id]);
+  // Keep workspace bounds stable during a drag; pointer deltas use screen coordinates.
+  const extent = sheet.reference?.visible ? sheet.reference : undefined;
+  const left = Math.min(0, extent?.x ?? 0);
+  const top = Math.min(0, extent?.y ?? 0);
+  const right = Math.max(sheet.width, extent ? extent.x + extent.width : 0);
+  const bottom = Math.max(
+    sheet.height,
+    extent
+      ? extent.y + (extent.width * extent.nativeHeight) / extent.nativeWidth
+      : 0,
+  );
   const pal =
     project.palettes.find((p) => p.id === paletteId) ??
     project.palettes.find((p) => p.id === sheet.paletteId)!;
@@ -108,14 +227,6 @@ export function Drawing({
       image = renderSheet(project, s, pal.id);
     c.width = s.width * zoom;
     c.height = s.height * zoom;
-    ctx.fillStyle = "#252a34";
-    ctx.fillRect(0, 0, c.width, c.height);
-    for (let y = 0; y < s.height; y++)
-      for (let x = 0; x < s.width; x++)
-        if ((x + y) % 2 === 0) {
-          ctx.fillStyle = "#2e3440";
-          ctx.fillRect(x * zoom, y * zoom, zoom, zoom);
-        }
     const tiny = document.createElement("canvas");
     tiny.width = s.width;
     tiny.height = s.height;
@@ -181,8 +292,17 @@ export function Drawing({
   }, [sheet.id, sheet.width, sheet.height]);
   useEffect(() => {
     draw();
-  }, [sheet, pal, zoom, grid, selection]);
-  const pos = (e: React.PointerEvent<HTMLCanvasElement>): Point => {
+  }, [
+    sheet,
+    pal,
+    zoom,
+    grid,
+    selection,
+    referenceImage,
+    referencePreview,
+    adjustReference,
+  ]);
+  const pos = (e: React.PointerEvent<HTMLElement>): Point => {
     const r = e.currentTarget.getBoundingClientRect();
     return {
       x: Math.max(
@@ -208,7 +328,34 @@ export function Drawing({
     put(s, x, y, tool === "erase" ? 0 : color);
     if (sym) put(s, s.width - 1 - x, y, tool === "erase" ? 0 : color);
   };
-  function move(e: React.PointerEvent<HTMLCanvasElement>) {
+  function move(e: React.PointerEvent<HTMLElement>) {
+    if (adjustReference) {
+      const gesture = referenceGesture.current;
+      if (!gesture) return;
+      const point = { x: e.clientX / zoom, y: e.clientY / zoom },
+        r = gesture.original;
+      const dx = point.x - gesture.start.x,
+        dy = point.y - gesture.start.y;
+      const ratio = r.nativeHeight / r.nativeWidth;
+      gesture.next = gesture.resize
+        ? {
+            ...r,
+            width: Math.max(
+              0.01,
+              Math.min(
+                32767,
+                r.width + (dx + dy * ratio) / (1 + ratio * ratio),
+              ),
+            ),
+          }
+        : {
+            ...r,
+            x: Math.max(-32768, Math.min(32767, r.x + dx)),
+            y: Math.max(-32768, Math.min(32767, r.y + dy)),
+          };
+      setReferencePreview(gesture.next);
+      return;
+    }
     if (!draft.current || !start.current) return;
     const b = pos(e),
       a = start.current;
@@ -272,6 +419,23 @@ export function Drawing({
     draw(draft.current);
   }
   function end() {
+    if (adjustReference) {
+      const gesture = referenceGesture.current;
+      referenceGesture.current = null;
+      if (
+        gesture &&
+        (gesture.next.x !== gesture.original.x ||
+          gesture.next.y !== gesture.original.y ||
+          gesture.next.width !== gesture.original.width)
+      )
+        updateReference({
+          x: gesture.next.x,
+          y: gesture.next.y,
+          width: gesture.next.width,
+        });
+      setReferencePreview(null);
+      return;
+    }
     if (!draft.current) return;
     const pixels = draft.current.pixels.slice();
     if (tool === "lasso") {
@@ -351,6 +515,7 @@ export function Drawing({
               title={tr(fr, en)}
               aria-label={tr(fr, en)}
               className={tool === key ? "active" : ""}
+              disabled={adjustReference}
               onClick={() => setTool(key)}
             >
               {icon}
@@ -380,52 +545,151 @@ export function Drawing({
           />
         </div>
         <div className="drawing-area">
-          <canvas
-            aria-label={tr("Zone de dessin", "Drawing canvas")}
-            ref={canvas}
-            onPointerDown={(e) => {
-              if (e.button !== 0) return;
-              if (layer?.locked) return;
-              e.currentTarget.setPointerCapture(e.pointerId);
-              const a = pos(e);
-              if (tool === "pick") {
-                setColor(pixel(sheet, a.x, a.y));
-                return;
-              }
-              draft.current = editable();
-              start.current = a;
-              last.current = a;
-              if (tool === "select" || tool === "lasso") {
-                setSelection(null);
-                mask.current = null;
-                lasso.current = tool === "lasso" ? [a] : [];
-              } else if (tool === "fill") {
-                const original = draft.current.pixels.slice();
-                fill(draft.current, a.x, a.y, color);
-                if (selection || mask.current)
-                  for (let n = 0; n < original.length; n++) {
-                    const x = n % sheet.width,
-                      y = Math.floor(n / sheet.width);
-                    if (
-                      (mask.current && !mask.current[n]) ||
-                      (selection &&
-                        (x < selection.x ||
-                          y < selection.y ||
-                          x >= selection.x + selection.width ||
-                          y >= selection.y + selection.height))
-                    )
-                      draft.current.pixels[n] = original[n];
-                  }
-                draw(draft.current);
-              } else move(e);
+          <div
+            className="drawing-workspace"
+            style={{
+              width: (right - left) * zoom,
+              height: (bottom - top) * zoom,
             }}
-            onPointerMove={move}
-            onPointerUp={end}
-            onPointerCancel={() => {
-              draft.current = null;
-              draw();
-            }}
-          />
+          >
+            <div
+              className="drawing-background"
+              style={{
+                left: -left * zoom,
+                top: -top * zoom,
+                width: sheet.width * zoom,
+                height: sheet.height * zoom,
+                backgroundSize: `${zoom * 2}px ${zoom * 2}px`,
+              }}
+            />
+            <div
+              className="drawing-reference"
+              style={{
+                display:
+                  reference?.visible &&
+                  referenceImage?.key === sheet.id + reference.id
+                    ? undefined
+                    : "none",
+                left: ((reference?.x ?? 0) - left) * zoom,
+                top: ((reference?.y ?? 0) - top) * zoom,
+                width: (reference?.width ?? 0) * zoom,
+                height: reference
+                  ? ((reference.width * reference.nativeHeight) /
+                      reference.nativeWidth) *
+                    zoom
+                  : 0,
+                outline: adjustReference ? "1px solid #6ec9ff" : undefined,
+              }}
+            >
+              <canvas
+                ref={referenceCanvas}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  opacity: reference?.opacity ?? 0,
+                }}
+              />
+              {adjustReference && <span className="reference-handle" />}
+            </div>
+            <canvas
+              style={{
+                position: "absolute",
+                left: -left * zoom,
+                top: -top * zoom,
+              }}
+              aria-label={tr("Zone de dessin", "Drawing canvas")}
+              ref={canvas}
+              onPointerDown={(e) => {
+                if (e.button !== 0) return;
+                if (layer?.locked) return;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                const a = pos(e);
+                if (tool === "pick") {
+                  setColor(pixel(sheet, a.x, a.y));
+                  return;
+                }
+                draft.current = editable();
+                start.current = a;
+                last.current = a;
+                if (tool === "select" || tool === "lasso") {
+                  setSelection(null);
+                  mask.current = null;
+                  lasso.current = tool === "lasso" ? [a] : [];
+                } else if (tool === "fill") {
+                  const original = draft.current.pixels.slice();
+                  fill(draft.current, a.x, a.y, color);
+                  if (selection || mask.current)
+                    for (let n = 0; n < original.length; n++) {
+                      const x = n % sheet.width,
+                        y = Math.floor(n / sheet.width);
+                      if (
+                        (mask.current && !mask.current[n]) ||
+                        (selection &&
+                          (x < selection.x ||
+                            y < selection.y ||
+                            x >= selection.x + selection.width ||
+                            y >= selection.y + selection.height))
+                      )
+                        draft.current.pixels[n] = original[n];
+                    }
+                  draw(draft.current);
+                } else move(e);
+              }}
+              onPointerMove={move}
+              onPointerUp={end}
+              onPointerCancel={() => {
+                referenceGesture.current = null;
+                setReferencePreview(null);
+                draft.current = null;
+                draw();
+              }}
+            />
+            {adjustReference && (
+              <div
+                className="reference-adjust-overlay"
+                aria-label={tr(
+                  "Placement de la référence",
+                  "Reference placement",
+                )}
+                onPointerDown={(e) => {
+                  if (e.button !== 0) return;
+
+                  if (!reference?.visible) return;
+                  const point = referencePoint(e);
+                  const right = reference.x + reference.width;
+                  const bottom =
+                    reference.y +
+                    (reference.width * reference.nativeHeight) /
+                      reference.nativeWidth;
+                  const resize =
+                    Math.abs(point.x - right) <= 10 / zoom &&
+                    Math.abs(point.y - bottom) <= 10 / zoom;
+                  if (
+                    !resize &&
+                    (point.x < reference.x ||
+                      point.x > right ||
+                      point.y < reference.y ||
+                      point.y > bottom)
+                  )
+                    return;
+                  e.currentTarget.setPointerCapture(e.pointerId);
+                  referenceGesture.current = {
+                    start: { x: e.clientX / zoom, y: e.clientY / zoom },
+                    original: reference,
+                    next: reference,
+                    resize,
+                  };
+                  return;
+                }}
+                onPointerMove={move}
+                onPointerUp={end}
+                onPointerCancel={() => {
+                  referenceGesture.current = null;
+                  setReferencePreview(null);
+                }}
+              />
+            )}
+          </div>
         </div>
         <div className="palette-strip">
           {pal.colors.slice(0, 1 << sheet.bpp).map((c, i) => (
@@ -534,6 +798,81 @@ export function Drawing({
               <Preview key={i} image={renderSheet(project, sheet, pal.id)} />
             ))}
           </div>
+        )}
+        <h3>{tr("Image de référence", "Reference image")}</h3>
+        <button onClick={importReference}>
+          {sheet.reference
+            ? tr("Remplacer la référence…", "Replace reference…")
+            : tr("Ajouter une référence…", "Add reference…")}
+        </button>
+        {referenceError && <p role="alert">{referenceError}</p>}
+        {sheet.reference && (
+          <>
+            <p>{sheet.reference.name}</p>
+            <Check
+              label={tr("Afficher la référence", "Show reference")}
+              value={sheet.reference.visible}
+              onChange={(visible) => updateReference({ visible })}
+            />
+            <NumberField
+              label={tr("Opacité (%)", "Opacity (%)")}
+              value={sheet.reference.opacity * 100}
+              min={0}
+              max={100}
+              onChange={(v) => updateReference({ opacity: v / 100 })}
+            />
+            <NumberField
+              label="X (px)"
+              value={sheet.reference.x}
+              step={0.01}
+              onChange={(x) => updateReference({ x })}
+            />
+            <NumberField
+              label="Y (px)"
+              value={sheet.reference.y}
+              step={0.01}
+              onChange={(y) => updateReference({ y })}
+            />
+            <NumberField
+              label={tr("Largeur (px)", "Width (px)")}
+              value={sheet.reference.width}
+              min={0.01}
+              step={0.01}
+              onChange={(width) => updateReference({ width })}
+            />
+            <button
+              onClick={() =>
+                updateReference(
+                  fitReference(
+                    sheet.reference!.nativeWidth,
+                    sheet.reference!.nativeHeight,
+                    sheet.width,
+                    sheet.height,
+                  ),
+                )
+              }
+            >
+              {tr("Ajuster à la surface", "Fit to canvas")}
+            </button>
+            <button
+              disabled={!sheet.reference.visible && !adjustReference}
+              className={adjustReference ? "active" : ""}
+              onClick={() => setAdjustReference(!adjustReference)}
+            >
+              {adjustReference
+                ? tr("Terminer", "Done")
+                : tr("Ajuster la référence", "Adjust reference")}
+            </button>
+            <button
+              onClick={() =>
+                change((p) => {
+                  delete p.sheets.find((s) => s.id === sheet.id)!.reference;
+                })
+              }
+            >
+              {tr("Supprimer la référence", "Remove reference")}
+            </button>
+          </>
         )}
         <h3>{tr("Calques de dessin", "Drawing layers")}</h3>
         {sheet.layers?.map((l) => (

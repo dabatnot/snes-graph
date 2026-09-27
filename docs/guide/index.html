@@ -2073,6 +2073,74 @@ npm run dev</code></pre>
           /></a>
           <figcaption>Dimensions et organisation des tiles</figcaption>
         </figure>
+        <h3 id="reference-image">Image de référence</h3>
+        <p>
+          Créez ou ouvrez un dessin, définissez ses dimensions en tiles de 8 ×
+          8, puis choisissez <strong>Ajouter une référence…</strong> dans le
+          panneau <strong>Image de référence</strong>. Une référence PNG par
+          dessin est acceptée, jusqu’à 4096 × 4096 pixels et 128 Mio, dans la
+          limite totale de 128 Mio du projet. Les couleurs et la transparence
+          originales sont conservées sans conversion SNES. Le zoom et le
+          redimensionnement affichent des pixels nets, sans lissage ajouté ;
+          l’anticrénelage déjà présent dans le PNG reste conservé.
+        </p>
+        <p>
+          L’image est initialement ajustée entièrement à la surface, centrée et
+          affichée à 50 % d’opacité. Les champs <strong>X (px)</strong>,
+          <strong>Y (px)</strong> et <strong>Largeur (px)</strong> permettent un
+          placement précis ; la hauteur suit les proportions originales. Les
+          positions négatives et le débordement sont autorisés : la référence
+          reste visible au-delà des tiles. Faites défiler la zone de travail
+          pour atteindre toute l’image ; la peinture et la grille restent
+          limitées aux tiles. <strong>Ajuster à la surface</strong> rétablit
+          l’ajustement centré.
+        </p>
+        <p>
+          Choisissez <strong>Ajuster la référence</strong> pour déplacer l’image
+          ou tirer sa poignée inférieure droite. La peinture est suspendue
+          jusqu’à <strong>Terminer</strong>. Échap annule le geste en cours.
+          Utilisez <strong>Opacité (%)</strong> et
+          <strong>Afficher la référence</strong> pour garder la grille et votre
+          dessin lisibles. La pipette prélève les pixels du dessin, pas ceux de
+          la référence.
+        </p>
+        <p>
+          <strong>Remplacer la référence…</strong> charge un autre PNG avec le
+          placement et l’opacité par défaut ; un fichier invalide conserve la
+          référence précédente. <strong>Supprimer la référence</strong> retire
+          uniquement l’image guide. Ces changements sont
+          annulables/rétablissables, avec une entrée d’historique par
+          glissement. Le redimensionnement ou la réorganisation des tiles
+          conserve les coordonnées de la référence ; ajustez-la à nouveau si
+          nécessaire.
+        </p>
+        <p>
+          Le PNG et ses réglages sont embarqués dans le projet, y compris la
+          récupération et les duplications du dessin. Ils n’apparaissent ni dans
+          les aperçus, sprites, cartes, scènes ou exports, ni dans
+          l’aplatissement des calques. Les anciennes versions de l’application
+          peuvent perdre les références à l’enregistrement.
+        </p>
+        <figure>
+          <a data-zoom href="assets/32-reference.png"
+            ><img
+              src="assets/32-reference.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="Une référence en couleurs sous un tracé blanc sur un calque de dessin."
+          /></a>
+          <figcaption>
+            Une référence en couleurs sous un tracé blanc sur un calque de
+            dessin.
+          </figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/33-reference-overflow.png"><img
+            src="assets/33-reference-overflow.png" width="1440" height="920"
+            loading="lazy" alt="La référence dépasse des tiles ; seule la zone quadrillée accepte la peinture." /></a>
+          <figcaption>La référence dépasse des tiles ; seule la zone quadrillée accepte la peinture.</figcaption>
+        </figure>
         <h3 id="calques">Calques de dessin</h3>
         <div class="table-wrap">
           <table class="control-reference">
@@ -7263,6 +7331,11 @@ npm run dev</code></pre>
         <p class="intro">
           L’import convertit une image ou une animation en ressources indexées
           adaptées au projet. Examinez la conversion avant de l’accepter.
+        </p>
+        <p>
+          Pour peindre par-dessus un concept sans convertir ses couleurs,
+          utilisez une <a href="#reference-image">image de référence</a> dans le
+          dessin.
         </p>
         <h3 id="import-png">PNG</h3>
         <p>

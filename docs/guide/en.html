@@ -1998,6 +1998,68 @@ npm run dev</code></pre>
           /></a>
           <figcaption>Drawing size and tile arrangement</figcaption>
         </figure>
+        <h3 id="reference-image">Reference image</h3>
+        <p>
+          Create or open a drawing, set its size in 8 × 8 tiles, then choose
+          <strong>Add reference…</strong> in the
+          <strong>Reference image</strong> panel. One PNG per drawing is
+          supported, up to 4096 × 4096 pixels and 128 MiB, within the project's
+          total 128 MiB limit. The original colors and transparency are
+          preserved without SNES conversion. Zooming and resizing use sharp
+          pixels without smoothing; any antialiasing already in the PNG is retained.
+        </p>
+        <p>
+          The image initially fits inside the canvas, centered at 50% opacity.
+          Use <strong>X (px)</strong>, <strong>Y (px)</strong> and
+          <strong>Width (px)</strong> for precise placement; height follows the
+          original proportions. The reference remains visible beyond the tile surface,
+          including at negative positions. Scroll the workspace to reach the
+          full image; painting and the grid stay limited to the tiles.
+          <strong>Fit to canvas</strong> restores the
+          centered fit.
+        </p>
+        <p>
+          Choose <strong>Adjust reference</strong> to drag the image or its
+          bottom-right size handle. Painting is suspended until
+          <strong>Done</strong>. Escape cancels the current gesture. Use
+          <strong>Opacity (%)</strong> and <strong>Show reference</strong> to
+          keep the grid and your work readable. The picker samples drawing
+          pixels, not the reference.
+        </p>
+        <p>
+          <strong>Replace reference…</strong> loads another PNG with the default
+          placement and opacity; an invalid file leaves the previous reference
+          intact. <strong>Remove reference</strong> removes only the guide
+          image. These changes support Undo/Redo, with one history entry per
+          drag. Tile resizing or rearrangement leaves reference coordinates
+          unchanged; adjust it again if needed.
+        </p>
+        <p>
+          The PNG and settings are embedded in the project, including recovery
+          and drawing duplicates. They do not appear in previews, sprites, maps,
+          scenes or exports, and are not flattened into drawing layers. Older
+          application versions may lose references when saving.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/32-reference.png"
+            ><img
+              src="assets/en/32-reference.png"
+              width="1440"
+              height="920"
+              loading="lazy"
+              alt="A full-color reference underneath a white outline on a drawing layer."
+          /></a>
+          <figcaption>
+            A full-color reference underneath a white outline on a drawing
+            layer.
+          </figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/en/33-reference-overflow.png"><img
+            src="assets/en/33-reference-overflow.png" width="1440" height="920"
+            loading="lazy" alt="The reference extends beyond the tiles; only the gridded area accepts painting." /></a>
+          <figcaption>The reference extends beyond the tiles; only the gridded area accepts painting.</figcaption>
+        </figure>
         <h3 id="calques">Drawing layers</h3>
         <div class="table-wrap">
           <table class="control-reference">
@@ -7071,6 +7133,10 @@ npm run dev</code></pre>
         <p class="intro">
           Import converts an image or animation into indexed resources suitable
           for the project. Examine the conversion before accepting it.
+        </p>
+        <p>
+          To paint over a concept without converting its colors, use a drawing
+          <a href="#reference-image">reference image</a>.
         </p>
         <h3 id="import-png">PNG</h3>
         <p>

@@ -882,3 +882,47 @@ button.project-name {
 .text-link {
   color: #a4baff;
 }
+
+/* The reference may extend beyond the paintable tile surface. */
+.drawing-area {
+  align-items: safe center;
+  justify-content: safe center;
+}
+.drawing-workspace {
+  position: relative;
+  flex-shrink: 0;
+}
+.drawing-background {
+  position: absolute;
+  background-image: conic-gradient(
+    #2e3440 25%,
+    #252a34 0 50%,
+    #2e3440 0 75%,
+    #252a34 0
+  );
+  outline: 1px solid #93a4be;
+}
+.drawing-reference {
+  position: absolute;
+  pointer-events: none;
+}
+.drawing-reference canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+  box-shadow: none;
+}
+.reference-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 8px;
+  height: 8px;
+  background: #6ec9ff;
+}
+.reference-adjust-overlay {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: move;
+}

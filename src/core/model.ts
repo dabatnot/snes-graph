@@ -7,7 +7,20 @@ export type Palette = {
   locked: boolean[];
   cycle?: { start: number; end: number; ticks: number };
 };
+export type DrawingReference = {
+  id: string;
+  name: string;
+  png: Uint8Array;
+  nativeWidth: number;
+  nativeHeight: number;
+  x: number;
+  y: number;
+  width: number;
+  opacity: number;
+  visible: boolean;
+};
 export type Sheet = {
+  reference?: DrawingReference;
   id: string;
   name: string;
   width: number;

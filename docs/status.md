@@ -136,3 +136,11 @@ Validation: 69 tests passed and TypeScript/Vite built successfully. Both English
 ## Shared gallery frames — September 27, 2026
 
 Resource cards and information panels now share the home menu's thin outlines and square corners at 256 × 224, retaining controller pictograms. BG3 uses a reduced border palette. Both Football language exports passed the 520-frame Mesen journey; 69 tests and the TypeScript/Vite build passed. Both manuals and their emulator captures were updated. No physical-console validation is claimed.
+
+## Drawing reference images — September 27, 2026
+
+Implemented one embedded PNG reference per drawing, with proportional fit, numeric placement, opacity, visibility, drag/resize adjustment and undo/redo. References preserve their original colors and alpha and stay outside shared rendering and exports. Format version remains 1; previous application versions may drop this optional data when resaving.
+
+Validation: 74 tests pass, including reference archive round-trips, invalid inputs, size limits, duplication, resizing and rendering isolation. Version check and production build pass (Vite reports a bundle-size advisory). Chromium web checks at 1440 × 920 cover import, placement, handle resizing, Escape cancellation, single-gesture undo, painting, visibility, duplication, removal/undo and save/reopen. A PNG exported after drawing contained only the 76 painted outline pixels. Native Linux/Windows graphical checks and packages were not run for this change.
+
+Reference overflow correction: the workspace includes the full visible reference, including negative coordinates, while the paint canvas and grid retain drawing dimensions. A separate native-resolution bitmap avoids allocating a giant raster when the reference is enlarged. Chromium checks cover out-of-grid manipulation, undo and paint bounds; the offline manuals describe the corrected behavior.

@@ -8,6 +8,7 @@ Standalone ZIP archive; reopening requires no source path:
 project.json
 pixels/<sheet-id>.bin
 layers/<sheet-id>/<layer-id>.bin  # when the drawing has layers
+references/<sheet-id>.png        # optional original reference image
 ```
 
 `project.json` carries `format: "snes-graph"`, `version: 1`, name, 50/60 Hz rate and lists of palettes, drawings, actors, maps, scenes and export sets. References use IDs. Unknown versions are rejected.
@@ -122,3 +123,9 @@ Gallery text retains only ASCII A–Z, a–z and 0–9. Every other Unicode char
 ## ROM source notices — 0.2.0
 
 Looping Scene and Interactive Gallery ca65 sources include `LICENSE.txt` (MIT), SPDX headers in assembly files and a scope statement in `README.txt`. This licenses the program supplied by SNES Graph, not user graphics or assets. Application version 0.2.0 did not change the `.snesgraph` format.
+
+## Drawing reference images
+
+A drawing may carry an optional `reference` object: `id` (image identity), `name`, `nativeWidth`, `nativeHeight`, `x`, `y`, `width`, `opacity` (0–1), and `visible`. Coordinates and displayed width use drawing pixels, including fractions; height follows the native aspect ratio. The original PNG is stored at `references/<sheet-id>.png`, not in JSON. References retain full color and alpha, are limited to 4096 × 4096, and count toward the 128 MiB project/archive and undo memory limits. Decoded display images are not persisted.
+
+Reference images belong only to the drawing editor. They are omitted from shared rendering, layer flattening and all exports. Drawing duplication includes them; tile arrangement changes leave their placement unchanged. This optional extension keeps format version 1 and reads existing projects without references. Older application versions do not guarantee preservation of references when resaving.
