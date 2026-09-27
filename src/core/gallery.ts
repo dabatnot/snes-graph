@@ -22,6 +22,18 @@ import {
 import { stampRomLogo, ROM_LOGO } from "./rom-logo";
 import { galleryRuntime } from "./gallery-runtime";
 import { galleryFont, galleryText } from "./gallery-font";
+import type { GalleryButton } from "./gallery-controls";
+import { galleryMenu } from "./gallery-menu";
+import {
+  cardMap,
+  controlCells,
+  controlTextCells,
+  cardTiles,
+  cardPalette,
+  stampCard,
+  supportsCard,
+} from "./gallery-card";
+import { renderActor, renderMap, renderScene } from "./render";
 
 export type ExportKind = "assets" | "scene" | "gallery";
 export type GalleryLanguage = "fr" | "en";
@@ -204,8 +216,9 @@ export function gallerySources(
   const callTable = (label: string, index: string) =>
     `  lda ${index}\n  asl\n  clc\n  adc ${index}\n  tax\n  lda f:${label},x\n  sta PTR\n  sep #$20\n  .a8\n  lda f:${label}+2,x\n  sta PTR+2\n  rep #$20\n  .a16\n  jsl Dispatch\n`;
   const font = galleryFont(),
-    fontLabel = blob(font.data),
-    fontPal = blob(Uint8Array.from([0, 0, 255, 127, 0, 0, 0, 0]));
+    fontLabel = blob(cardTiles),
+    fontPal = blob(cardPalette),
+    panelMap = blob(cardMap("", [], undefined, true));
   const text = (value: string, row: number) => {
     const label = blob(galleryText(value, font.chars));
     return `  lda #.loword(${label})\n  sta PTR\n  sep #$20\n  .a8\n  lda #^${label}\n  sta PTR+2\n  rep #$20\n  .a16\n  ldx #${row * 64 + 4}\n  jsr Print\n`;
@@ -240,7 +253,7 @@ export function gallerySources(
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
   let shell = galleryRuntime;
-  shell += `TextScreen:\n  jsr ResetPPU\n  lda #0\n  ldx #2046\n: sta $7e2000,x\n  dex\n  dex\n  bpl :-\n  sep #$20\n  .a8\n  ldx #0\n  stx $2116\n${dma(fontLabel, font.data.length)}${wr(0x2121, 0)}${dma(fontPal, 8, 0x22, 0)}${textLogo}${wr(0x2107, 0x10)}${wr(0x212c, 17)}${wr(0x210e, 255)}${wr(0x210e, 255)}  rep #$20\n  .a16\n  rts\n`;
+  shell += `TextScreen:\n  jsr ResetPPU\n  ldx #2046\n: lda f:${panelMap},x\n  sta $7e2000,x\n  dex\n  dex\n  bpl :-\n  sep #$20\n  .a8\n  ldx #0\n  stx $2116\n${dma(fontLabel, cardTiles.length)}${wr(0x2121, 0)}${dma(fontPal, cardPalette.length, 0x22, 0)}${textLogo}${wr(0x2107, 0x10)}${wr(0x212c, 17)}${wr(0x210e, 255)}${wr(0x210e, 255)}  rep #$20\n  .a16\n  rts\n`;
   const categories = [
     selection.actors.length ? tr("Sprites", "Sprites") : "",
     selection.maps.length ? tr("Cartes", "Maps") : "",
@@ -257,20 +270,6 @@ export function gallerySources(
     firsts.push(total);
     total += n;
   }
-  const menus = categories.map((_, selected) =>
-    routine(
-      text(p.name, 3) +
-        categories
-          .map((c, i) => text((selected === i ? "X " : "  ") + c, 9 + i * 3))
-          .join("") +
-        text(
-          tr("Croix : choisir   A : ouvrir", "D-pad: select     A: open"),
-          23,
-        ),
-    ),
-  );
-  const menuTable = table(menus);
-  shell += `CategoryCount = ${categories.length}\nCategoryFirst: .word ${firsts.join(",")}\nCategoryEnd: .word ${counts.map((n, i) => firsts[i] + n).join(",")}\nShowMenu:\n  jsr Black\n  jsr TextScreen\n${callTable(menuTable, "CATEGORY")}  jsr UploadText\n  rts\n`;
   const entries: {
     init: string;
     update: string;
@@ -329,11 +328,26 @@ export function gallerySources(
       );
     };
   };
+  const control = (button: GalleryButton, label: string, row: number) => {
+    const icon = controlCells(button);
+    let code = "";
+    icon.tiles.forEach((tile, i) => {
+      code += `  lda #${tile}\n  sta $7e${(0x2000 + ((row + Math.floor(i / icon.width)) * 32 + 2 + (i % icon.width)) * 2).toString(16)}\n`;
+    });
+    const labelTiles = controlTextCells(label, 26 - icon.width);
+    const width = labelTiles.length / 2;
+    labelTiles.forEach((tile, i) => {
+      const cell =
+        (row + Math.floor(i / width)) * 32 + 3 + icon.width + (i % width);
+      code += `  lda #${tile}\n  sta $7e${(0x2000 + cell * 2).toString(16)}\n`;
+    });
+    return code;
+  };
   const infoBase = (name: string, index: number, count: number) =>
     text(name, 2) +
     text(`${index + 1} / ${count}`, 4) +
-    text(tr("L/R : précédent / suivant", "L/R: previous / next"), 18) +
-    text(tr("Start : fermer   B : retour", "Start: close     B: back"), 24);
+    control("LR", tr("RESSOURCE", "RESOURCE"), 20) +
+    control("START", tr("FERMER", "CLOSE"), 23);
   const togglePause = `  lda PRESSED\n  and #$0080\n  beq :+\n  lda PAUSED\n  eor #1\n  sta PAUSED\n: `;
   const wrapped = (name: string, run: () => void) => {
     try {
@@ -357,6 +371,7 @@ export function gallerySources(
         bottom = Math.max(...pieces.map((c) => c.y + c.size));
       if (right - left > 256 || bottom - top > 224)
         throw new Error("Character exceeds the gallery viewport (256 × 224)");
+      const framed = right - left <= 144 && bottom - top <= 168;
       const scene = { ...makeScene(), objSize, backdrop: 0 };
       scene.instances = [
         {
@@ -364,8 +379,14 @@ export function gallerySources(
           actorId: actor.id,
           animationId: "",
           variantId: "",
-          x: Math.floor((256 - right + left) / 2) - left + actor.originX,
-          y: Math.floor((224 - bottom + top) / 2) - top + actor.originY,
+          x:
+            Math.floor(((framed ? 160 : 256) - right + left) / 2) -
+            left +
+            actor.originX,
+          y:
+            Math.floor(((framed ? 232 : 224) - bottom + top) / 2) -
+            top +
+            actor.originY,
           vx: 0,
           vy: 0,
           flipX: false,
@@ -402,7 +423,27 @@ export function gallerySources(
               },
             ],
           };
-          return compile(project, s, { ...options, sceneId: s.id })(0);
+          const m = compile(project, s, { ...options, sceneId: s.id })(0);
+          if (framed)
+            stampCard(
+              m,
+              p,
+              cardMap(
+                actor.name,
+                [
+                  ["LR", tr("CHOIX", "CHANGE")],
+                  ["START", tr("INFOS", "INFO")],
+                ],
+                [
+                  "POSE",
+                  pose.name,
+                  tr("VARIANTE", "VARIANT"),
+                  actor.variants.find((v) => v.id === variant)?.name ??
+                    "ORIGINAL",
+                ],
+              ),
+            );
+          return m;
         }),
       );
       const poseTables = memories.map((states) =>
@@ -411,6 +452,20 @@ export function gallerySources(
             routine(
               "  sep #$20\n  .a8\n" +
                 logoTiles(m) +
+                (() => {
+                  const map = m.allocations
+                    .filter((a) => a.name === "Gallery card")
+                    .at(-1);
+                  return map
+                    ? `  ldx #${map.address / 2}\n  stx $2116\n` +
+                        dma(
+                          blob(
+                            m.vram.slice(map.address, map.address + map.bytes),
+                          ),
+                          map.bytes,
+                        )
+                    : "";
+                })() +
                 wr(0x2102, 0) +
                 wr(0x2103, 0) +
                 dma(blob(m.oam), 544, 4, 0) +
@@ -481,16 +536,15 @@ export function gallerySources(
         infoBase(actor.name, actorIndex, selection.actors.length) +
           callTable(animNames, "ANIMATION") +
           callTable(variantNames, "VARIANT") +
-          text(
-            tr("Haut/Bas : animation ou pose", "Up/Down: animation or pose"),
-            12,
+          control(
+            "DPAD",
+            tr("HAUT BAS ANIM  G D IMAGE", "UP DOWN ANIM  L R FRAME"),
+            10,
           ) +
-          text(tr("A : lecture / pause", "A: play / pause"), 13) +
-          text(
-            tr("Gauche/Droite : image (pause)", "Left/Right: frame (paused)"),
-            14,
-          ) +
-          text(tr("X : palette   Y : fond", "X: palette    Y: backdrop"), 15),
+          control("A", tr("LECTURE PAUSE", "PLAY PAUSE"), 12) +
+          control("X", tr("PALETTE", "VARIANT"), 14) +
+          control("Y", tr("FOND", "BACKGROUND"), 16) +
+          control("B", tr("RETOUR", "BACK"), 18),
       );
       entries.push({ init, draw, update, info });
     }),
@@ -545,6 +599,16 @@ export function gallerySources(
         p,
         224,
       );
+      const framed =
+        supportsCard(scene) &&
+        !!stampCard(
+          m,
+          p,
+          cardMap(map.name, [
+            ["DPAD", tr("CAMERA", "MOVE")],
+            ["B", tr("RETOUR", "BACK")],
+          ]),
+        );
       const base =
         m.allocations.find((a) => a.resource === map.id)!.address / 2;
       const rowLabels = [];
@@ -647,9 +711,16 @@ export function gallerySources(
           set("MAPWIDTH", map.width) +
           set("MAPHEIGHT", map.height) +
           set("MAXX", Math.max(0, map.width * 8 - 256)) +
-          set("MAXY", Math.max(0, map.height * 8 - 224)) +
+          set("MAXY", Math.max(0, map.height * 8 - (framed ? 168 : 224))) +
           set("CENTERX", Math.max(0, Math.floor((256 - map.width * 8) / 2))) +
-          set("CENTERY", Math.max(0, Math.floor((224 - map.height * 8) / 2))) +
+          set(
+            "CENTERY",
+            (framed ? 32 : 0) +
+              Math.max(
+                0,
+                Math.floor(((framed ? 168 : 224) - map.height * 8) / 2),
+              ),
+          ) +
           set("MAPBASE", base) +
           set("BLANK", blank) +
           `  lda #.loword(${rows})\n  sta MAPROWS\n  sep #$20\n  .a8\n  lda #^${rows}\n  sta MAPROWS+2\n  rep #$20\n  .a16\n  jsr MapPosition\n  lda WORLDY\n  sta OLDY\n  clc\n  adc #32\n  sta OLDX\n: jsr MapRow\n  inc WORLDY\n  lda WORLDY\n  cmp OLDX\n  bne :-\n  jsr MapPosition\n  lda WORLDX\n  sta OLDX\n  lda WORLDY\n  sta OLDY\n  sep #$20\n  .a8\n${wr(0x2115, 0x80)}  ldx #${base}\n  stx $2116\n${wr(0x4300, 1)}${wr(0x4301, 0x18)}  ldx #$3000\n  stx $4302\n${wr(0x4304, 0x7e)}  ldx #4096\n  stx $4305\n${wr(0x420b, 1)}  rep #$20\n  .a16\n  jsl ${draw}\n`,
@@ -661,8 +732,9 @@ export function gallerySources(
         info: routine(
           infoBase(map.name, mapIndex, selection.maps.length) +
             text(`${map.width * 8} × ${map.height * 8} px`, 7) +
-            text(tr("Croix : déplacer la caméra", "D-pad: move camera"), 12) +
-            text(tr("Maintenir A : accélérer", "Hold A: move faster"), 14),
+            control("DPAD", tr("CAMERA", "MOVE CAMERA"), 12) +
+            control("A", tr("MAINTENIR ACCELERER", "HOLD TO MOVE FASTER"), 15) +
+            control("B", tr("RETOUR", "BACK"), 18),
         ),
       });
     }),
@@ -670,7 +742,20 @@ export function gallerySources(
   selection.scenes.forEach((scene, sceneIndex) =>
     wrapped(scene.name, () => {
       const options = dependencies(p, opt, [], [], scene),
-        memory = compile(p, scene, options);
+        compiled = compile(p, scene, options);
+      const memory = (tick: number) => {
+        const m = compiled(tick);
+        if (supportsCard(scene))
+          stampCard(
+            m,
+            p,
+            cardMap(scene.name, [
+              ["A", "PAUSE"],
+              ["START", tr("INFOS", "INFO")],
+            ]),
+          );
+        return m;
+      };
       const first = memory(0);
       let previous = memory(ticks - 1);
       const frames: string[] = [];
@@ -703,12 +788,55 @@ export function gallerySources(
         update,
         info: routine(
           infoBase(scene.name, sceneIndex, selection.scenes.length) +
-            text(tr("A : lecture / pause", "A: play / pause"), 12) +
-            text(tr(`Boucle : ${ticks} images`, `Loop: ${ticks} frames`), 14),
+            control("A", tr("LECTURE PAUSE", "PLAY PAUSE"), 12) +
+            text(tr(`Boucle : ${ticks} images`, `Loop: ${ticks} frames`), 15) +
+            control("B", tr("RETOUR", "BACK"), 18),
         ),
       });
     }),
   );
+  // Resources have passed viewport/compatibility checks before rasterizing previews.
+  const previews = [
+    ...(selection.actors.length
+      ? [
+          renderActor(
+            p,
+            selection.actors[0],
+            selection.actors[0].poses[0],
+            undefined,
+            0,
+            true,
+          ),
+        ]
+      : []),
+    ...(selection.maps.length ? [renderMap(p, selection.maps[0].id)] : []),
+    ...(selection.scenes.length ? [renderScene(p, selection.scenes[0])] : []),
+  ];
+  const menus = categories.map((_, selected) => {
+    const menu = galleryMenu(
+      p.name,
+      categories,
+      selected,
+      previews[selected],
+      language === "fr",
+    );
+    return routine(
+      "  jsr ResetPPU\n  sep #$20\n  .a8\n  ldx #0\n  stx $2116\n" +
+        dma(blob(menu.tiles), menu.tiles.length) +
+        "  ldx #$4000\n  stx $2116\n" +
+        dma(blob(menu.map), menu.map.length) +
+        wr(0x2121, 0) +
+        dma(blob(menu.palette), menu.palette.length, 0x22, 0) +
+        wr(0x2105, 1) +
+        wr(0x2107, 0x40) +
+        wr(0x212c, 1) +
+        wr(0x210e, 255) +
+        wr(0x210e, 255) +
+        "  rep #$20\n  .a16\n",
+    );
+  });
+  const menuTable = table(menus);
+  shell += `CategoryCount = ${categories.length}\nCategoryFirst: .word ${firsts.join(",")}\nCategoryEnd: .word ${counts.map((n, i) => firsts[i] + n).join(",")}\nShowMenu:\n  jsr Black\n${callTable(menuTable, "CATEGORY")}  rts\n`;
   for (const [key, suffix] of [
     ["init", "Init"],
     ["update", "Update"],

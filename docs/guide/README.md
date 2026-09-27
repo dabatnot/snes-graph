@@ -222,3 +222,41 @@ New passages/images subsequently read in the bundled native 0.2.0 manual; Help s
 English is now the default on first launch; saved French preferences remain valid. Both manual URLs, anchors and screenshot directories remain unchanged. Installation/download and CLI-default instructions are updated in both editions. Historical screenshots above retain their recorded version and provenance; they do not prove 0.2.1 package validation. Release checks are recorded in `../releasing.md`.
 
 Validation of this update: both Getting started sections were visually inspected in the browser. The default English UI and a saved French preference surviving reload were observed. Each manual retains 108 matching anchors; all 499 links in each edition resolve locally or are external URLs. No screenshot depicts a new control: the changed defaults and installation instructions are text, so historical screenshots were retained with their provenance.
+
+## Blue gallery menu — September 27, 2026
+
+Both `12-gallery-rom.png` captures were refreshed from the Football example in Mesen 2.2.1 at the native 256 × 224 resolution. The English and French gallery exports are in `artifacts/blue-gallery/` and `artifacts/blue-gallery-fr/`. Export the example with `scripts/export.ts --gallery --rom` and the corresponding `--language en` or `--language fr` option, then run `scripts/verify-gallery.lua` with Mesen's `--testrunner` and `SNES_GRAPH_TEST_OUTPUT` pointing to the export directory.
+
+Both 520-frame controller journeys passed: sprites, information panels, maps, scenes and return to the menu. The new menu and category previews were inspected in real emulator captures; the English ROM was also opened in the native Mesen window. Preview quantization does not change the opened resources. No physical-console validation is claimed.
+
+Manual QA: both new screenshots opened and closed in the browser lightbox; the French search found the new passage. Matching anchors and local links were checked in both editions.
+
+## Resource cards (concept C) — September 27, 2026
+
+English/French `13-gallery-info.png`, `29-gallery-card-sprite.png`, `30-gallery-card-map.png` and `31-gallery-card-scene.png` were captured from the Football gallery in Mesen 2.2.1 at 256 × 224. Reuse the gallery capture recipe above with output directories `artifacts/card-gallery` and `artifacts/card-gallery-fr`. Both 520-frame journeys passed, including a new assertion that map row 28 is present after scrolling across world row zero. Sprite pose/variant changes, map scrolling, scene pause and restoration after the information panel were inspected in the resulting captures. Original resources were not edited.
+
+Cards use a separate Mode 1 BG3 where safe; unsupported scenes and large sprites retain the full-screen viewer. Scene bars mask pixels instead of scaling the scene. These are real emulator captures, not the earlier generated concept images. No physical-console validation is claimed.
+
+Manual QA: both resource-card passages and sprite lightboxes were checked in the browser; chapter search remains functional. Each edition retains 108 matching anchors and 505 checked links. The native Mesen window was observed running `football-concept-c.sfc`.
+
+## Controller pictograms — September 27, 2026
+
+The five ROM captures (12, 13, 29, 30, 31) in each language were refreshed from `artifacts/button-gallery` and `artifacts/button-gallery-fr`, using the same Football/Mesen capture recipe. Button letters occupy original 12 × 12 pixel faces, the D-pad uses 16 × 16 pixels and Start a 32-pixel-wide capsule. These are native ROM tiles; the generated concept illustrations are not used. Both 520-frame journeys passed. Captures confirm readable menu and resource hints, information panels and unchanged navigation.
+
+Pictogram QA: the English/French information captures were opened in the browser lightbox, and the new paragraph was found by chapter search. Each edition retains 108 matching anchors and 505 valid links. The native Mesen window was observed running `football-buttons.sfc`.
+
+## Shared gallery frames — September 27, 2026
+
+The five ROM captures in both editions were refreshed from `artifacts/thin-frame-gallery` and `artifacts/thin-frame-gallery-fr`, using the Football/Mesen recipe above. Resource cards and information panels now reuse the home menu's thin outline and square-corner geometry. BG3 uses a reduced border palette. Controller pictograms remain unchanged. Both 520-frame emulator journeys passed; 69 tests and the TypeScript/Vite build passed. No physical-console validation is claimed.
+
+Frame QA: English/French map lightboxes opened and closed successfully; French chapter search found the updated text. Both editions retain matching anchors and valid local links. The native Mesen window was observed running football-thin-frames.sfc.
+
+## Information-panel alignment — September 27, 2026
+
+The English/French 13-gallery-info.png captures were refreshed from artifacts/aligned-gallery and artifacts/aligned-gallery-fr with the existing Football/Mesen recipe. Information-panel labels now start four pixels below the top of their 16-pixel pictograms, aligned with the letters inside the buttons. Sprite, map and scene information captures were inspected. Both 520-frame Mesen journeys, 69 tests and the TypeScript/Vite build passed. Frames and controller behavior remain unchanged. No hardware validation is claimed.
+
+The updated information captures were inspected in both browser lightboxes; opening and closing succeeded. Native Mesen was observed with football-aligned.sfc loaded.
+
+## Sprite preview bounds — September 27, 2026
+
+Gallery thumbnails now rasterize the complete first pose, independently of the editor origin. Existing editor rendering retains its 128 × 128 canvas. Preview rasterization follows gallery resource validation. A regression test covers shifted origins and a 176-pixel-wide pose. All 70 tests and the build passed; the English Football ROM completed the existing Mesen journey in artifacts/review-gallery. Compared home, sprite, information, map, scrolled-map and scene PNGs are byte-identical to artifacts/aligned-gallery, so the current manual captures remain valid. Both editions retain 108 matching anchors and 505 checked links. No console validation is claimed.

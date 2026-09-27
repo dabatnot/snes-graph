@@ -46,8 +46,19 @@ export function renderActor(
   pose: Pose | undefined,
   variant?: Variant,
   tick = 0,
+  fitPose = false,
 ): Raster {
-  const out = raster(128, 128);
+  let left = a.originX - 64,
+    top = a.originY - 80,
+    width = 128,
+    height = 128;
+  if (fitPose && pose?.pieces.length) {
+    left = Math.min(...pose.pieces.map((c) => c.x));
+    top = Math.min(...pose.pieces.map((c) => c.y));
+    width = Math.max(...pose.pieces.map((c) => c.x + c.size)) - left;
+    height = Math.max(...pose.pieces.map((c) => c.y + c.size)) - top;
+  }
+  const out = raster(width, height);
   if (!pose) return out;
   for (const c of [...pose.pieces].reverse()) {
     const s = p.sheets.find((s) => s.id === c.sheetId),
@@ -63,13 +74,7 @@ export function renderActor(
           c.sx + (c.flipX ? c.size - x - 1 : x),
           c.sy + (c.flipY ? c.size - y - 1 : y),
         );
-        if (v)
-          plot(
-            out,
-            64 - a.originX + c.x + x,
-            80 - a.originY + c.y + y,
-            colors[v] ?? 0,
-          );
+        if (v) plot(out, c.x - left + x, c.y - top + y, colors[v] ?? 0);
       }
   }
   return out;

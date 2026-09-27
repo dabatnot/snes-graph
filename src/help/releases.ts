@@ -19,6 +19,45 @@ export type ReleaseNote = {
 };
 export const releases: ReleaseNote[] = [
   {
+    version: "0.2.3",
+    date: "2026-09-27",
+    commits: [],
+    en: {
+      title: "SNES-style ROM gallery",
+      summary:
+        "A blue and ivory gallery with resource previews, consistent frames and pixel-art controller hints.",
+      added: [
+        "Project title layout and category previews.",
+        "Resource cards for compatible sprites, maps and scenes.",
+      ],
+      improved: [
+        "Shared frame artwork and vertically aligned button labels.",
+        "English and French manuals with real emulator captures.",
+      ],
+      fixed: [
+        "Map scrolling across world row zero.",
+        "Complete sprite thumbnails regardless of editor origin.",
+      ],
+    },
+    fr: {
+      title: "Galerie ROM dans l’esprit SNES",
+      summary:
+        "Une galerie bleue et ivoire avec aperçus des ressources, cadres cohérents et pictogrammes de manette.",
+      added: [
+        "Mise en page du titre et aperçus des catégories.",
+        "Fiches pour les sprites, cartes et scènes compatibles.",
+      ],
+      improved: [
+        "Cadres communs et alignement vertical des libellés des boutons.",
+        "Manuels français et anglais avec captures réelles de l’émulateur.",
+      ],
+      fixed: [
+        "Défilement des cartes au passage de la ligne zéro.",
+        "Aperçus complets des sprites indépendamment de leur origine dans l’éditeur.",
+      ],
+    },
+  },
+  {
     version: "0.2.2",
     date: "2026-09-27",
     commits: [],

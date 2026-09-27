@@ -25,6 +25,11 @@ emu.addEventCallback(function()
     local e=expected[frame]
     assert(word(0x0e)==e[1] and word(0x0c)==e[2] and word(0x10)==e[3], "Gallery navigation state at "..frame)
   end
+  if frame==325 then
+    -- The framed viewport starts above world row zero. Crossing zero while
+    -- scrolling must upload row 28 rather than leave its initial blank border.
+    assert(word(0x3000+28*64)%1024 ~= word(0x56), "Map row 28 lost while scrolling across zero")
+  end
   local name=captures[frame]
   if name then
     local f=assert(io.open(directory..'/'..name..'.png','wb'));f:write(emu.takeScreenshot());f:close()

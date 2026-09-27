@@ -24,7 +24,7 @@
     </button>
     <aside class="sidebar" id="sidebar">
       <a class="logo" href="#accueil">SNES <span>Graph</span></a>
-      <p class="edition">User manual · version 0.2.2</p>
+      <p class="edition">User manual · version 0.2.3</p>
       <nav aria-label="Manual language" class="languages">
         <a data-language="" href="index.html" hreflang="fr" lang="fr"
           >Français</a
@@ -7869,7 +7869,7 @@ npm run dev</code></pre>
         <p>
           <strong>Start</strong> opens a separate information panel with the
           name, list position and controls. Playback is suspended. Start or B
-          closes the panel and restores the previous state. Long names are
+          closes the panel and restores the previous state. Names in this panel are
           limited to 28 characters without an ellipsis. Only A–Z, a–z and 0–9
           are retained; all other characters, including accented letters, become
           spaces without changing project data. Menu language follows the
@@ -7919,6 +7919,9 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <p>
+          The blue and ivory menu uses a gold cursor and previews the first resource in the selected category. Sprite previews fit the complete pose regardless of its editor origin. Preview colors use a reduced palette; opened resources retain their original palettes. The project title is centered on one or two lines, with an ellipsis if it is too long. Accented letters in this title are converted to their unaccented equivalents.
+        </p>
         <figure>
           <a data-zoom href="assets/en/12-gallery-rom.png"
             ><img
@@ -7929,6 +7932,24 @@ npm run dev</code></pre>
               alt="Football ROM home screen with Sprites, Maps and Scenes in Mesen."
           /></a>
           <figcaption>Actual ROM home screen captured in Mesen.</figcaption>
+        </figure>
+        <p>
+          Controller hints use a pixel-art D-pad and framed button letters (A, B, X, Y, L, R), plus a Start capsule. The same symbols appear in the home menu, resource bars and information panel. They describe controller inputs; they are not on-screen buttons. Left/Right frame stepping still requires paused playback.
+        </p>
+        <p>
+          The resource-card layout keeps sprite pixels at their native size. Sprites fitting within 144 × 168 pixels have a side panel showing the current pose and variant (up to nine characters); larger sprites keep the full-screen view. Maps use a 256 × 168 viewing area between the title and control bars, and can still be scrolled to their edges. Scenes retain their original rendering: the bars cover the top 32 and bottom 24 lines without rescaling. Cards currently require Mode 1, a free BG3, spare video memory and palette entries, and no scene effects, color math or interlace. Other resources keep the full-screen view. Start opens the separate blue information panel in every case. Cards and information panels use the same thin outlines and square corners as the home menu.
+        </p>
+        <figure>
+          <a data-zoom href="assets/en/29-gallery-card-sprite.png"><img src="assets/en/29-gallery-card-sprite.png" width="256" height="224" loading="lazy" alt="Sprite card: current pose and palette variant." /></a>
+          <figcaption>Sprite card: current pose and palette variant.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/en/30-gallery-card-map.png"><img src="assets/en/30-gallery-card-map.png" width="256" height="224" loading="lazy" alt="Map view with title and camera controls." /></a>
+          <figcaption>Map view with title and camera controls.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/en/31-gallery-card-scene.png"><img src="assets/en/31-gallery-card-scene.png" width="256" height="224" loading="lazy" alt="Scene view with title and playback controls." /></a>
+          <figcaption>Scene view with title and playback controls.</figcaption>
         </figure>
         <figure>
           <a data-zoom href="assets/en/13-gallery-info.png"
@@ -7975,8 +7996,9 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <p>
-          The four-square SNES Graph icon is overlaid at the bottom right on the
-          home screen, panels and previews, including Looping scene mode. Scene
+          In views without a card, the four-square SNES Graph icon is overlaid at the bottom right on the
+          panels and resource previews, including Looping scene mode. The home
+          screen instead displays the SNES Graph name below the title. Scene
           effects and windows also affect the icon. It uses free OBJ entries and
           tiles; insufficient space blocks export. When all palettes are
           occupied, its colors use the closest available colors without
@@ -8742,7 +8764,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       <section class="chapter" id="limites">
         <h2>19 · Limitations of this version</h2>
         <p>
-          The guide covers commands available in version 0.2.2. The
+          The guide covers commands available in version 0.2.3. The
           ultimate-editor vision described in the specifications extends beyond
           this release. These are the limitations affecting your current work.
         </p>

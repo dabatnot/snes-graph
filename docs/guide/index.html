@@ -23,7 +23,7 @@
     </button>
     <aside class="sidebar" id="sidebar">
       <a class="logo" href="#accueil">SNES <span>Graph</span></a>
-      <p class="edition">Manuel utilisateur · version 0.2.2</p>
+      <p class="edition">Manuel utilisateur · version 0.2.3</p>
       <nav class="languages" aria-label="Langue du manuel">
         <a
           href="index.html"
@@ -8094,7 +8094,7 @@ npm run dev</code></pre>
         <p>
           <strong>Start</strong> ouvre un panneau séparé avec le nom, la
           position dans la liste et les commandes. La lecture est suspendue.
-          Start ou B ferme ce panneau en restituant l’état précédent. Les noms
+          Start ou B ferme ce panneau en restituant l’état précédent. Les noms de ce panneau
           sont limités à 28 caractères à l’écran, sans ellipse. Seuls A–Z, a–z
           et 0–9 sont conservés ; les autres caractères, y compris les lettres
           accentuées, deviennent des espaces sans modifier le projet. Les menus
@@ -8145,6 +8145,9 @@ npm run dev</code></pre>
             </tbody>
           </table>
         </div>
+        <p>
+          Le menu bleu et ivoire utilise un curseur doré et affiche un aperçu de la première ressource de la catégorie sélectionnée. L’aperçu d’un sprite cadre la pose complète, indépendamment de son point d’origine dans l’éditeur. La palette de cet aperçu est réduite ; les ressources ouvertes conservent leurs palettes originales. Le titre du projet est centré sur une ou deux lignes, avec des points de suspension s’il est trop long. Les lettres accentuées de ce titre sont remplacées par leurs équivalents sans accent.
+        </p>
         <figure>
           <a data-zoom href="assets/12-gallery-rom.png"
             ><img
@@ -8155,6 +8158,24 @@ npm run dev</code></pre>
               alt="Accueil de la ROM Football avec Sprites, Cartes et Scènes dans Mesen."
           /></a>
           <figcaption>Accueil réel de la ROM, capturé dans Mesen.</figcaption>
+        </figure>
+        <p>
+          Les commandes utilisent une croix directionnelle en pixel art, des lettres encadrées (A, B, X, Y, L, R) et une capsule Start. Ces symboles apparaissent dans le menu, les bandeaux et le panneau d’informations. Ils désignent les touches de la manette, pas des boutons à cliquer à l’écran. Le changement d’image avec Gauche/Droite nécessite toujours de mettre la lecture en pause.
+        </p>
+        <p>
+          La présentation en fiche conserve les pixels des sprites à leur taille native. Les sprites tenant dans 144 × 168 pixels disposent d’un panneau latéral avec leur pose et variante courantes (neuf caractères maximum) ; les plus grands conservent la vue plein écran. Les cartes utilisent une zone de 256 × 168 pixels entre le titre et les commandes, et restent explorables jusqu’à leurs bords. Les scènes conservent leur rendu original : les bandeaux couvrent les 32 lignes du haut et les 24 lignes du bas, sans redimensionnement. Les fiches nécessitent actuellement le Mode 1, un BG3 libre, de la mémoire vidéo et des couleurs disponibles, sans effets de scène, mélange de couleurs ni entrelacement. Les autres ressources restent en plein écran. Start ouvre dans tous les cas le panneau d’informations bleu séparé. Les fiches et panneaux d’informations reprennent les contours fins et les coins carrés de l’accueil.
+        </p>
+        <figure>
+          <a data-zoom href="assets/29-gallery-card-sprite.png"><img src="assets/29-gallery-card-sprite.png" width="256" height="224" loading="lazy" alt="Fiche sprite : pose et variante de palette courantes." /></a>
+          <figcaption>Fiche sprite : pose et variante de palette courantes.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/30-gallery-card-map.png"><img src="assets/30-gallery-card-map.png" width="256" height="224" loading="lazy" alt="Carte avec titre et commandes de caméra." /></a>
+          <figcaption>Carte avec titre et commandes de caméra.</figcaption>
+        </figure>
+        <figure>
+          <a data-zoom href="assets/31-gallery-card-scene.png"><img src="assets/31-gallery-card-scene.png" width="256" height="224" loading="lazy" alt="Scène avec titre et commandes de lecture." /></a>
+          <figcaption>Scène avec titre et commandes de lecture.</figcaption>
         </figure>
         <figure>
           <a data-zoom href="assets/13-gallery-info.png"
@@ -8204,8 +8225,9 @@ npm run dev</code></pre>
           </figcaption>
         </figure>
         <p>
-          L’icône SNES Graph à quatre carrés est superposée en bas à droite sur
-          l’accueil, les panneaux et les aperçus, y compris en Scène en boucle.
+          Dans les vues sans fiche, l’icône SNES Graph à quatre carrés est superposée en bas à droite sur
+          les panneaux et les aperçus de ressources, y compris en Scène en boucle.
+          L’accueil affiche le nom SNES Graph sous le titre à la place.
           Elle reste soumise aux effets et fenêtres de la scène. Elle utilise
           des places OBJ et des tiles libres ; un manque de place bloque
           l’export. Si toutes les palettes sont occupées, ses couleurs sont
@@ -9029,7 +9051,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
       <section class="chapter" id="limites">
         <h2>19 · Limites de cette version</h2>
         <p>
-          Le guide couvre les commandes présentes en version 0.2.2. La vision de
+          Le guide couvre les commandes présentes en version 0.2.3. La vision de
           l’éditeur ultime décrite dans les spécifications va plus loin que
           cette livraison. Voici les limites qui influencent votre travail
           actuel.

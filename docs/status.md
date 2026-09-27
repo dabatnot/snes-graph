@@ -114,3 +114,25 @@ No public release, tag or merge into main was created. Actual publication remain
 ## Release checkout correction — 0.2.2
 
 The first tagged 0.2.1 run stopped before packaging because checkout replaced the local annotated tag reference with its commit. The remote tag was preserved and no release was published. Version 0.2.2 explicitly fetches the remote tag object before the existing annotation, commit, version and main-ancestry checks. See [the release record](releasing.md#first-tagged-run-and-correction).
+
+## Blue gallery menu prototype — September 27, 2026
+
+The gallery generator now renders blue and ivory frames, a gold selection cursor and a preview of the selected category's first resource. Titles use a fixed-size font on one or two centered lines, with an ellipsis for overflow. Menu previews use a reduced palette; the resource viewers retain their original palettes. This applies to all projects, without football-specific layout or identifiers.
+
+Validation: 68 tests passed, TypeScript/Vite built successfully, and English/French Football ROMs assembled with ca65/ld65. Both existing 520-frame Mesen controller journeys passed. The English ROM was observed in the native Mesen window. Both manual home-screen captures were refreshed from the emulator. Physical-console behavior remains unverified.
+
+## Resource-card prototype — September 27, 2026
+
+Concept C adds a pose/variant sidebar for small sprites, title/control bars for compatible maps and scenes, and blue framed information panels. Native resource pixels and palettes are preserved. Mode 1 cards use spare BG3, VRAM and palette space; unsupported configurations retain the existing full-screen view. Map camera bounds account for the 168-line viewing area. Signed ring-buffer movement now handles crossing world row/column zero correctly.
+
+Validation: 69 tests passed, including compilation of gallery fixtures and checks that cards preserve occupied resource memory. TypeScript/Vite built successfully. English/French Football galleries assembled and completed the 520-frame Mesen controller journey, with a new map-row assertion and inspected captures. Scene card bars mask the upper/lower image edges; no scaling or real-console validation is claimed.
+
+## Controller pictograms — September 27, 2026
+
+Gallery controller hints now use original pixel-art D-pad and framed button symbols, including Start. Home-menu and card rendering share the pictogram artwork; information panels use the same tiles. Existing controller behavior is unchanged.
+
+Validation: 69 tests passed and TypeScript/Vite built successfully. Both English/French Football ROMs assembled and completed the 520-frame Mesen journey. Native-resolution captures were inspected and both manual editions refreshed. No physical-console validation is claimed.
+
+## Shared gallery frames — September 27, 2026
+
+Resource cards and information panels now share the home menu's thin outlines and square corners at 256 × 224, retaining controller pictograms. BG3 uses a reduced border palette. Both Football language exports passed the 520-frame Mesen journey; 69 tests and the TypeScript/Vite build passed. Both manuals and their emulator captures were updated. No physical-console validation is claimed.

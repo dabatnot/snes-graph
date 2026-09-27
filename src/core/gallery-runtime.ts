@@ -486,22 +486,37 @@ Moved:
   lda WORLDX
   cmp OLDX
   beq MapY
-  bcc :+
+  sec
+  sbc OLDX
+  bmi MapColumnLeft
+  lda WORLDX
   clc
   adc #32
-: sta WORLDX
+  bra MapColumnReady
+MapColumnLeft:
+  lda WORLDX
+MapColumnReady:
+  sta WORLDX
   jsr MapColumn
 MapY:
   jsr MapPosition
   lda WORLDY
   cmp OLDY
-  beq :++
-  bcc :+
+  beq MapRowsDone
+  sec
+  sbc OLDY
+  bmi MapRowUp
+  lda WORLDY
   clc
   adc #28
-: sta WORLDY
+  bra MapRowReady
+MapRowUp:
+  lda WORLDY
+MapRowReady:
+  sta WORLDY
   jsr MapRow
-: jsr MapPosition
+MapRowsDone:
+  jsr MapPosition
   rts
 MapScroll:
   sep #$20
@@ -527,10 +542,17 @@ MapCommit:
   lda WORLDX
   cmp OLDX
   beq CommitY
-  bcc :+
+  sec
+  sbc OLDX
+  bmi CommitLeft
+  lda WORLDX
   clc
   adc #32
-: and #63
+  bra CommitColumnReady
+CommitLeft:
+  lda WORLDX
+CommitColumnReady:
+  and #63
   sta DEST
   and #31
   sta CELL
@@ -587,10 +609,17 @@ CommitY:
   lda WORLDY
   cmp OLDY
   beq CommitDone
-  bcc :+
+  sec
+  sbc OLDY
+  bmi CommitUp
+  lda WORLDY
   clc
   adc #28
-: and #31
+  bra CommitRowReady
+CommitUp:
+  lda WORLDY
+CommitRowReady:
+  and #31
   asl
   asl
   asl

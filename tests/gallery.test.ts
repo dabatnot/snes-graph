@@ -4,7 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { gallerySelection, gallerySources } from "../src/core/gallery";
+import { renderActor } from "../src/core/render";
 import { galleryFont, galleryText } from "../src/core/gallery-font";
+import { cardMap, stampCard, supportsCard } from "../src/core/gallery-card";
+import { galleryMenu, galleryTitle } from "../src/core/gallery-menu";
 import { stampRomLogo, ROM_LOGO } from "../src/core/rom-logo";
 import { compileScene } from "../src/core/scene-export";
 import { defaultExport, packSprites, pieceKey } from "../src/core/snes";
@@ -51,6 +54,64 @@ function assemble(files: Record<string, Uint8Array>) {
   return rom;
 }
 describe("interactive gallery", () => {
+  it("fits project titles into two readable menu lines without changing the name", () => {
+    expect(galleryTitle("Sky")).toEqual(["SKY"]);
+    expect(galleryTitle("Les aventures du chevalier bleu")).toEqual([
+      "LES AVENTURES DU CHEVALIER",
+      "BLEU",
+    ]);
+    const long = galleryTitle("A".repeat(90));
+    expect(long).toEqual(["A".repeat(28), "A".repeat(25) + "..."]);
+    expect(galleryTitle("Étoiles")).toEqual(["ETOILES"]);
+    const menu = galleryMenu("Sky", ["Maps"], 0, undefined, false);
+    expect(menu.tiles.length).toBeLessThanOrEqual(0x8000);
+    expect(menu.map.length).toBe(2048);
+    expect(menu.palette.length).toBe(32);
+  });
+  it("fits sprite previews to the pose independently of the editor origin", () => {
+    const p = footballProject(),
+      actor = p.actors[0],
+      pose = actor.poses[0];
+    const preview = renderActor(p, actor, pose, undefined, 0, true);
+    actor.originX += 200;
+    actor.originY -= 200;
+    expect(renderActor(p, actor, pose, undefined, 0, true)).toEqual(preview);
+    // A legal wide pose must retain the pixels beyond the editor's 128px canvas.
+    pose.pieces.push(...pose.pieces.map((c) => ({ ...c, x: c.x + 144 })));
+    const wide = renderActor(p, actor, pose, undefined, 0, true);
+    expect(wide.width).toBe(176);
+    for (let y = 0; y < preview.height; y++)
+      expect(
+        wide.data.slice((y * wide.width + 144) * 4, (y * wide.width + 176) * 4),
+      ).toEqual(preview.data.slice(y * 32 * 4, (y + 1) * 32 * 4));
+    expect(renderActor(p, actor, pose).width).toBe(128);
+  });
+  it("allocates cards without overwriting resources and leaves full memories untouched", () => {
+    const p = footballProject();
+    const m = compileScene(
+      p,
+      makeScene(),
+      {},
+      { data: new Uint8Array(), starts: {} },
+      new Map(),
+    );
+    m.allocations.push({ name: "Resource", address: 0, bytes: 8192 });
+    m.vram.fill(77, 0, 8192);
+    m.palettes.push({ id: p.palettes[0].id, layer: 0, slot: 0, address: 0 });
+    m.cgram.fill(99, 0, 32);
+    const result = stampCard(m, p, cardMap("Test", [["B", "BACK"]]));
+    expect(result).toBeDefined();
+    expect(m.vram.slice(0, 8192)).toEqual(new Uint8Array(8192).fill(77));
+    expect(m.cgram.slice(0, 32)).toEqual(new Uint8Array(32).fill(99));
+    expect(m.registers).toContainEqual([0x2105, 9]);
+    expect(m.registers).toContainEqual([0x2109, result!.mapAt / 512]);
+    m.allocations = [{ name: "Full", address: 0, bytes: 65536 }];
+    const before = structuredClone(m);
+    expect(stampCard(m, p, cardMap("Test", [["B", "BACK"]]))).toBeUndefined();
+    expect(m).toEqual(before);
+    expect(supportsCard({ ...makeScene(), mode: 7 })).toBe(false);
+    expect(supportsCard({ ...makeScene(), math: "add" })).toBe(false);
+  });
   it("defaults to English while preserving explicit French output", () => {
     const p = footballProject();
     const automatic = gallerySources(p, undefined, 1);
