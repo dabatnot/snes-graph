@@ -1,6 +1,7 @@
 """Stage exactly one package of each type and verify version/architecture names."""
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import sys
@@ -14,10 +15,11 @@ for extension, platform in formats.items():
     if len(candidates) != 1:
         raise SystemExit(f"Expected one {extension} package, found {len(candidates)}")
     package = candidates[0]
-    if version not in package.name or not any(arch in package.name for arch in ("x64", "amd64", "x86_64")):
+    if not re.search(r"(?<![0-9.])" + re.escape(version) + r"(?![0-9.])", package.name) or not any(arch in package.name for arch in ("x64", "amd64", "x86_64")):
         raise SystemExit(f"Unexpected package version/architecture: {package.name}")
     shutil.copyfile(package, target / f"snes-graph-{version}-{platform}.{extension}")
 with (target / "SHA256SUMS").open("w") as checksums:
     for package in sorted(target.iterdir()):
         if package.name != "SHA256SUMS":
-            checksums.write(f"{hashlib.file_digest(package.open('rb'), 'sha256').hexdigest()}  {package.name}\n")
+            with package.open("rb") as content:
+                checksums.write(f"{hashlib.file_digest(content, 'sha256').hexdigest()}  {package.name}\n")

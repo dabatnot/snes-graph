@@ -37,7 +37,7 @@ Node.js 24, `npm ci` and locked Cargo dependency resolution are used. `bundle:li
 
 Check package metadata, architecture, desktop/MIME registration, offline manuals, notices and the actual bundled-library payload. Existing inventories describe their recorded inputs, not every future AppImage. Install on clean matching systems with dependencies resolved; compiler libraries present on a build machine can conceal missing runtime dependencies.
 
-CI performs installation and bounded startup checks. A live process under Xvfb proves only headless startup, not correct rendering, Wayland behavior or native dialogs. Windows installers are unsigned; no in-app updater is supplied.
+CI performs Linux installation and bounded startup checks in fresh matching containers with runtime dependencies, separately from build jobs; Windows installation/startup runs on its hosted runner. A live process under Xvfb proves only headless startup, not correct rendering, Wayland behavior or native dialogs. Windows installers are unsigned; no in-app updater is supplied.
 
 Before the first tag, check on Windows 11, Ubuntu 24.04 and Fedora 44: launch, create/save/reopen a project, switch English/French and open the offline manual. Record the actual environment and result. Do not substitute compilation or old screenshots for this desktop check.
 
@@ -74,4 +74,6 @@ Never move a release tag or overwrite published assets. If code changes are requ
 
 Remote tags and releases were inspected on September 27, 2026; neither contained an existing version. No tag, merge into main or public release has been created during preparation.
 
-Local checks and hosted execution results will be recorded here as they are performed. Automatic publication remains unverified until the first real tagged release. Windows 11, Ubuntu 24.04 and Fedora 44 desktop checks require accessible matching desktops and must not be inferred from the current Fedora workstation or CI configuration.
+Local checks: 67 tests passed; TypeScript/Vite build passed; actionlint 1.7.12 accepted both workflows. Both local skills passed the skill validator. Each manual has 108 matching anchors and 499 checked links. English and French installation sections were visually inspected in the browser. English startup and French preference persistence after reload were observed in the web app. Default CLI gallery output identifies English; version-specific English/French notes and missing-version rejection were checked. Asset staging, SHA-256 verification and duplicate-package rejection passed using temporary fixtures.
+
+Hosted builds were started from develop; final results are recorded after completion. Automatic publication remains unverified until the first real tagged release. Windows 11, Ubuntu 24.04 and Fedora 44 desktop checks require accessible matching desktops and must not be inferred from the current Fedora workstation or CI configuration.

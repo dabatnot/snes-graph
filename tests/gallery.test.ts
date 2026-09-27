@@ -51,6 +51,20 @@ function assemble(files: Record<string, Uint8Array>) {
   return rom;
 }
 describe("interactive gallery", () => {
+  it("defaults to English while preserving explicit French output", () => {
+    const p = footballProject();
+    const automatic = gallerySources(p, undefined, 1);
+    const english = gallerySources(p, undefined, 1, "en");
+    const french = gallerySources(p, undefined, 1, "fr");
+    expect(automatic).toEqual(english);
+    expect(new TextDecoder().decode(automatic["README.txt"])).toContain(
+      "gallery (en,",
+    );
+    expect(new TextDecoder().decode(french["README.txt"])).toContain(
+      "gallery (fr,",
+    );
+    expect(french).not.toEqual(english);
+  });
   it("keeps distinct pose crops addressed in the shared sprite VRAM across variants", () => {
     const p = footballProject(),
       actor = p.actors[0];

@@ -35,6 +35,7 @@ jobs:
           - platform: fedora
             os: ubuntu-24.04
             container: fedora:44
+    timeout-minutes: 30
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     steps:
@@ -52,7 +53,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libxdo-dev librsvg2-dev patchelf libfuse2t64 libayatana-appindicator3-dev xvfb
       - run: npm ci
       - run: npm run bundle:${{ matrix.platform }}
-      - name: Ubuntu package installation and startup
+      - name: Ubuntu package metadata
         if: matrix.platform == 'ubuntu'
         shell: bash
         run: |
@@ -61,14 +62,7 @@ jobs:
           test "$(dpkg-deb -f "$package" Version)" = "$(node -p 'require("./package.json").version')"
           test "$(dpkg-deb -f "$package" Architecture)" = amd64
           dpkg-deb -c "$package"
-          sudo apt-get install -y "$PWD/$package"
-          test -f /usr/share/mime/packages/snes-graph.xml
-          test -f /usr/share/applications/snes-graph.desktop
-          xvfb-run -a bash -c 'snes-graph > /tmp/startup.log 2>&1 & pid=$!; sleep 10; kill -0 "$pid"; kill "$pid"' || { cat /tmp/startup.log; exit 1; }
-          image=$(find src-tauri/target/release/bundle/appimage -name '*.AppImage')
-          chmod +x "$image"
-          APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a bash -c '"$1" > /tmp/appimage.log 2>&1 & pid=$!; sleep 10; kill -0 "$pid"; kill "$pid"' _ "$image" || { cat /tmp/appimage.log; exit 1; }
-      - name: Fedora package installation and startup
+      - name: Fedora package metadata
         if: matrix.platform == 'fedora'
         shell: bash
         run: |
@@ -77,11 +71,6 @@ jobs:
           test "$(rpm -qp --qf '%{VERSION}' "$package")" = "$(node -p 'require("./package.json").version')"
           test "$(rpm -qp --qf '%{ARCH}' "$package")" = x86_64
           rpm -qpl "$package"
-          dnf install -y "$package"
-          test -f /usr/share/mime/packages/snes-graph.xml
-          test -f /usr/share/applications/snes-graph.desktop
-          useradd -m smoke
-          runuser -u smoke -- xvfb-run -a bash -c 'snes-graph > /tmp/startup.log 2>&1 & pid=$!; sleep 10; kill -0 "$pid"; kill "$pid"' || { cat /tmp/startup.log; exit 1; }
       - name: Windows installation and startup
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -106,3 +95,56 @@ jobs:
             src-tauri/target/release/bundle/**/*.deb
             src-tauri/target/release/bundle/**/*.AppImage
             src-tauri/target/release/bundle/**/*.exe
+
+  linux-install:
+    needs: packages
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: ubuntu
+            image: ubuntu:24.04
+          - platform: fedora
+            image: fedora:44
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container: ${{ matrix.image }}
+    steps:
+      - name: Minimal test environment
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          if [ "$PLATFORM" = ubuntu ]; then
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y ca-certificates libstdc++6 xvfb xauth fonts-dejavu-core
+          else
+            dnf install -y ca-certificates libstdc++ xorg-x11-server-Xvfb xorg-x11-xauth dejavu-sans-fonts shadow-utils
+          fi
+          useradd -m smoke
+      - uses: actions/download-artifact@v4
+        with:
+          name: snes-graph-${{ matrix.platform }}-x86_64
+          path: packages
+      - name: Install with runtime dependencies and smoke-test
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          if [ "$PLATFORM" = ubuntu ]; then
+            package=$(find packages -name '*.deb')
+            DEBIAN_FRONTEND=noninteractive apt-get install -y "$PWD/$package"
+          else
+            package=$(find packages -name '*.rpm')
+            dnf install -y "$package"
+          fi
+          test -f /usr/share/mime/packages/snes-graph.xml
+          test -f "/usr/share/applications/SNES Graph.desktop"
+          runuser -u smoke -- xvfb-run -a bash -c 'set -e; snes-graph > /tmp/startup.log 2>&1 & pid=$!; sleep 10; kill -0 "$pid"; kill "$pid"' || { cat /tmp/startup.log; exit 1; }
+          if [ "$PLATFORM" = ubuntu ]; then
+            image=$(find "$PWD/packages" -name '*.AppImage')
+            chmod +x "$image"
+            runuser -u smoke -- env APPIMAGE_EXTRACT_AND_RUN=1 xvfb-run -a bash -c 'set -e; "$1" > /tmp/appimage.log 2>&1 & pid=$!; sleep 10; kill -0 "$pid"; kill "$pid"' _ "$image" || { cat /tmp/appimage.log; exit 1; }
+          fi

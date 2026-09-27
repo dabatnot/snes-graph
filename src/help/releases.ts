@@ -174,7 +174,7 @@ export function releaseMarkdown(
               `\n### ${labels[k]}\n\n${text[k]!.map((v) => "- " + v).join("\n")}\n`,
           )
           .join("") +
-        `\nCommits: ${r.commits.join(", ")}\n`
+        (r.commits.length ? `\nCommits: ${r.commits.join(", ")}\n` : "")
       );
     })
     .join("\n");

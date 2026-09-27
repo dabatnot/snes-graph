@@ -220,3 +220,5 @@ New passages/images subsequently read in the bundled native 0.2.0 manual; Help s
 ## English defaults and delivery — 0.2.1
 
 English is now the default on first launch; saved French preferences remain valid. Both manual URLs, anchors and screenshot directories remain unchanged. Installation/download and CLI-default instructions are updated in both editions. Historical screenshots above retain their recorded version and provenance; they do not prove 0.2.1 package validation. Release checks are recorded in `../releasing.md`.
+
+Validation of this update: both Getting started sections were visually inspected in the browser. The default English UI and a saved French preference surviving reload were observed. Each manual retains 108 matching anchors; all 499 links in each edition resolve locally or are external URLs. No screenshot depicts a new control: the changed defaults and installation instructions are text, so historical screenshots were retained with their provenance.
