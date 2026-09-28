@@ -287,3 +287,7 @@ move, single-step undo, and isolation of drawing/global undo shortcuts while
 Size and arrangement is open. Both manual pages display the new text and retain
 valid internal anchor links. Native Linux and Windows gesture checks remain
 unverified as recorded above.
+
+## Reference visibility shortcut — September 28, 2026
+
+`assets/35-reference-toggle.png` and `assets/en/35-reference-toggle.png`: Chromium web editor at 1440 × 920, `/`, Graphics → Tiles. Temporary 32 × 32 drawing, repository icon as a reference, width 64, X/Y −16, zoom 1000%, reference hidden with H. Both captures were visually inspected. The workspace keeps the reference footprint while hidden. Browser checks compare identical drawing bounds before/after checkbox and keyboard toggles, both centered and scrolled, and check held-key repetition and field/dialog isolation.

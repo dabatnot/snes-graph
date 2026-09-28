@@ -2101,7 +2101,7 @@ npm run dev</code></pre>
           ou tirer sa poignée inférieure droite. La peinture est suspendue
           jusqu’à <strong>Terminer</strong>. Échap annule le geste en cours.
           Utilisez <strong>Opacité (%)</strong> et
-          <strong>Afficher la référence</strong> pour garder la grille et votre
+          <strong>Afficher la référence (H)</strong> pour garder la grille et votre
           dessin lisibles. La pipette prélève les pixels du dessin, pas ceux de
           la référence.
         </p>
@@ -2149,6 +2149,13 @@ npm run dev</code></pre>
             La référence dépasse des tiles ; seule la zone quadrillée accepte la
             peinture.
           </figcaption>
+        </figure>
+        <p>La touche <strong>H</strong> affiche ou masque la référence sans déplacer le dessin, modifier le zoom ou le défilement. Le raccourci est inactif dans les champs, les dialogues et pendant un geste ; maintenir H ne répète pas le basculement. La visibilité reste enregistrée et annulable.</p>
+        <figure>
+          <a data-zoom href="assets/35-reference-toggle.png"><img
+            src="assets/35-reference-toggle.png" width="1440" height="920"
+            loading="lazy" alt="Référence masquée avec H : les tiles gardent leur position dans la zone de travail." /></a>
+          <figcaption>Référence masquée avec H : les tiles gardent leur position dans la zone de travail.</figcaption>
         </figure>
         <h3 id="calques">Calques de dessin</h3>
         <div class="table-wrap">
@@ -9037,6 +9044,10 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
               <tr>
                 <td>M / Maj + M / V</td>
                 <td>Sélection / Lasso / Déplacer</td>
+              </tr>
+              <tr>
+                <td>H</td>
+                <td>Afficher/masquer la référence sans déplacer la vue.</td>
               </tr>
               <tr>
                 <td>Maj + G</td>

@@ -207,7 +207,8 @@ export function Drawing({
     c.getContext("2d")!.drawImage(referenceImage.bitmap, 0, 0);
   }, [referenceImage, sheet.id, sheet.reference?.id]);
   // Keep workspace bounds stable during a drag; pointer deltas use screen coordinates.
-  const extent = sheet.reference?.visible ? sheet.reference : undefined;
+  // Visibility only changes rendering, never the viewport geometry.
+  const extent = sheet.reference;
   const left = Math.min(0, extent?.x ?? 0);
   const top = Math.min(0, extent?.y ?? 0);
   const right = Math.max(sheet.width, extent ? extent.x + extent.width : 0);
@@ -747,6 +748,11 @@ export function Drawing({
         zoomTo(zoom + (key === "-" || e.code === "NumpadSubtract" ? -1 : 1));
         return;
       }
+      if (key === "h" && !e.shiftKey && sheet.reference) {
+        e.preventDefault();
+        if (!e.repeat) updateReference({ visible: !sheet.reference.visible });
+        return;
+      }
       if (e.shiftKey && key === "f") {
         e.preventDefault();
         fitDrawing();
@@ -1195,7 +1201,7 @@ export function Drawing({
           <>
             <p>{sheet.reference.name}</p>
             <Check
-              label={tr("Afficher la référence", "Show reference")}
+              label={tr("Afficher la référence (H)", "Show reference (H)")}
               value={sheet.reference.visible}
               onChange={(visible) => updateReference({ visible })}
             />

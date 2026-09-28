@@ -2022,7 +2022,7 @@ npm run dev</code></pre>
           Choose <strong>Adjust reference</strong> to drag the image or its
           bottom-right size handle. Painting is suspended until
           <strong>Done</strong>. Escape cancels the current gesture. Use
-          <strong>Opacity (%)</strong> and <strong>Show reference</strong> to
+          <strong>Opacity (%)</strong> and <strong>Show reference (H)</strong> to
           keep the grid and your work readable. The picker samples drawing
           pixels, not the reference.
         </p>
@@ -2067,6 +2067,13 @@ npm run dev</code></pre>
             The reference extends beyond the tiles; only the gridded area
             accepts painting.
           </figcaption>
+        </figure>
+        <p>Press <strong>H</strong> to show or hide the reference without moving the drawing, changing zoom or scrolling. The shortcut is inactive in fields, dialogs and during gestures; holding H does not toggle repeatedly. Visibility remains saved and undoable.</p>
+        <figure>
+          <a data-zoom href="assets/en/35-reference-toggle.png"><img
+            src="assets/en/35-reference-toggle.png" width="1440" height="920"
+            loading="lazy" alt="Reference hidden with H: the tiles keep their position in the workspace." /></a>
+          <figcaption>Reference hidden with H: the tiles keep their position in the workspace.</figcaption>
         </figure>
         <h3 id="calques">Drawing layers</h3>
         <div class="table-wrap">
@@ -8751,6 +8758,10 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
               <tr>
                 <td>M / Shift + M / V</td>
                 <td>Selection / Lasso / Move</td>
+              </tr>
+              <tr>
+                <td>H</td>
+                <td>Show/hide the reference without moving the viewport.</td>
               </tr>
               <tr>
                 <td>Shift + G</td>
