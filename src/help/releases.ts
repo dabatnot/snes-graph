@@ -19,6 +19,47 @@ export type ReleaseNote = {
 };
 export const releases: ReleaseNote[] = [
   {
+    version: "0.2.5",
+    date: "2026-09-29",
+    commits: ["767aa5d", "5c6414c"],
+    en: {
+      title: "Stable drawing views and preview backgrounds",
+      summary:
+        "Keep your framing across drawings and check artwork against neutral or custom SNES-color backgrounds.",
+      added: [
+        "Checkerboard, white, black, 50% gray and custom RGB555 preview backgrounds, cycled with Shift+B.",
+        "Custom background color picker and 5-bit red, green and blue controls (0–31), independent of project palettes and exports.",
+        "H toggles the reference image without moving the canvas.",
+      ],
+      improved: [
+        "Zoom and view position are shared across drawings during the session.",
+        "English and French manuals include the new controls and screenshots.",
+      ],
+      fixed: [
+        "Hiding a reference preserves the workspace bounds and framing.",
+        "Large drawings no longer limit zoom on smaller drawings; the requested zoom is retained across temporary canvas-size limits.",
+      ],
+    },
+    fr: {
+      title: "Cadrage stable et fonds d’aperçu",
+      summary:
+        "Conservez le cadrage entre dessins et vérifiez vos créations sur des fonds neutres ou une couleur SNES personnalisée.",
+      added: [
+        "Fonds d’aperçu damier, blanc, noir, gris 50 % et RVB 5 bits personnalisé, accessibles avec Maj+B.",
+        "Sélecteur de couleur et composantes rouge, verte et bleue sur 5 bits (0–31), indépendants des palettes du projet et des exports.",
+        "H affiche ou masque la référence sans déplacer le canevas.",
+      ],
+      improved: [
+        "Zoom et position de la vue partagés entre les dessins pendant la session.",
+        "Manuels français et anglais complétés avec les commandes et captures correspondantes.",
+      ],
+      fixed: [
+        "Masquer une référence conserve les limites de l’espace de travail et le cadrage.",
+        "Un grand dessin ne limite plus le zoom des petits dessins ; le zoom demandé est conservé malgré les limites temporaires du canevas.",
+      ],
+    },
+  },
+  {
     version: "0.2.4",
     date: "2026-09-27",
     commits: [],
