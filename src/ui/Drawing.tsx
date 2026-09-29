@@ -14,6 +14,7 @@ import type { DrawingReference } from "../core/model";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   hex,
+  fromHex,
   uid,
   flattenSheet,
   type Project,
@@ -25,6 +26,14 @@ import { growSheet, tileUses } from "../core/resources";
 import { SheetLayout } from "./SheetLayout";
 import { tr } from "../i18n";
 import { Check, Field, NumberField, Select, Preview } from "./controls";
+export type DrawingBackdrop = { mode: number; color: number };
+
+export type DrawingView = {
+  zoom: number;
+  scrollLeft: number;
+  scrollTop: number;
+};
+
 type Tool =
   | "pen"
   | "erase"
@@ -44,7 +53,13 @@ export function Drawing({
   setPalette,
   focusTile,
   shortcutsEnabled = true,
+  view,
+  backdrop,
+  setBackdrop,
 }: {
+  backdrop: DrawingBackdrop;
+  setBackdrop: (value: DrawingBackdrop) => void;
+  view: { current: DrawingView | null };
   project: Project;
   sheet: Sheet;
   focusTile?: number;
@@ -53,12 +68,17 @@ export function Drawing({
   paletteId: string;
   setPalette: (id: string) => void;
 }) {
+  const maxZoom = Math.max(
+    1,
+    Math.min(32, Math.floor(4096 / Math.max(sheet.width, sheet.height))),
+  );
   const [color, setColor] = useState(1),
-    [zoom, setZoom] = useState(
-      Math.max(
-        1,
-        Math.min(10, Math.floor(768 / Math.max(sheet.width, sheet.height))),
-      ),
+    [requestedZoom, setZoom] = useState(
+      view.current?.zoom ??
+        Math.max(
+          1,
+          Math.min(10, Math.floor(768 / Math.max(sheet.width, sheet.height))),
+        ),
     ),
     [grid, setGrid] = useState(true),
     [sym, setSym] = useState(false),
@@ -78,6 +98,8 @@ export function Drawing({
             height: 8,
           },
     );
+  // Keep the shared preference when a large sheet temporarily needs a lower zoom.
+  const zoom = Math.min(requestedZoom, maxZoom);
   const [layoutOpen, setLayoutOpen] = useState(false);
   const inputEnabled = shortcutsEnabled && !layoutOpen;
   const [layerId, setLayerId] = useState(sheet.layers?.[0]?.id ?? ""),
@@ -206,18 +228,29 @@ export function Drawing({
     c.height = referenceImage.bitmap.height;
     c.getContext("2d")!.drawImage(referenceImage.bitmap, 0, 0);
   }, [referenceImage, sheet.id, sheet.reference?.id]);
-  // Keep workspace bounds stable during a drag; pointer deltas use screen coordinates.
-  // Visibility only changes rendering, never the viewport geometry.
-  const extent = sheet.reference;
-  const left = Math.min(0, extent?.x ?? 0);
-  const top = Math.min(0, extent?.y ?? 0);
-  const right = Math.max(sheet.width, extent ? extent.x + extent.width : 0);
-  const bottom = Math.max(
-    sheet.height,
-    extent
-      ? extent.y + (extent.width * extent.nativeHeight) / extent.nativeWidth
-      : 0,
-  );
+  // Shared bounds keep the drawing origin fixed when switching sheets, including
+  // references extending beyond the tiles. Hidden references retain their bounds.
+  let left = 0,
+    top = 0,
+    right = 0,
+    bottom = 0;
+  for (const drawing of project.sheets) {
+    const extent = drawing.reference;
+    left = Math.min(left, extent?.x ?? 0);
+    top = Math.min(top, extent?.y ?? 0);
+    right = Math.max(
+      right,
+      drawing.width,
+      extent ? extent.x + extent.width : 0,
+    );
+    bottom = Math.max(
+      bottom,
+      drawing.height,
+      extent
+        ? extent.y + (extent.width * extent.nativeHeight) / extent.nativeWidth
+        : 0,
+    );
+  }
   const pal =
     project.palettes.find((p) => p.id === paletteId) ??
     project.palettes.find((p) => p.id === sheet.paletteId)!;
@@ -294,12 +327,6 @@ export function Drawing({
     lasso.current = [];
     start.current = null;
     last.current = null;
-    setZoom((z) =>
-      Math.max(
-        1,
-        Math.min(z, Math.floor(4096 / Math.max(sheet.width, sheet.height))),
-      ),
-    );
   }, [sheet.id, sheet.width, sheet.height]);
   useEffect(() => {
     draw(draft.current ?? undefined);
@@ -526,6 +553,14 @@ export function Drawing({
   };
   const area = useRef<HTMLDivElement>(null);
   const workspace = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const viewport = area.current!;
+    if (view.current) {
+      viewport.scrollLeft = view.current.scrollLeft;
+      viewport.scrollTop = view.current.scrollTop;
+    }
+  }, [view]);
+
   const space = useRef(false);
   const pan = useRef<{
     x: number;
@@ -553,10 +588,6 @@ export function Drawing({
     screenX: number;
     screenY: number;
   } | null>(null);
-  const maxZoom = Math.max(
-    1,
-    Math.min(32, Math.floor(4096 / Math.max(sheet.width, sheet.height))),
-  );
   const busy = () =>
     !!(
       draft.current ||
@@ -593,7 +624,15 @@ export function Drawing({
     area.current.scrollTop += w.top + anchor.y * zoom - anchor.screenY;
     zoomAnchor.current = null;
   }
-  useLayoutEffect(applyZoomAnchor, [zoom]);
+  useLayoutEffect(() => {
+    applyZoomAnchor();
+    if (area.current)
+      view.current = {
+        zoom: requestedZoom,
+        scrollLeft: area.current.scrollLeft,
+        scrollTop: area.current.scrollTop,
+      };
+  }, [zoom, requestedZoom, view]);
   const fitDrawing = () => {
     if (!area.current) return;
     zoomTo(
@@ -748,6 +787,12 @@ export function Drawing({
         zoomTo(zoom + (key === "-" || e.code === "NumpadSubtract" ? -1 : 1));
         return;
       }
+      if (key === "b" && e.shiftKey) {
+        e.preventDefault();
+        if (!e.repeat)
+          setBackdrop({ ...backdrop, mode: (backdrop.mode + 1) % 5 });
+        return;
+      }
       if (key === "h" && !e.shiftKey && sheet.reference) {
         e.preventDefault();
         if (!e.repeat) updateReference({ visible: !sheet.reference.visible });
@@ -897,6 +942,13 @@ export function Drawing({
         <div
           className="drawing-area"
           ref={area}
+          onScroll={(e) => {
+            view.current = {
+              zoom: requestedZoom,
+              scrollLeft: e.currentTarget.scrollLeft,
+              scrollTop: e.currentTarget.scrollTop,
+            };
+          }}
           tabIndex={-1}
           onPointerDownCapture={(e) => {
             if (!inputEnabled || busy()) return;
@@ -949,6 +1001,14 @@ export function Drawing({
                 width: sheet.width * zoom,
                 height: sheet.height * zoom,
                 backgroundSize: `${zoom * 2}px ${zoom * 2}px`,
+                backgroundImage: backdrop.mode === 0 ? undefined : "none",
+                backgroundColor: [
+                  "transparent",
+                  "#ffffff",
+                  "#000000",
+                  "#808080",
+                  hex(backdrop.color),
+                ][backdrop.mode],
               }}
             />
             <div
@@ -1095,6 +1155,54 @@ export function Drawing({
         </div>
       </div>
       <aside className="inspector">
+        <Select
+          label={tr("Fond d’aperçu (Maj+B)", "Preview background (Shift+B)")}
+          value={backdrop.mode}
+          options={[
+            { value: 0, label: tr("Damier", "Checkerboard") },
+            { value: 1, label: tr("Blanc", "White") },
+            { value: 2, label: tr("Noir", "Black") },
+            { value: 3, label: tr("Gris 50 %", "50% gray") },
+            { value: 4, label: tr("Personnalisé", "Custom") },
+          ]}
+          onChange={(mode) => setBackdrop({ ...backdrop, mode: Number(mode) })}
+        />
+        {backdrop.mode === 4 && (
+          <>
+            <Field label={tr("Couleur du fond", "Background color")}>
+              <input
+                type="color"
+                value={hex(backdrop.color)}
+                onChange={(e) =>
+                  setBackdrop({ ...backdrop, color: fromHex(e.target.value) })
+                }
+              />
+            </Field>
+            <div className="row">
+              {[
+                tr("Rouge (0–31)", "Red (0–31)"),
+                tr("Vert (0–31)", "Green (0–31)"),
+                tr("Bleu (0–31)", "Blue (0–31)"),
+              ].map((label, channel) => (
+                <NumberField
+                  key={channel}
+                  label={label}
+                  min={0}
+                  max={31}
+                  value={(backdrop.color >> (channel * 5)) & 31}
+                  onChange={(value) =>
+                    setBackdrop({
+                      ...backdrop,
+                      color:
+                        (backdrop.color & ~(31 << (channel * 5))) |
+                        (value << (channel * 5)),
+                    })
+                  }
+                />
+              ))}
+            </div>
+          </>
+        )}
         <h3>{tr("Dessin", "Drawing")}</h3>
         <Field label={tr("Nom", "Name")}>
           <input

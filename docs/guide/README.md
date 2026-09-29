@@ -291,3 +291,7 @@ unverified as recorded above.
 ## Reference visibility shortcut — September 28, 2026
 
 `assets/35-reference-toggle.png` and `assets/en/35-reference-toggle.png`: Chromium web editor at 1440 × 920, `/`, Graphics → Tiles. Temporary 32 × 32 drawing, repository icon as a reference, width 64, X/Y −16, zoom 1000%, reference hidden with H. Both captures were visually inspected. The workspace keeps the reference footprint while hidden. Browser checks compare identical drawing bounds before/after checkbox and keyboard toggles, both centered and scrolled, and check held-key repetition and field/dialog isolation.
+
+### Drawing background preview — September 29, 2026
+
+`36-drawing-background.png` and its English counterpart show a copy of Football → Drawings → Joueur with a custom RGB555 background (8, 12, 20). Captured in Chromium at 1440 × 920. Shift+B cycles checkerboard, white, black, gray, and custom; background controls do not change exports or saved project data.

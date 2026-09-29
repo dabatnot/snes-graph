@@ -1745,8 +1745,15 @@ npm run dev</code></pre>
                 </td>
                 <td>
                   Zoom par multiples entiers, minimum 100 %, jusqu’à 3200 %
-                  selon la taille du dessin ; une limite de canevas peut réduire
-                  le maximum. Ne change pas les dimensions du fichier.
+                  selon la taille du dessin affiché ; une limite de canevas peut
+                  réduire temporairement le zoom. Ne change pas les dimensions du fichier.
+                  Le zoom et la position de la vue sont communs aux dessins :
+                  passer à un autre dessin conserve le même cadrage, même si
+                  les dimensions ou les références diffèrent. Si un grand dessin
+                  impose un zoom inférieur, le zoom demandé est conservé pour
+                  revenir à un dessin plus petit. Ces réglages restent
+                  en mémoire pendant la session, sans être enregistrés dans le
+                  projet.
                   <p class="usage-example">
                     1000 % signifie qu’un pixel du dessin est affiché sur 10 ×
                     10 pixels écran. Cela n’ajoute aucune tile.
@@ -2620,7 +2627,25 @@ npm run dev</code></pre>
             retrouver l’exemple.
           </p>
         </div>
-      </section>
+      <h3 id="drawing-background">Fond d’aperçu</h3>
+        <p>Le menu <strong>Fond d’aperçu (Maj+B)</strong> propose un damier
+        (par défaut), du blanc pur, du noir pur, du gris à 50 % et une couleur
+        personnalisée. <strong>Maj+B</strong> parcourt ces cinq fonds dans cet ordre.
+        La grille des tiles reste indépendante du fond.</p>
+        <p>En mode Personnalisé, utilisez le sélecteur de couleur ou les champs
+        Rouge, Vert et Bleu de 0 à 31 : chaque composante utilise 5 bits, comme
+        sur SNES (32 768 couleurs). Le sélecteur arrondit à la couleur SNES la plus proche.
+        Le gris prédéfini est un gris écran exact à 50 % (#808080).</p>
+        <p>Le fond apparaît sous la référence et les pixels. Il est partagé entre
+        les dessins pendant la session, sans modifier la palette, la pipette,
+        les exports ou le projet enregistré. Ce réglage n’entre pas dans l’historique.
+        Le raccourci est inactif dans les champs, les dialogues et pendant un geste ;
+        maintenir la touche ne fait pas défiler plusieurs fonds.</p>
+        <figure><a data-zoom href="assets/36-drawing-background.png"><img
+        src="assets/36-drawing-background.png" width="1440" height="920"
+        alt="Fond d’aperçu personnalisé et composantes RVB sur 5 bits." /></a>
+        <figcaption>Fond personnalisé dans l’éditeur de dessin.</figcaption></figure>
+        </section>
 
       <section class="chapter" id="palettes">
         <h2>07 · Palettes nommées</h2>
@@ -9000,6 +9025,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
               </tr>
             </thead>
             <tbody>
+<tr><td>Maj + B</td><td>Parcourir les fonds d’aperçu.</td></tr>
               <tr>
                 <td>Ctrl + roulette</td>
                 <td>

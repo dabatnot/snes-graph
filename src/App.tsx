@@ -41,7 +41,7 @@ import {
   initialProject,
 } from "./platform";
 import i18n, { tr } from "./i18n";
-import { Drawing } from "./ui/Drawing";
+import { Drawing, type DrawingView, type DrawingBackdrop } from "./ui/Drawing";
 import { Palettes } from "./ui/Palettes";
 import { Sprites } from "./ui/Sprites";
 import { Maps } from "./ui/Maps";
@@ -58,6 +58,11 @@ import {
 type Tab = "sheets" | "palettes" | "actors" | "maps" | "scenes" | "exports";
 export default function App() {
   useTranslation();
+  const [drawingBackdrop, setDrawingBackdrop] = useState<DrawingBackdrop>({
+    mode: 0,
+    color: 0x4210,
+  });
+  const drawingView = useRef<DrawingView | null>(null);
   const [project, setProject] = useState(newProject),
     [tab, setTab] = useState<Tab>("sheets"),
     [selected, setSelected] = useState(""),
@@ -911,6 +916,9 @@ export default function App() {
         {tab === "sheets" && sheet ? (
           <Drawing
             key={sheet.id}
+            view={drawingView}
+            backdrop={drawingBackdrop}
+            setBackdrop={setDrawingBackdrop}
             project={project}
             sheet={sheet}
             change={change}

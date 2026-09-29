@@ -1680,8 +1680,14 @@ npm run dev</code></pre>
                 </td>
                 <td>
                   Zoom in whole-number multiples, from 100% up to 3200%
-                  depending on drawing size; a canvas limit may lower the
-                  maximum. Does not change file dimensions.
+                  depending on the displayed drawing; a canvas limit may
+                  temporarily lower the zoom. Does not change file dimensions.
+                  Zoom and view position are shared across drawings: switching
+                  drawings keeps the same framing, even with different sizes or
+                  references. If a large drawing requires a lower zoom, the requested
+                  zoom is retained when returning to a smaller drawing.
+                  These settings remain in memory during the session
+                  and are not saved in the project.
                   <p class="usage-example">
                     1000% means one drawing pixel occupies 10 × 10 screen
                     pixels. It adds no tiles.
@@ -2527,7 +2533,25 @@ npm run dev</code></pre>
             Undo the stroke to restore the example.
           </p>
         </div>
-      </section>
+      <h3 id="drawing-background">Preview background</h3>
+        <p>The <strong>Preview background (Shift+B)</strong> menu offers a checkerboard
+        (the default), pure white, pure black, 50% gray, and a custom color.
+        <strong>Shift+B</strong> cycles through these five backgrounds in that order.
+        The tile grid remains independent of the background.</p>
+        <p>In Custom mode, use the color picker or the Red, Green, and Blue fields
+        from 0 to 31: each channel uses 5 bits, like SNES (32,768 colors).
+        The picker rounds to the nearest SNES color. The gray preset is exact
+        screen gray at 50% (#808080).</p>
+        <p>The background sits below the reference and drawing pixels. It is shared
+        across drawings during the session without changing the palette, eyedropper,
+        exports, or saved project. This setting is outside undo history.
+        The shortcut is inactive in fields, dialogs, and during gestures;
+        holding the key does not cycle repeatedly.</p>
+        <figure><a data-zoom href="assets/en/36-drawing-background.png"><img
+        src="assets/en/36-drawing-background.png" width="1440" height="920"
+        alt="Custom preview background and 5-bit RGB channels." /></a>
+        <figcaption>Custom background in the drawing editor.</figcaption></figure>
+        </section>
       <section class="chapter" id="palettes">
         <h2>07 · Named palettes</h2>
         <p class="intro">
@@ -8716,6 +8740,7 @@ npm run export -- examples/football.snesgraph artifacts/gallery-en --gallery --l
               </tr>
             </thead>
             <tbody>
+<tr><td>Shift + B</td><td>Cycle preview backgrounds.</td></tr>
               <tr>
                 <td>Ctrl + wheel</td>
                 <td>
